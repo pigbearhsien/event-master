@@ -1,0 +1,38 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  RedirectToSignIn,
+} from "@clerk/clerk-react";
+import Layout from "@/layouts/Layout";
+import Dashboard from "@/pages/Dashboard";
+import Groups from "@/pages/Groups";
+
+if (!process.env.REACT_APP_CLERK_PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key");
+}
+const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+
+function App() {
+  return (
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <Router>
+        <SignedIn>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/groups/:groupId" element={<Groups />} />
+              {/* Add more routes as needed */}
+            </Routes>
+          </Layout>
+        </SignedIn>
+        <SignedOut>
+          <RedirectToSignIn />
+        </SignedOut>
+      </Router>
+    </ClerkProvider>
+  );
+}
+
+export default App;
