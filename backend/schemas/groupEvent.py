@@ -2,7 +2,9 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
-class GroupEventBase(BaseModel):
+class GroupEvent(BaseModel):
+    EventID: str
+    GroupID: str
     Event_Start: str
     Event_End: str
     Name: str
@@ -13,15 +15,6 @@ class GroupEventBase(BaseModel):
     Vote_End: str
     VoteDeadline: str
     HavePossibility: bool
-
-
-class GroupEventCreate(GroupEventBase):
-    pass
-
-
-class GroupEvent(GroupEventBase):
-    EventID: str
-    GroupID: str
 
     class Config:
         orm_mode = True

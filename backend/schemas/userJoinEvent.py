@@ -2,17 +2,10 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
-class UserJoinEventBase(BaseModel):
-    IsAccepted: bool
-
-
-class UserJoinEventCreate(UserJoinEventBase):
-    pass
-
-
-class UserJoinEvent(UserJoinEventBase):
+class UserJoinEvent(BaseModel):
     UserID: str
     EventID: str
+    IsAccepted: bool
 
     class Config:
         orm_mode = True

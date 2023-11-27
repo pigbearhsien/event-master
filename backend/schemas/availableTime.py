@@ -1,18 +1,14 @@
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
-class AvailableTimeBase(BaseModel):
+class AvailableTime(BaseModel):
+    UserID: str
+    EventID: str
     Available_Start: str
     Possibility_level: str
 
-
-class AvailableTimeCreate(AvailableTimeBase):
-    pass
-
-
-class AvailableTime(AvailableTimeBase):
-    UserID: str
-    EventID: str
-
     class Config:
         orm_mode = True
+    
+
+    
