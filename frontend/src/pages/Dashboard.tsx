@@ -9,14 +9,15 @@ import {
 } from "@mui/material";
 import { Bell } from "lucide-react";
 import DashboardCalendar from "@/components/dashboard/DashboardCalendar";
-import DashboardTasks from "@/components/dashboard/DashboardTasks";
+import DashboardTodo from "@/components/dashboard/DashboardTodo";
 
 type Props = {};
 
 const Dashboard = (props: Props) => {
-  const [view, setView] = React.useState("calendar"); // ["calendar", "tasks"
+  const [view, setView] = React.useState("calendar"); // ["calendar", "todo"
   return (
     <>
+      {/* Header */}
       <AppBar
         component="div"
         color="transparent"
@@ -57,18 +58,20 @@ const Dashboard = (props: Props) => {
                 </Button>
                 <Button
                   sx={{
-                    bgcolor: view === "tasks" ? "#d6d6d6" : "transparent",
+                    bgcolor: view === "todo" ? "#d6d6d6" : "transparent",
                   }}
-                  onClick={() => setView("tasks")}
+                  onClick={() => setView("todo")}
                 >
-                  Tasks
+                  Todo
                 </Button>
               </ButtonGroup>
             </Grid>
           </Grid>
         </Toolbar>
       </AppBar>
-      {view === "calendar" ? <DashboardCalendar /> : <DashboardTasks />}
+
+      {/* Calendar */}
+      {view === "calendar" ? <DashboardCalendar /> : <DashboardTodo />}
     </>
   );
 };

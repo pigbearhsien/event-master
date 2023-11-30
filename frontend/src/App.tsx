@@ -22,8 +22,9 @@ function App() {
           <Layout>
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/groups/:groupId" element={<Groups />} />
-              {/* Add more routes as needed */}
+              <Route path="/groups/:groupId/event" element={<Groups />} />
+              <Route path="/groups/:groupId/todo" element={<Groups />} />
+              <Route path="/groups/:groupId/info" element={<Groups />} />
             </Routes>
           </Layout>
         </SignedIn>
