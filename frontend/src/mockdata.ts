@@ -1,8 +1,8 @@
 import moment from "moment";
 
 export const groups = [
-  { id: "1", name: "group1", info: "info1" },
-  { id: "2", name: "group2", info: "info2" },
+  { id: "1", name: "DBMS-1", info: "info1" },
+  { id: "2", name: "DBMS-2", info: "info2" },
 ];
 
 export const events = [
