@@ -120,7 +120,7 @@ type  Chat  = {
 5. **各成員填寫「可能可以」最終參加的數量**
 	```
 	Type: Get
-	Path: /maybeJoinRatio
+	Path: /maybeJoinRatio/{groupId}/{userId}
 	Parameter:
 	{
 		groupId: string,
@@ -134,7 +134,7 @@ type  Chat  = {
 6. **各成員在各時段填寫的可能性**
 	```
 	Type: Get
-	Path: /userPeriodPossibility
+	Path: /userPeriodPossibility/{groupId}/{userId}/{period}
 	Parameter:
 	{
 		groupId: string,
@@ -210,7 +210,7 @@ type  Chat  = {
 2. **顯示某團隊活動的投票結果**
 	```
 	Type: Get
-	Path: /voteResult
+	Path: /voteResult/{eventId}
 	Parameter:
 	{
 		eventId: string
@@ -220,7 +220,7 @@ type  Chat  = {
 3. **查詢他的所有團隊**
 	```
 	Type: Get
-	Path: /allBelongGroups
+	Path: /allBelongGroups/{userId}
 	Parameter:
 	{
 		userId: string
@@ -230,7 +230,7 @@ type  Chat  = {
 4. **查詢自己所有確認參加的團隊活動**
 	```
 	Type: Get
-	Path: /allGroupEvents
+	Path: /allGroupEvents/{userId}
 	Parameter:
 	{
 		userId: string
@@ -240,7 +240,7 @@ type  Chat  = {
 5. **查詢自己所有  TODO**
 	```
 	Type: Get
-	Path: /allTodos
+	Path: /allTodos/{userId}
 	Parameter:
 	{
 		userId: string
@@ -250,7 +250,7 @@ type  Chat  = {
 6. **查詢私人活動**
 	```
 	Type: Get
-	Path: /allPrivateEvents
+	Path: /allPrivateEvents/{userId}
 	Parameter:
 	{
 		userId: string
@@ -260,7 +260,7 @@ type  Chat  = {
 7. **特定團隊活動的可以時間以及可能程度**
 	```
 	Type: Get
-	Path: /myVote
+	Path: /myVote/{userId}/{eventId}
 	Parameter:
 	{
 		userId: string,
@@ -271,7 +271,7 @@ type  Chat  = {
 8. **用戶在特定群組裡說的話**
 	```
 	Type: Get
-	Path: /messages
+	Path: /messages/{groupId}
 	Parameter:
 	{
 		groupId: string
