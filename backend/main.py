@@ -5,10 +5,21 @@ from sqlalchemy.sql import text
 from routers import user_router
 from database import SessionLocal, get_db
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI()
+
+origins = ["http://localhost:3000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Verify that the database is connected by testing get_db()
 # Try `curl localhost:8000` to see the result
