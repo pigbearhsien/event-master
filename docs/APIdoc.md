@@ -22,10 +22,10 @@ type EventGroup = {
 	eventStart:  Date;
 	eventEnd:  Date;
 	status:  string;
-	organizer:  string;
-	vote_start:  Date;
-	vote_end:  Date;
-	vote_deadline:  Date;
+	organizerId:  string;
+	voteStart:  Date;
+	voteEnd:  Date;
+	voteDeadline:  Date;
 	havePossibility:  boolean;
 };
 
@@ -44,8 +44,8 @@ type  EventGroupCreate  = {
 type  Vote  = {
 	userId:  string;
 	name:  string;
-	available_start:  Date;
-	possibility:  string;
+	availableStart:  Date;
+	possibilityLevel:  string;
 };
 
 type Todo = {
@@ -64,7 +64,7 @@ type User = {
 	name:  string;
 	account:  string;
 	password:  string;
-	profile_pic_url:  string  |  null;
+	profilePicUrl:  string  |  null;
 };
 
 type  Chat  = {
@@ -78,12 +78,11 @@ type  Chat  = {
 1. **新增團隊**
 	```
 	Type: Post
-	Path: /createGroup
+	Path: /createGroup/{managerId}
 	Request Body: 
 	{
 		groupId:  string,
-		userId:  string,
-		period:  Date
+		name:  string
 	}
 	Response: Group (type)
 	```
@@ -96,16 +95,13 @@ type  Chat  = {
 		groupId: string,
 		userId: string
 	}
+	Response: GroupHasUser (type)
 	```
 3. **剔除團隊成員**
 	```
-	Type: Post
-	Path: /deleteUserToGroup
-	Request Body:
-	{
-		groupId: string,
-		userId: string
-	}
+	Type: Delete
+	Path: /deleteUserFromGroup/{groupId}/{userId}
+	Response: msg
 	```
 4. **指派團隊成員為團隊管理者**
 	```
@@ -116,6 +112,7 @@ type  Chat  = {
 		groupId: string,
 		userId: string
 	}
+	Response: GroupHasManager
 	```
 5. **各成員填寫「可能可以」最終參加的數量**
 	```
@@ -154,9 +151,14 @@ type  Chat  = {
 	Path: /assignTodo
 	Request Body:
 	{
+		todoId: string,
 		groupId:  string,
 		assigneeId:  string,
-		assignerId:  string
+		assignerId:  string,
+		name: string,
+		description: string,
+		completed: bool,
+		deadline: timestamp
 	}
 	```
 ## For Organizer
@@ -167,18 +169,23 @@ type  Chat  = {
 	Request Body:
 	{
 		eventId:  string,
-		startTime:  Date,
-		endTime:  Date
+		groupId: string,
+		name: string,
+		description: string,
+		eventStart: timestamp,
+		eventEnd: timestamp,
+		status: string,
+		organizerId: string,
+		voteStart: timestamp,
+		voteEnd: timestamp,
+		voteDeadline: timestamp,
+		havePossibility: string,
 	}
 	```
 	**確認活動不成立 (刪除)**
 	```
-	Type: Post
-	Path: /deleteEvent
-	Request Body:
-	{
-		eventId: string
-	}
+	Type: Delete
+	Path: /deleteGroupEvent/{eventId}
 	```
 2. **新增活動參與者**
 	```
@@ -187,25 +194,21 @@ type  Chat  = {
 	Request Body:
 	{
 		eventId: string,
-		userId: string
+		userId: string,
+		isAccepted: bool
 	}
 	```
 	**刪除活動參與者**
 	```
-	Type: Post
-	Path: /deleteUserFromEvent
-	Request Body:
-	{
-		eventId: string,
-		userId: string
-	}
+	Type: Delete
+	Path: /deleteUserFromEvent/{eventId}/{userId}
 	```
 ## For Users
 1. **發起團隊活動**
 	```
 	Type: Post
 	Path: /createGroupEvent
-	Request Body: EventGroupCreate (Type)
+	Request Body: EventGroup (Type) 沒有的填NULL
 	```
 2. **顯示某團隊活動的投票結果**
 	```
