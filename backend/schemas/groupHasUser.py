@@ -3,5 +3,8 @@ from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
 class GroupHasUser(BaseModel):
-    GroupID: str
-    UserID: str
+    groupId: str
+    userId: str
+    
+    class Config:
+        orm_mode = True

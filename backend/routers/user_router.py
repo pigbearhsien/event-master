@@ -14,7 +14,6 @@ def get_users(db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
-    pass
 
 @router.get("/users/{user_id}")
 def get_user(user_id: str, db: Session = Depends(get_db)):

@@ -3,10 +3,10 @@ from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
 class Chat(BaseModel):
-    GroupID: str
-    SpeakerID: str
-    Timing: str
-    Content: str
+    groupId: str
+    speakerId: str
+    timing: str
+    content: str
 
     class Config:
         orm_mode = True
