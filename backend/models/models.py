@@ -17,7 +17,7 @@ class IsAdmin(Base):
     userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
 
 class PrivateEvent(Base):
-    __tablename__ = 'privateevent'
+    __tablename__ = 'private_event'
     eventid = Column(String(10), primary_key=True)
     userid = Column(String(10), ForeignKey('user.userid'), nullable=False)
     event_start = Column(DateTime, nullable=False)
@@ -31,17 +31,17 @@ class Group(Base):
     name = Column(String(20), nullable=False)
 
 class GroupHasUser(Base):
-    __tablename__ = 'grouphasuser'
+    __tablename__ = 'group_has_user'
     groupid = Column(String(10), ForeignKey('group.groupid'), primary_key=True)
     userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
 
 class GroupHasManager(Base):
-    __tablename__ = 'grouphasmanager'
+    __tablename__ = 'group_has_manager'
     groupid = Column(String(10), ForeignKey('group.groupid'), primary_key=True)
     userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
 
 class GroupEvent(Base):
-    __tablename__ = 'groupevent'
+    __tablename__ = 'group_event'
     eventid = Column(String(10), primary_key=True)
     groupid = Column(String(20), ForeignKey('group.groupid'), nullable=False)
     name = Column(String(20), nullable=False)
@@ -58,15 +58,15 @@ class GroupEvent(Base):
     # __table_args__ = (CheckConstraint("status IN ('In_Voting', 'End_Voting', 'Not_Start_Yet', 'On_Going', 'Closure')", name='check_status'))
 
 class UserJoinEvent(Base):
-    __tablename__ = 'userjoinevent'
+    __tablename__ = 'user_join_event'
     userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
-    eventid = Column(String(10), ForeignKey('groupevent.eventid'), primary_key=True)
+    eventid = Column(String(10), ForeignKey('group_event.eventid'), primary_key=True)
     isaccepted = Column(Boolean, nullable=False)
 
 class AvailableTime(Base):
-    __tablename__ = 'availabletime'
+    __tablename__ = 'available_time'
     userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
-    eventid = Column(String(10), ForeignKey('groupevent.eventid'), primary_key=True)
+    eventid = Column(String(10), ForeignKey('group_event.eventid'), primary_key=True)
     available_start = Column(DateTime, primary_key=True)
     possibility_level = Column(String(10), nullable=False)
     # __table_args__ = (CheckConstraint("possibility_level IN ('Definitely', 'Maybe')", name='check_possibility'))

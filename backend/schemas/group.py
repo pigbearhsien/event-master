@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
 class Group(BaseModel):
-    GroupID: str
+    groupId: str
     name: str
 
     class Config:

@@ -3,9 +3,9 @@ from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
 class UserJoinEvent(BaseModel):
-    UserID: str
-    EventID: str
-    IsAccepted: bool
+    userId: str
+    eventId: str
+    isAccepted: bool
 
     class Config:
         orm_mode = True

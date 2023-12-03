@@ -3,12 +3,12 @@ from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
 class PrivateEvent(BaseModel):
-    EventID: str
-    UserID: str
-    Event_Start: str
-    Event_End: str
-    Name: str
-    Description: str
+    eventId: str
+    userId: str
+    eventStart: str
+    eventEnd: str
+    name: str
+    description: str
 
     class Config:
         orm_mode = True
