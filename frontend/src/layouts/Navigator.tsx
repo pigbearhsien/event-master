@@ -24,6 +24,7 @@ export default function Navigator(props: DrawerProps) {
   }, [isSignedIn]);
 
   const location = useLocation();
+  const path = location.pathname.split("/");
   return (
     <Drawer variant="permanent" {...other}>
       <List>
@@ -53,8 +54,8 @@ export default function Navigator(props: DrawerProps) {
             <ListItem disablePadding key={id}>
               <ListItemButton
                 component={Link}
-                to={`/groups/${id}`}
-                selected={location.pathname === `/groups/${id}`}
+                to={`/groups/${id}/event`}
+                selected={path[1] === "groups" && path[2] === id}
                 sx={{ py: 1 }}
               >
                 <Users />

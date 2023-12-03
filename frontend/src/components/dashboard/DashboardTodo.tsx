@@ -3,7 +3,7 @@ import { Typography, Button, Grid, Paper, IconButton } from "@mui/material";
 
 type Props = {};
 
-const DashboardTasks = (props: Props) => {
+const DashboardTodo = (props: Props) => {
   return (
     <Paper
       variant="outlined"
@@ -15,10 +15,10 @@ const DashboardTasks = (props: Props) => {
       elevation={0}
     >
       <Typography sx={{ my: 5, mx: 2 }} color="text.secondary" align="center">
-        No tasks yet
+        No todo
       </Typography>
     </Paper>
   );
 };
 
-export default DashboardTasks;
+export default DashboardTodo;
