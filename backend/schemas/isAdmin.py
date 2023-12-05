@@ -3,5 +3,8 @@ from pydantic import BaseModel, EmailStr, validator, HttpUrl
 
 
 class IsAdmin(BaseModel):
-    UserID: str
+    userId: str
+
+    class Config:
+        orm_mode = True
 
