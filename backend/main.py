@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from routers import user_router
 from database import SessionLocal, get_db
-import logging
+import logging  
 
 logging.basicConfig(level=logging.DEBUG)
 
