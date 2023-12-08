@@ -5,6 +5,9 @@ import {
   SignedOut,
   RedirectToSignIn,
 } from "@clerk/clerk-react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+
 import Layout from "@/layouts/Layout";
 import Dashboard from "@/pages/Dashboard";
 import Groups from "@/pages/Groups";
@@ -17,6 +20,7 @@ const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 function App() {
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
+      {/* <LocalizationProvider dateAdapter={AdapterMoment}> */}
       <Router>
         <SignedIn>
           <Layout>
@@ -32,6 +36,7 @@ function App() {
           <RedirectToSignIn />
         </SignedOut>
       </Router>
+      {/* </LocalizationProvider> */}
     </ClerkProvider>
   );
 }

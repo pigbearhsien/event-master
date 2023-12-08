@@ -6,6 +6,7 @@ import {
   Button,
   Grid,
   ButtonGroup,
+  Divider,
 } from "@mui/material";
 import { Bell } from "lucide-react";
 import DashboardCalendar from "@/components/dashboard/DashboardCalendar";
@@ -23,7 +24,7 @@ const Dashboard = (props: Props) => {
         color="transparent"
         position="static"
         elevation={0}
-        sx={{ zIndex: 0, mb: 2 }}
+        sx={{ zIndex: 0, mb: 1 }}
       >
         <Toolbar disableGutters>
           <Grid container alignItems="center" spacing={2}>
@@ -69,6 +70,7 @@ const Dashboard = (props: Props) => {
           </Grid>
         </Toolbar>
       </AppBar>
+      <Divider sx={{ mb: 3 }} />
 
       {/* Calendar */}
       {view === "calendar" ? <DashboardCalendar /> : <DashboardTodo />}
