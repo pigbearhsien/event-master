@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/clerk-react";
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useContext, createContext } from "react";
 import * as api from "../api/api";
 import { userInfo } from "os";
 
