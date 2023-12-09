@@ -19,58 +19,83 @@ logging.basicConfig(level=logging.DEBUG)
 
 router = APIRouter()
 
+
 # 確認活動成立以及時間
 @router.post("/setGroupEventTime", response_model=GroupEventSchema)
 def set_group_event_time(group_event: GroupEventSchema, db: Session = Depends(get_db)):
     try:
-        db_group_event = db.query(GroupEventModel).filter(GroupEventModel.eventid == group_event.eventId).first()
+        db_group_event = (
+            db.query(GroupEventModel)
+            .filter(GroupEventModel.eventid == group_event.eventId)
+            .first()
+        )
 
-        if db_group_event is None:
+        if not db_group_event:
             raise HTTPException(status_code=404, detail="Event not found")
-        
+
         db_group_event.event_start = group_event.eventStart
         db_group_event.event_end = group_event.eventEnd
         db_group_event.status = group_event.status
 
         db.commit()
         return group_event
+    except HTTPException as e:
+        raise e
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
-    
+
+
 # 確認活動不成立（刪除）
 @router.delete("/deleteGroupEvent/{event_id}", response_model=GroupEventSchema)
 def delete_group_event(event_id: str, db: Session = Depends(get_db)):
     try:
-        db_group_event = db.query(GroupEventModel).filter(GroupEventModel.eventid == event_id).first()
+        db_group_event = (
+            db.query(GroupEventModel)
+            .filter(GroupEventModel.eventid == event_id)
+            .first()
+        )
 
-        if db_group_event is None:
+        if not db_group_event:
             raise HTTPException(status_code=404, detail="Event not found")
-        
+
         db.delete(db_group_event)
         db.commit()
         return {"message": "Delete Success"}
+    except HTTPException as e:
+        raise e
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
-    
+
+
 # 新增活動參與者
 @router.post("/insertUserToGroupEvent", response_model=GroupHasUserSchema)
-def insert_user_to_group_event(group_has_user: GroupHasUserSchema, db: Session = Depends(get_db)):
+def insert_user_to_group_event(
+    group_has_user: GroupHasUserSchema, db: Session = Depends(get_db)
+):
     try:
-        db_group_has_user = GroupHasUserModel(groupid=group_has_user.groupId, userid=group_has_user.userId)
+        db_group_has_user = GroupHasUserModel(
+            groupid=group_has_user.groupId, userid=group_has_user.userId
+        )
+
         db.add(db_group_has_user)
         db.commit()
         return group_has_user
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
-    
+
+
 # 刪除活動參與者
 @router.delete("/deleteUserFromGroupEvent/{group_id}/{user_id}")
-def delete_user_from_group_event(group_id: str, user_id: str, db: Session = Depends(get_db)):
+def delete_user_from_group_event(
+    group_id: str, user_id: str, db: Session = Depends(get_db)
+):
     try:
-        db.query(GroupHasUserModel).filter(GroupHasUserModel.groupid == group_id, GroupHasUserModel.userid == user_id).delete()
+        db.query(GroupHasUserModel).filter(
+            GroupHasUserModel.groupid == group_id, GroupHasUserModel.userid == user_id
+        ).delete()
         db.commit()
         return {"message": "Delete Success"}
     except Exception as e:
