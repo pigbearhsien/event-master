@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -6,15 +6,30 @@ import {
   Button,
   Grid,
   ButtonGroup,
+  CircularProgress,
 } from "@mui/material";
 import { Bell } from "lucide-react";
 import DashboardCalendar from "@/components/dashboard/DashboardCalendar";
 import DashboardTodo from "@/components/dashboard/DashboardTodo";
+import * as api from "../api/api";
+import { useEvent } from "@/hook/useEvent";
 
 type Props = {};
 
 const Dashboard = (props: Props) => {
   const [view, setView] = React.useState("calendar"); // ["calendar", "todo"
+  const [loading, setLoading] = React.useState(true);
+
+  const { loggedInId } = useEvent();
+
+  const fetchDashboard = async()=>{
+    const data_events = await api.getGroupEvents("11246")
+    console.log(data_events);
+    setLoading(false)
+  }
+
+  fetchDashboard()
+
   return (
     <>
       {/* Header */}
@@ -71,7 +86,13 @@ const Dashboard = (props: Props) => {
       </AppBar>
 
       {/* Calendar */}
-      {view === "calendar" ? <DashboardCalendar /> : <DashboardTodo />}
+      {loading ? (
+        <CircularProgress />
+      ) : view === "calendar" ? (
+        <DashboardCalendar />
+      ) : (
+        <DashboardTodo />
+      )}
     </>
   );
 };

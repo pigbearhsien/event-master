@@ -12,6 +12,7 @@ import {
 
 export const request: AxiosInstance = axios.create({
   baseURL: "http://localhost:8000/api",
+  withCredentials: true
 });
 
 // Get
@@ -25,10 +26,11 @@ export const getAllUser = async (): Promise<void> => {
   }
 }
 
-export const getUser = async (userId: string): Promise<void> => {
+export const getUser = async (userId: string): Promise<User | null> => {
   try{
     const result : AxiosResponse<User> = await request.get<User>(`/users/${userId}`)
     console.log(result)
+    return result.data
   } catch (error) {
     throw error as Error
   }
