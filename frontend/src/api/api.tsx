@@ -40,7 +40,7 @@ export const getGroupEvents = async (
   userId: string
 ): Promise<AxiosResponse<EventGroup[]>> => {
   try {
-    return await request.get<EventGroup[]>(`/allGroupEvents/${userId}`);
+    return await request.get<EventGroup[]>(`/getUserJoinEvents/${userId}`);
   } catch (error) {
     throw error as Error;
   }
