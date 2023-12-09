@@ -34,6 +34,25 @@ logging.basicConfig(level=logging.DEBUG)
 
 router = APIRouter()
 
+
+# 創建使用者
+@router.post("/createUser", response_model=UserSchema)
+def create_user(user: UserSchema, db: Session = Depends(get_db)):
+    try:
+        db_user = UserModel(
+            userid=user.userId,
+            name=user.name,
+            account=user.account,
+            password=user.password,
+            profile_pic_url=user.profilePicUrl,
+        )
+        db.add(db_user)
+        db.commit()
+        return user
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
 # 發起團隊活動
 @router.post("/createGroupEvent", response_model=GroupEventSchema)
 def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
