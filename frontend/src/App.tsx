@@ -11,6 +11,7 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import Layout from "@/layouts/Layout";
 import Dashboard from "@/pages/Dashboard";
 import Groups from "@/pages/Groups";
+import { EventProvider } from "./hook/useEvent";
 
 if (!process.env.REACT_APP_CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
@@ -37,6 +38,7 @@ function App() {
         </SignedOut>
       </Router>
       {/* </LocalizationProvider> */}
+
     </ClerkProvider>
   );
 }

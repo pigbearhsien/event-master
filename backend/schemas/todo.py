@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, validator, HttpUrl
-
+from datetime import datetime
 
 class Todo(BaseModel):
     todoId: str
@@ -10,7 +10,7 @@ class Todo(BaseModel):
     name: str
     description: str
     completed: bool
-    deadline: str
+    deadline: datetime
 
     class Config:
         orm_mode = True

@@ -69,7 +69,7 @@ type Vote = {
   userId: string;
   name: string;
   available_start: Date;
-  possibility: string;
+  possibility_level: string;
 };
 
 export type {

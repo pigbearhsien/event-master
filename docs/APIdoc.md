@@ -45,7 +45,7 @@ type  Vote  = {
 	userId:  string;
 	name:  string;
 	availableStart:  Date;
-	possibilityLevel:  string;
+	possibility_level:  string;
 };
 
 type Todo = {
@@ -64,7 +64,7 @@ type User = {
 	name:  string;
 	account:  string;
 	password:  string;
-	profilePicUrl:  string  |  null;
+	profile_pic_url:  string  |  null;
 };
 
 type  Chat  = {
@@ -106,7 +106,7 @@ type  Chat  = {
 4. **指派團隊成員為團隊管理者**
 	```
 	Type: Post
-	Path: /addAdmin
+	Path: /addManager
 	Request Body:
 	{
 		groupId: string,
@@ -149,17 +149,7 @@ type  Chat  = {
 	```
 	Type: Post
 	Path: /assignTodo
-	Request Body:
-	{
-		todoId: string,
-		groupId:  string,
-		assigneeId:  string,
-		assignerId:  string,
-		name: string,
-		description: string,
-		completed: bool,
-		deadline: timestamp
-	}
+	Request Body: Todo
 	```
 ## For Organizer
 1. **確認活動成立以及時間**
@@ -169,17 +159,8 @@ type  Chat  = {
 	Request Body:
 	{
 		eventId:  string,
-		groupId: string,
-		name: string,
-		description: string,
 		eventStart: timestamp,
-		eventEnd: timestamp,
-		status: string,
-		organizerId: string,
-		voteStart: timestamp,
-		voteEnd: timestamp,
-		voteDeadline: timestamp,
-		havePossibility: string,
+		eventEnd: timestamp
 	}
 	```
 	**確認活動不成立 (刪除)**
