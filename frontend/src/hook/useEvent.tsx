@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/clerk-react";
 import { useState, useEffect, useContext, createContext } from "react";
 
 const LOGGED_IN_ID_KEY = "loggedInId";
@@ -10,11 +11,36 @@ type EventContextProps = {
   setCurGroupId: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const EventContext = createContext<EventContextProps | undefined>(undefined);
+const EventContext = createContext<EventContextProps>({
+  loggedInId: "",
+  setLoggedInId: ()=>{},
+  curGroupId: "",
+  setCurGroupId: ()=>{}
+});
 
-const EventProvider = (props: any) => {
+interface IProps {
+  children: React.ReactNode;
+}
+
+const EventProvider = ({children}: IProps) => {
   const [loggedInId, setLoggedInId] = useState<string>(savedLoggedInId || "");
   const [curGroupId, setCurGroupId] = useState<string>("");
 
-  return <EventContext.Provider value={{ loggedInId, setLoggedInId, curGroupId, setCurGroupId }} />;
+  const user = useUser()
+
+  useEffect(()=>{
+    if(user.isSignedIn){
+      console.log(user.user.emailAddresses[0].emailAddress)
+    }
+  }, [user.isSignedIn])
+  
+  return (
+  <EventContext.Provider value={{ loggedInId, setLoggedInId, curGroupId, setCurGroupId }}>
+    {children}
+  </EventContext.Provider>
+  );
 };
+
+const useEvent = ()=> useContext(EventContext)
+
+export {EventProvider, useEvent}

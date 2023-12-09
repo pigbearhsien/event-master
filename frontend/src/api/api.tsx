@@ -25,9 +25,8 @@ export const getAllUser = async (): Promise<void> => {
   }
 }
 
-export const getUser = async (): Promise<void> => {
+export const getUser = async (userId: string): Promise<void> => {
   try{
-    const userId = "23182"
     const result : AxiosResponse<User> = await request.get<User>(`/users/${userId}`)
     console.log(result)
   } catch (error) {
@@ -134,7 +133,7 @@ export const createGroup = async (
   name: string
 ): Promise<AxiosResponse<Group>> => {
   try {
-    return await request.post<Group>("/createGroup", { groupId, userId, name });
+    return await request.post<Group>(`/createGroup/${userId}`, { groupId, name });
   } catch (error) {
     throw error as Error;
   }
@@ -162,33 +161,27 @@ export const insertUserToGroup = async (
 export const deleteUserFromGroup = async (
   groupId: string,
   userId: string
-): Promise<AxiosResponse> => {
+): Promise<AxiosResponse<string>> => {
   try {
-    return await request.post("/deleteUserToGroup", { groupId, userId });
+    return await request.delete(`/deleteUserToGroup/${groupId}/${userId}`);
   } catch (error) {
     throw error as Error;
   }
 };
 
-export const addAdmin = async (groupId: string, userId: string) => {
+export const addManager = async (groupId: string, userId: string):Promise<AxiosResponse> => {
   try {
-    return await request.post("/addAdmin", { groupId, userId });
+    return await request.post("/addManager", { groupId, userId });
   } catch (error) {
     throw error as Error;
   }
 };
 
 export const assignTodo = async (
-  groupId: string,
-  assigneeId: string,
-  assignerId: string
+  todoInfo : Todo
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/assignTodo", {
-      groupId,
-      assigneeId,
-      assignerId,
-    });
+    return await request.post("/assignTodo", todoInfo);
   } catch (error) {
     throw error as Error;
   }
@@ -196,11 +189,11 @@ export const assignTodo = async (
 
 export const setEventTime = async (
   eventId: string,
-  startTime: Date,
-  endTime: Date
+  eventStart: Date,
+  eventEnd: Date
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/setEventTime", { eventId, startTime, endTime });
+    return await request.post("/setEventTime", { eventId, eventStart, eventEnd });
   } catch (error) {
     throw error as Error;
   }
@@ -208,7 +201,7 @@ export const setEventTime = async (
 
 export const deleteEvent = async (eventId: string): Promise<AxiosResponse> => {
   try {
-    return await request.post("/deleteEvent", { eventId });
+    return await request.delete(`/deleteEvent/${eventId}`)
   } catch (error) {
     throw error as Error;
   }
@@ -216,10 +209,11 @@ export const deleteEvent = async (eventId: string): Promise<AxiosResponse> => {
 
 export const insertUserToEvent = async (
   eventId: string,
-  userId: string
+  userId: string,
+  isAccepted: boolean
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/insertUsetToEvent", { eventId, userId });
+    return await request.post("/insertUsetToEvent", { eventId, userId, isAccepted});
   } catch (error) {
     throw error as Error;
   }
@@ -230,7 +224,7 @@ export const deleteUserFromEvent = async (
   userId: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/deleteUserFromEvent", { eventId, userId });
+    return await request.delete(`/deleteUserFromEvent/${eventId}/${userId}`);
   } catch (error) {
     throw error as Error;
   }
