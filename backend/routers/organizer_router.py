@@ -49,7 +49,7 @@ def delete_group_event(event_id: str, db: Session = Depends(get_db)):
         
         db.delete(db_group_event)
         db.commit()
-        return db_group_event
+        return {"message": "Delete Success"}
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
