@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from routers import user_router, group_router
+from routers import manager_router, user_router, organizer_router
 from database import SessionLocal, get_db
 import logging
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,7 +38,9 @@ def root(db: Session = Depends(get_db)):
         logging.error(e)
         raise HTTPException(status_code=500, detail="Database is not connected")
 
-app.include_router(user_router.router, prefix="/api", tags=["users"], dependencies=[Depends(get_db)])
-app.include_router(group_router.router, prefix="/api", tags=["groups"], dependencies=[Depends(get_db)])
+app.include_router(user_router.router, prefix="/api", tags=["user"], dependencies=[Depends(get_db)])
+app.include_router(manager_router.router, prefix="/api", tags=["manager"], dependencies=[Depends(get_db)])
+app.include_router(organizer_router.router, prefix="/api", tags=["organizer"], dependencies=[Depends(get_db)])
+
 
 

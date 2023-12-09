@@ -1,22 +1,23 @@
-# user_router.py
+# manager_router.py
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from database import get_db
-from models.models import (
+from models import (
     Group as GroupModel,
     GroupHasManager as GroupHasManagerModel,
     GroupHasUser as GroupHasUserModel,
+    Todo as TodoModel,
 )
 import logging
-from schemas.group import Group as GroupSchema
-from schemas.groupHasManager import GroupHasManager as GroupHasManagerSchema
+from schemas import (
+    Group as GroupSchema,
+    GroupHasManager as GroupHasManagerSchema,
+    GroupHasUser as GroupHasUserSchema,
+    Todo as TodoSchema,
+)
 
-from schemas.groupHasUser import GroupHasUser as GroupHasUserSchema
 
-
-from models.models import Todo as TodoModel
-from schemas.todo import Todo as TodoSchema
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -31,17 +32,17 @@ async def create_group(
 ):
     try:
         # 1. Add Group
-        db_group = GroupModel(groupid=group.GroupId, name=group.name)
+        db_group = GroupModel(groupid=group.groupId, name=group.name)
         logging.info(db_group)
         db.add(db_group)
 
         # 2. Add Manager to Group
-        db_manager = GroupHasManagerModel(groupid=group.GroupId, userid=manager_id)
+        db_manager = GroupHasManagerModel(groupid=group.groupId, userid=manager_id)
         db.add(db_manager)
         db.commit()
 
         # 3. Add User to Group
-        db_user = GroupHasUserModel(groupid=group.GroupId, userid=manager_id)
+        db_user = GroupHasUserModel(groupid=group.groupId, userid=manager_id)
         db.add(db_user)
         db.commit()
 
@@ -58,7 +59,7 @@ async def insert_user_to_group(
 ):
     try:
         db_group_has_user = GroupHasUserModel(
-            groupid=group_has_user.groupid, userid=group_has_user.userid
+            groupid=group_has_user.groupId, userid=group_has_user.userId
         )
         db.add(db_group_has_user)
         db.commit()
@@ -86,12 +87,12 @@ async def delete_user_from_group(
 
 # 指派團隊成員為管理員
 @router.post("/insertManagerToGroup", response_model=GroupHasManagerSchema)
-async def add_admin(
+async def insertManager(
     group_has_manager: GroupHasManagerSchema, db: Session = Depends(get_db)
 ):
     try:
         db_group_has_manager = GroupHasManagerModel(
-            groupid=group_has_manager.groupid, userid=group_has_manager.userid
+            groupid=group_has_manager.groupId, userid=group_has_manager.userId
         )
         db.add(db_group_has_manager)
         db.commit()
