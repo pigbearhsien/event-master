@@ -50,10 +50,10 @@ class GroupEvent(Base):
     event_end = Column(DateTime)
     status = Column(String(13), nullable=False)
     organizerid = Column(String(10), ForeignKey('user.userid'), nullable=False)
-    vote_start = Column(DateTime, nullable=False)
-    vote_end = Column(DateTime, nullable=False)
-    votedeadline = Column(DateTime, nullable=False)
-    havepossibility = Column(Boolean, nullable=False)
+    vote_start = Column(DateTime, nullable=True)
+    vote_end = Column(DateTime, nullable=True)
+    votedeadline = Column(DateTime, nullable=True)
+    havepossibility = Column(Boolean, nullable=True)
 
     # __table_args__ = (CheckConstraint("status IN ('In_Voting', 'End_Voting', 'Not_Start_Yet', 'On_Going', 'Closure')", name='check_status'))
 

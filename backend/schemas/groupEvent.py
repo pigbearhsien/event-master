@@ -6,15 +6,15 @@ from datetime import datetime
 class GroupEvent(BaseModel):
     eventId: str
     groupId: str
-    eventStart: datetime
-    eventEnd: datetime
+    eventStart: Optional[datetime]
+    eventEnd: Optional[datetime]
     name: str
     description: str
     status: str
     organizerId: str
-    voteStart: datetime
-    voteEnd: datetime
-    voteDeadline: datetime
+    voteStart: Optional[datetime]
+    voteEnd: Optional[datetime]
+    voteDeadline: Optional[datetime]
     havePossibility: bool
 
     class Config:

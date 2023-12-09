@@ -85,7 +85,16 @@ def get_group_event_vote_result(event_id: str, db: Session = Depends(get_db)):
         if db_available_time is [] or db_available_time is None:
             raise HTTPException(status_code=404, detail="Event not found")
         
-        return db_available_time
+        # convert to schema
+        available_times = []
+        for time in db_available_time:
+            available_times.append(AvailableTimeSchema(
+                userId=time.userid,
+                eventId=time.eventid,
+                availableStart=time.available_start,
+                possibilityLevel=time.possibility_level,
+            ))
+        return available_times
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -99,7 +108,15 @@ def get_user_groups(user_id: str, db: Session = Depends(get_db)):
         if db_group is [] or db_group is None:
             raise HTTPException(status_code=404, detail="Group not found")
         
-        return db_group
+        # convert to schema
+        groups = []
+        for group in db_group:
+            groups.append(GroupSchema(
+                groupId=group.groupid,
+                name=group.name,
+            ))
+        return groups
+        
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -108,12 +125,33 @@ def get_user_groups(user_id: str, db: Session = Depends(get_db)):
 @router.get("/getUserJoinEvents/{user_id}", response_model=List[GroupEventSchema])
 def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
     try:
+        logging.info(user_id)
         db_group_event = db.query(GroupEventModel).join(UserJoinEventModel, GroupEventModel.eventid == UserJoinEventModel.eventid).filter(UserJoinEventModel.userid == user_id).all()
 
+        logging.info(db_group_event)
         if db_group_event is [] or db_group_event is None:
             raise HTTPException(status_code=404, detail="Event not found")
         
-        return db_group_event
+        # convert to schema
+        group_events = []
+        for event in db_group_event:
+            group_events.append(GroupEventSchema(
+                eventId=event.eventid,
+                groupId=event.groupid,
+                name=event.name,
+                description=event.description,
+                status=event.status,
+                organizerId=event.organizerid,
+                voteStart=event.vote_start,
+                voteEnd=event.vote_end,
+                voteDeadline=event.votedeadline,
+                havePossibility=event.havepossibility,
+                eventStart=event.event_start,
+                eventEnd=event.event_end,
+            ))
+
+
+        return group_events
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -122,12 +160,26 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
 @router.get("/getUserTodos/{user_id}", response_model=List[TodoSchema])
 def get_user_todos(user_id: str, db: Session = Depends(get_db)):
     try:
-        db_todo = db.query(TodoModel).filter(TodoModel.userid == user_id).all()
+        db_todo = db.query(TodoModel).filter(TodoModel.assigneeid == user_id).all()
 
         if db_todo is [] or db_todo is None:
             raise HTTPException(status_code=404, detail="Todo not found")
         
-        return db_todo
+        # convert to schema
+        todos = []
+        for todo in db_todo:
+            todos.append(TodoSchema(
+                todoId=todo.todoid,
+                groupId=todo.groupid,
+                assigneeId=todo.assigneeid,
+                assignerId=todo.assignerid,
+                name=todo.name,
+                description=todo.description,
+                completed=todo.completed,
+                deadline=todo.deadline,
+            ))
+        return todos
+        
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -141,7 +193,19 @@ def get_user_private_events(user_id: str, db: Session = Depends(get_db)):
         if db_private_event is [] or db_private_event is None:
             raise HTTPException(status_code=404, detail="Private Event not found")
         
-        return db_private_event
+        # convert to schema
+        private_events = []
+        for event in db_private_event:
+            private_events.append(PrivateEventSchema(
+                eventId=event.eventid,
+                userId=event.userid,
+                name=event.name,
+                description=event.description,
+                eventStart=event.event_start,
+                eventEnd=event.event_end,
+            ))
+        return private_events
+        
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -155,7 +219,16 @@ def get_user_available_time(event_id: str, user_id: str, db: Session = Depends(g
         if db_available_time is [] or db_available_time is None:
             raise HTTPException(status_code=404, detail="Available Time not found")
         
-        return db_available_time
+        # convert to schema
+        available_times = []
+        for time in db_available_time:
+            available_times.append(AvailableTimeSchema(
+                userId=time.userid,
+                eventId=time.eventid,
+                availableStart=time.available_start,
+                possibilityLevel=time.possibility_level,
+            ))
+        return available_times
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -169,7 +242,16 @@ def get_user_chat(group_id: str, db: Session = Depends(get_db)):
         if db_chat is [] or db_chat is None:
             raise HTTPException(status_code=404, detail="Chat not found")
         
-        return db_chat
+        # convert to schema
+        chats = []
+        for chat in db_chat:
+            chats.append(ChatSchema(
+                speakerId=chat.speakerid,
+                groupId=chat.groupid,
+                content=chat.content,
+                timing=chat.timing,
+            ))
+        return chats
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
