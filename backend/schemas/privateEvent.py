@@ -6,9 +6,9 @@ from datetime import datetime
 class PrivateEvent(BaseModel):
     eventId: str
     userId: str
-    eventStart: Optional[datetime]
-    eventEnd: Optional[datetime]
-    name: Optional[str]
+    eventStart: datetime
+    eventEnd: datetime
+    name: str
     description: Optional[str]
 
     class Config:

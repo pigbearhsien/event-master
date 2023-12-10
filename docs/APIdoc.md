@@ -1,78 +1,88 @@
 ﻿## Type declaration
-```
-type Group = {
-	groupId:  string;
-	name:  string;
+
+```type Group = {
+	groupId: string;
+	name: string;
 };
 
-type  EventPrivate  = {
-	eventId:  string;
-	userId:  string;
-	eventStart:  Date;
-	eventEnd:  Date;
-	name:  string;
-	description:  string;
+type EventPrivate (or PrivateEvent) = {
+	eventId: string;
+	userId: string;
+	eventStart: Datetime;
+	eventEnd: Datetime;
+	name: string;
+	description: string | Null;
 };
 
-type EventGroup = {
-	eventId:  string;
-	groupId:  string;
-	name:  string;
-	description:  string;
-	eventStart:  Date;
-	eventEnd:  Date;
-	status:  string;
-	organizerId:  string;
-	voteStart:  Date;
-	voteEnd:  Date;
-	voteDeadline:  Date;
-	havePossibility:  boolean;
+type EventGroup (or GroupEvent) = {
+	eventId: string;
+	groupId: string;
+	name: string;
+	description: string;
+	eventStart: Datetime | Null;
+	eventEnd: Datetime | Null;
+	status: string;
+	organizerId: string;
+	voteStart: Datetime;
+	voteEnd: Datetime;
+	voteDeadline: Datetime | Null;
+	havePossibility: boolean;
 };
 
-type  EventGroupCreate  = {
-	groupId:  string;
-	eventId:  string;
-	name:  string;
-	description:  string;
-	organizerId:  string;
-	voteStart:  string;
-	voteEnd:  string;
-	voteDeadline:  string;
-	havePossibility:  string;
-};
-
-type  Vote  = {
-	userId:  string;
-	name:  string;
-	availableStart:  Date;
-	possibility_level:  string;
+type Vote (or availableTime) = {
+	userId: string;
+	name: string;
+	availableStart: Datetime;
+	possibility_level: string | Null;
 };
 
 type Todo = {
-	todoId:  string;
-	groupId:  string;
-	assigneeId:  string;
-	assignerId:  string;
-	name:  string;
-	description:  string;
-	completed:  boolean;
-	deadline:  Date;
-};  
+	todoId: string;
+	groupId: string;
+	assigneeId: string;
+	assignerId: string;
+	name: string;
+	description: string;
+	completed: boolean;
+	deadline: Datetime;
+};
 
 type User = {
-	userId:  string;
-	name:  string;
-	account:  string;
-	password:  string;
-	profile_pic_url:  string  |  null;
+	userId: string;
+	name: string;
+	account: string;
+	password: string;
+	profile_pic_url: string | Null;
 };
 
-type  Chat  = {
-	groupId:  string;
-	speakerId:  string;
-	timing:  Date;
-	content:  string;
+type GroupHasUser = {
+	groupId: string;
+	userId: string;
 };
+
+type GroupHasManager = {
+	groupId: string;
+	userId: string;
+};
+
+type IsAdmin = {
+	groupId: string;
+	userId: string;
+};
+
+type UserJoinEvent = {
+	eventId: string;
+	userId: string;
+	isAccepted: boolean;
+};
+
+type Chat = {
+	groupId: string;
+	speakerId: string;
+	timing: Datetime;
+	content: string;
+};
+
 ```
 ## For Manager
 1. **新增團隊**
@@ -136,7 +146,7 @@ type  Chat  = {
 	{
 		groupId: string,
 		userId: string,
-		period: Date
+		period: Datetime
 	}
 	Response:
 	{

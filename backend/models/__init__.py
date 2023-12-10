@@ -1,1 +1,1 @@
-from .models import Group, GroupEvent, GroupHasManager, GroupHasUser, User, Todo, PrivateEvent, Chat, AvailableTime, UserJoinEvent, IsAdmin
+from .models import GroupTable as Group, GroupEvent, GroupHasManager, GroupHasUser, UserTable as User, Todo, PrivateEvent, Chat, AvailableTime, UserJoinEvent, IsAdmin

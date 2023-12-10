@@ -4,8 +4,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Text, DateT
 from sqlalchemy.orm import relationship
 from database import Base
 
-class User(Base):
-    __tablename__ = 'user'
+class UserTable(Base):
+    __tablename__ = 'user_table'
     userid = Column(String(10), primary_key=True)
     name = Column(String(40), nullable=False)
     account = Column(String(40), nullable=False)
@@ -14,42 +14,42 @@ class User(Base):
 
 class IsAdmin(Base):
     __tablename__ = 'isadmin'
-    userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
+    userid = Column(String(10), ForeignKey('user_table.userid'), primary_key=True)
 
 class PrivateEvent(Base):
     __tablename__ = 'private_event'
     eventid = Column(String(10), primary_key=True)
-    userid = Column(String(10), ForeignKey('user.userid'), nullable=False)
+    userid = Column(String(10), ForeignKey('user_table.userid'), nullable=False)
     event_start = Column(DateTime, nullable=False)
     event_end = Column(DateTime, nullable=False)
     name = Column(String(10), nullable=False)
     description = Column(Text, nullable=False)
 
-class Group(Base):
-    __tablename__ = 'group'
+class GroupTable(Base):
+    __tablename__ = 'group_table'
     groupid = Column(String(10), primary_key=True)
     name = Column(String(20), nullable=False)
 
 class GroupHasUser(Base):
     __tablename__ = 'group_has_user'
-    groupid = Column(String(10), ForeignKey('group.groupid'), primary_key=True)
-    userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
+    groupid = Column(String(10), ForeignKey('group_table.groupid'), primary_key=True)
+    userid = Column(String(10), ForeignKey('user_table.userid'), primary_key=True)
 
 class GroupHasManager(Base):
     __tablename__ = 'group_has_manager'
-    groupid = Column(String(10), ForeignKey('group.groupid'), primary_key=True)
-    userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
+    groupid = Column(String(10), ForeignKey('group_table.groupid'), primary_key=True)
+    userid = Column(String(10), ForeignKey('user_table.userid'), primary_key=True)
 
 class GroupEvent(Base):
     __tablename__ = 'group_event'
     eventid = Column(String(10), primary_key=True)
-    groupid = Column(String(20), ForeignKey('group.groupid'), nullable=False)
+    groupid = Column(String(20), ForeignKey('group_table.groupid'), nullable=False)
     name = Column(String(20), nullable=False)
     description = Column(Text, nullable=False)
     event_start = Column(DateTime)
     event_end = Column(DateTime)
     status = Column(String(13), nullable=False)
-    organizerid = Column(String(10), ForeignKey('user.userid'), nullable=False)
+    organizerid = Column(String(10), ForeignKey('user_table.userid'), nullable=False)
     vote_start = Column(DateTime, nullable=True)
     vote_end = Column(DateTime, nullable=True)
     votedeadline = Column(DateTime, nullable=True)
@@ -59,13 +59,13 @@ class GroupEvent(Base):
 
 class UserJoinEvent(Base):
     __tablename__ = 'user_join_event'
-    userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
+    userid = Column(String(10), ForeignKey('user_table.userid'), primary_key=True)
     eventid = Column(String(10), ForeignKey('group_event.eventid'), primary_key=True)
     isaccepted = Column(Boolean, nullable=False)
 
 class AvailableTime(Base):
     __tablename__ = 'available_time'
-    userid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
+    userid = Column(String(10), ForeignKey('user_table.userid'), primary_key=True)
     eventid = Column(String(10), ForeignKey('group_event.eventid'), primary_key=True)
     available_start = Column(DateTime, primary_key=True)
     possibility_level = Column(String(10), nullable=False)
@@ -74,9 +74,9 @@ class AvailableTime(Base):
 class Todo(Base):
     __tablename__ = 'todo'
     todoid = Column(String(10), primary_key=True)
-    groupid = Column(String(10), ForeignKey('group.groupid'), nullable=False)
-    assigneeid = Column(String(10), ForeignKey('user.userid'), nullable=False)
-    assignerid = Column(String(10), ForeignKey('user.userid'), nullable=False)
+    groupid = Column(String(10), ForeignKey('group_table.groupid'), nullable=False)
+    assigneeid = Column(String(10), ForeignKey('user_table.userid'), nullable=False)
+    assignerid = Column(String(10), ForeignKey('user_table.userid'), nullable=False)
     name = Column(String(20), nullable=False)
     description = Column(Text, nullable=False)
     completed = Column(Boolean, nullable=False)
@@ -84,7 +84,7 @@ class Todo(Base):
 
 class Chat(Base):
     __tablename__ = 'chat'
-    groupid = Column(String(10), ForeignKey('group.groupid'), primary_key=True)
-    speakerid = Column(String(10), ForeignKey('user.userid'), primary_key=True)
+    groupid = Column(String(10), ForeignKey('group_table.groupid'), primary_key=True)
+    speakerid = Column(String(10), ForeignKey('user_table.userid'), primary_key=True)
     timing = Column(DateTime, primary_key=True)
     content = Column(Text, nullable=False)

@@ -33,3 +33,5 @@ media/
 static/
 
 .env
+
+eventmaster.backup
