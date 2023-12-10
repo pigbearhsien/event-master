@@ -326,3 +326,73 @@ def get_user_chat(group_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+# 獲得指定使用者的資料
+@router.get("/getUser/{user_id}", response_model=UserSchema)
+def get_user(user_id: str, db: Session = Depends(get_db)):
+    try:
+        db_user = db.query(UserModel).filter(UserModel.userid == user_id).first()
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return UserSchema(
+            userId=db_user.userid,
+            name=db_user.name,
+            account=db_user.account,
+            password=db_user.password,
+            profilePicUrl=db_user.profile_pic_url,
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+# 獲得指定團隊的資料
+@router.get("/getGroup/{group_id}", response_model=GroupSchema)
+def get_group(group_id: str, db: Session = Depends(get_db)):
+    try:
+        db_group = db.query(GroupModel).filter(GroupModel.groupid == group_id).first()
+        if not db_group:
+            raise HTTPException(status_code=404, detail="Group not found")
+
+        return GroupSchema(
+            groupId=db_group.groupid,
+            name=db_group.name,
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+# 獲得指定團隊活動的資料
+@router.get("/getGroupEvent/{event_id}", response_model=GroupEventSchema)
+def get_group_event(event_id: str, db: Session = Depends(get_db)):
+    try:
+        db_group_event = db.query(GroupEventModel).filter(GroupEventModel.eventid == event_id).first()
+        if not db_group_event:
+            raise HTTPException(status_code=404, detail="Group Event not found")
+
+        return GroupEventSchema(
+            eventId=db_group_event.eventid,
+            groupId=db_group_event.groupid,
+            name=db_group_event.name,
+            description=db_group_event.description,
+            status=db_group_event.status,
+            organizerId=db_group_event.organizerid,
+            voteStart=db_group_event.vote_start,
+            voteEnd=db_group_event.vote_end,
+            voteDeadline=db_group_event.votedeadline,
+            havePossibility=db_group_event.havepossibility,
+            eventStart=db_group_event.event_start,
+            eventEnd=db_group_event.event_end,
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+
+

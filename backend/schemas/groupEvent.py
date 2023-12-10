@@ -12,8 +12,8 @@ class GroupEvent(BaseModel):
     description: str
     status: str
     organizerId: str
-    voteStart: Optional[datetime]
-    voteEnd: Optional[datetime]
+    voteStart: datetime
+    voteEnd: datetime
     voteDeadline: Optional[datetime]
     havePossibility: bool
 
