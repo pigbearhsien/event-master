@@ -53,6 +53,28 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+# 更新使用者
+@router.put("/updateUser", response_model=UserSchema)
+def update_user(user: UserSchema, db: Session = Depends(get_db)):
+    try:
+        db_user = (
+            db.query(UserModel)
+            .filter(UserModel.userid == user.userId)
+            .first()
+        )
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db_user.name = user.name
+        db_user.account = user.account
+        db_user.password = user.password
+        db_user.profile_pic_url = user.profilePicUrl
+        db.commit()
+        return user
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # 發起團隊活動
 @router.post("/createGroupEvent", response_model=GroupEventSchema)
@@ -76,6 +98,7 @@ def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
 
 
 # 顯示某團隊活動的投票結果

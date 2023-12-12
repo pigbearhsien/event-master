@@ -101,3 +101,32 @@ def delete_user_from_group_event(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+# 更新團隊活動
+@router.put("/updateGroupEvent", response_model=GroupEventSchema)
+def update_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
+    try:
+        db_group_event = (
+            db.query(GroupEventModel)
+            .filter(GroupEventModel.eventid == group_event.eventId)
+            .first()
+        )
+        if not db_group_event:
+            raise HTTPException(status_code=404, detail="Group Event not found")
+        db_group_event.groupid = group_event.groupId
+        db_group_event.name = group_event.name
+        db_group_event.description = group_event.description
+        db_group_event.status = group_event.status
+        db_group_event.organizerid = group_event.organizerId
+        db_group_event.vote_start = group_event.voteStart
+        db_group_event.vote_end = group_event.voteEnd
+        db_group_event.vote_deadline = group_event.voteDeadline
+        db_group_event.have_possibility = group_event.havePossibility
+        db.commit()
+        return group_event
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
