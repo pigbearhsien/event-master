@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from routers import manager_router, user_router, organizer_router, admin_router
+from routers import manager_router, user_router, organizer_router, admin_router, crud_router
 from database import SessionLocal, get_db
 import logging
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,6 +42,7 @@ app.include_router(user_router.router, prefix="/api", tags=["user"], dependencie
 app.include_router(manager_router.router, prefix="/api", tags=["manager"], dependencies=[Depends(get_db)])
 app.include_router(organizer_router.router, prefix="/api", tags=["organizer"], dependencies=[Depends(get_db)])
 app.include_router(admin_router.router, prefix="/api", tags=["admin"], dependencies=[Depends(get_db)])
+app.include_router(crud_router.router, prefix="/api", tags=["crud"], dependencies=[Depends(get_db)])
 
 
 
