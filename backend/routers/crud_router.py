@@ -14,6 +14,7 @@ from models import (
     Todo as TodoModel,
     PrivateEvent as PrivateEventModel,
     Chat as ChatModel,
+    GroupHasManager as GroupHasManagerModel,
 )
 
 from schemas import (
@@ -26,6 +27,7 @@ from schemas import (
     Todo as TodoSchema,
     PrivateEvent as PrivateEventSchema,
     Chat as ChatSchema,
+    GroupHasManager as GroupHasManagerSchema,
 )
 from database import metaData
 
@@ -729,6 +731,10 @@ def delete_user_join_event_by_user_id_and_event_id(user_id: str, event_id: str, 
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+
+
+
 
 # GroupHasUser CRUD
 # Create GroupHasUser
@@ -746,6 +752,7 @@ def create_group_has_user(group_has_user: GroupHasUserSchema, db: Session = Depe
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
 
 # Read GroupHasUser
 # List all group has users
@@ -866,6 +873,147 @@ def delete_group_has_user_by_group_id_and_user_id(group_id: str, user_id: str, d
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+# GroupHasManager CRUD
+# Create GroupHasManager
+@router.post("/createGroupHasManager", response_model= GroupHasManagerSchema)
+def create_group_has_manager(group_has_manager: GroupHasManagerSchema, db: Session = Depends(get_db)):
+    try:
+        db_group_has_manager = GroupHasManagerModel(
+            groupid=group_has_manager.groupId,
+            userid=group_has_manager.userId
+        )
+        db.add(db_group_has_manager)
+        db.commit()
+        db.refresh(db_group_has_manager)
+        return db_group_has_manager
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+    
+# Read GroupHasManager
+# List all group has managers
+@router.get("/listAllGroupHasManager", response_model=List[GroupHasManagerSchema])
+def list_all_group_has_manager(db: Session = Depends(get_db)):
+    try:
+        db_group_has_managers = db.query(GroupHasManagerModel).all()
+        # parse group has manager
+        group_has_managers = []
+        for group_has_manager in db_group_has_managers:
+            group_has_managers.append(
+                GroupHasManagerSchema(
+                    groupId=group_has_manager.groupid,
+                    userId=group_has_manager.userid
+                )
+            )
+        return group_has_managers
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+# List group has manager by group id
+@router.get("/listGroupHasManagerByGroupId/{group_id}", response_model=List[GroupHasManagerSchema])
+def list_group_has_manager_by_group_id(group_id: str, db: Session = Depends(get_db)):
+    try:
+        db_group_has_managers = (
+            db.query(GroupHasManagerModel)
+            .filter(GroupHasManagerModel.groupid == group_id)
+            .all()
+        )
+        if not db_group_has_managers:
+            raise HTTPException(status_code=404, detail="Group Has Manager not found")
+        # parse group has manager
+        group_has_managers = []
+        for group_has_manager in db_group_has_managers:
+            group_has_managers.append(
+                GroupHasManagerSchema(
+                    groupId=group_has_manager.groupid,
+                    userId=group_has_manager.userid
+                )
+            )
+        return group_has_managers
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+# List group has manager by user id
+@router.get("/listGroupHasManagerByUserId/{user_id}", response_model=List[GroupHasManagerSchema])
+def list_group_has_manager_by_user_id(user_id: str, db: Session = Depends(get_db)):
+    try: 
+        db_group_has_managers = (
+            db.query(GroupHasManagerModel)
+            .filter(GroupHasManagerModel.userid == user_id)
+            .all()
+        )
+        if not db_group_has_managers:
+            raise HTTPException(status_code=404, detail="Group Has Manager not found")
+        # parse group has manager
+        group_has_managers = []
+        for group_has_manager in db_group_has_managers:
+            group_has_managers.append(
+                GroupHasManagerSchema(
+                    groupId=group_has_manager.groupid,
+                    userId=group_has_manager.userid
+                )
+            )
+        return group_has_managers
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+# Update GroupHasManager
+# Update group has manager by group id and user id
+@router.put("/updateGroupHasManagerByGroupIdAndUserId/{group_id}/{user_id}", response_model=GroupHasManagerSchema)
+def update_group_has_manager_by_group_id_and_user_id(group_id: str, user_id: str, group_has_manager: GroupHasManagerSchema, db: Session = Depends(get_db)):
+    try:
+        db_group_has_manager = (
+            db.query(GroupHasManagerModel)
+            .filter(GroupHasManagerModel.groupid == group_id)
+            .filter(GroupHasManagerModel.userid == user_id)
+            .first()
+        )
+        if not db_group_has_manager:
+            raise HTTPException(status_code=404, detail="Group Has Manager not found")
+        db_group_has_manager.groupid = group_has_manager.groupId
+        db_group_has_manager.userid = group_has_manager.userId
+        db.commit()
+        db.refresh(db_group_has_manager)
+        return db_group_has_manager
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+# Delete GroupHasManager
+# Delete group has manager by group id and user id
+@router.delete("/deleteGroupHasManagerByGroupIdAndUserId/{group_id}/{user_id}")
+def delete_group_has_manager_by_group_id_and_user_id(group_id: str, user_id: str, db: Session = Depends(get_db)):
+    try:
+        db_group_has_manager = (
+            db.query(GroupHasManagerModel)
+            .filter(GroupHasManagerModel.groupid == group_id)
+            .filter(GroupHasManagerModel.userid == user_id)
+            .first()
+        )
+        if not db_group_has_manager:
+            raise HTTPException(status_code=404, detail="Group Has Manager not found")
+        db.delete(db_group_has_manager)
+        db.commit()
+        return {"message": "Delete Success"}
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
 
 # Todo CRUD
 # Create Todo
