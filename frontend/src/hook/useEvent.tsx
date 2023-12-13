@@ -49,7 +49,7 @@ const EventProvider = ({ children }: IProps) => {
         name: user.fullName,
         account: user.emailAddresses[0].emailAddress,
         password: "",
-        profilePicUrl: null,
+        profilePicUrl: user.imageUrl,
       });
       console.log("created");
       console.log(created);
