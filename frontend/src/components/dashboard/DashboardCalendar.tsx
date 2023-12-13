@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Calendar from "@/components/Calendar";
 import {
   Typography,
@@ -14,6 +14,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { allEvents } from "@/mockdata";
 import { X } from "lucide-react";
 import moment from "moment";
+import * as api from "../../api/api";
 
 type Props = {};
 
@@ -87,6 +88,44 @@ const DashboardCalendar = () => {
     }),
     []
   );
+
+  const [loading, setLoading] = useState(true);
+  const [eventData, setEventData] = useState<any>([]);
+  const [fetched, setFetched] = useState(false);
+  const fetchDashboard = async () => {
+    setFetched(true);
+    console.log("fetch");
+    var data_events: any;
+    try {
+      data_events = await api.getGroupEvents("9084987872");
+      console.log(data_events.data);
+    } catch (e: any) {
+      console.log(e);
+    }
+    var data_private_events: any;
+    try {
+      data_private_events = await api.getPrivateEvents("9084987872");
+      console.log(data_private_events);
+    } catch (e: any) {
+      console.log(e);
+    }
+    await data_events?.data.map((event) => {
+      var eventWithIsPrivate: any = event;
+      eventWithIsPrivate.isPrivate = false;
+      setEventData([...eventData, eventWithIsPrivate]);
+    });
+    await data_private_events?.data.map((event) => {
+      var eventWithIsPrivate: any = event;
+      eventWithIsPrivate.isPrivate = true;
+      setEventData([...eventData, eventWithIsPrivate]);
+    });
+    setLoading(false);
+  };
+  if (fetched == false) fetchDashboard();
+
+  useEffect(() => {
+    console.log(eventData);
+  }, [eventData]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>

@@ -19,18 +19,11 @@ type Props = {};
 
 const Dashboard = (props: Props) => {
   const [view, setView] = React.useState("calendar"); // ["calendar", "todo"
-  const [loading, setLoading] = React.useState(true);
+  const [groupEvents, setGroupEvents] = React.useState([]);
+  const [privateEvents, setPrivateEvents] = React.useState([]);
+  const [todos, setTodos] = React.useState([]);
 
   const { loggedInId } = useEvent();
-
-
-  const fetchDashboard = async()=>{
-    const data_events = await api.getGroupEvents("10010")
-    console.log(data_events.data);
-    setLoading(false)
-  }
-
-  fetchDashboard()
 
   return (
     <>
@@ -89,9 +82,7 @@ const Dashboard = (props: Props) => {
       <Divider sx={{ mb: 3 }} />
 
       {/* Calendar */}
-      {loading ? (
-        <CircularProgress />
-      ) : view === "calendar" ? (
+      { view === "calendar" ? (
         <DashboardCalendar />
       ) : (
         <DashboardTodo />

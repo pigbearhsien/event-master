@@ -44,19 +44,12 @@ const EventProvider = ({ children }: IProps) => {
     }
     console.log("getUser", getUser);
     if (getUser == null) {
-      console.log({
-        userId: user.id,
-        name: user.fullName,
-        account: user.emailAddresses[0].emailAddress,
-        password: "",
-        profile_pic_url: null,
-      })
       const created = await api.createUser({
         userId: user.id,
         name: user.fullName,
         account: user.emailAddresses[0].emailAddress,
         password: "",
-        profile_pic_url: null,
+        profilePicUrl: null,
       });
       console.log("created");
       console.log(created);

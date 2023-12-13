@@ -62,14 +62,14 @@ type User = {
   name: string;
   account: string;
   password: string;
-  profile_pic_url: string | null;
+  profilePicUrl: string | null;
 };
 
 type Vote = {
   userId: string;
   name: string;
   available_start: Date;
-  possibility_level: string;
+  possibilityLevel: string;
 };
 
 export type {
