@@ -22,6 +22,7 @@ import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import InputLabel from "@mui/material/InputLabel";
 import DialogTitle from "@mui/material/DialogTitle";
+import {v4 as uuidv4} from "uuid"
 // type Props = {};
 
 export default function Navigator(props: DrawerProps) {
@@ -29,11 +30,21 @@ export default function Navigator(props: DrawerProps) {
   const { ...other } = props;
   const { user, isSignedIn } = useUser();
 
+  const [name, setName] = useState("")
   useEffect(() => {
     if (isSignedIn) {
       // checkUser();
     }
   }, [isSignedIn]);
+
+  const createGroup = async (name: string) => {
+    try {
+      if(!user) return
+      await api.createGroup(uuidv4(), user?.id, name)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const location = useLocation();
   const path = location.pathname.split("/");
@@ -46,7 +57,7 @@ export default function Navigator(props: DrawerProps) {
             To create a group, please enter the group name here.
           </DialogContentText> */}
           <FormControl sx={{ mt: 2, minWidth: 120 }}>
-            <InputLabel htmlFor="max-width">maxWidth</InputLabel>
+            <InputLabel htmlFor="max-width"></InputLabel>
             <TextField
               autoFocus
               margin="dense"
@@ -54,6 +65,7 @@ export default function Navigator(props: DrawerProps) {
               label="Group Name"
               type="text"
               fullWidth
+              onChange={(event)=>{setName(event?.target.value)}}
             />
           </FormControl>
         </DialogContent>
@@ -65,7 +77,12 @@ export default function Navigator(props: DrawerProps) {
           >
             Cancel
           </Button>
-          <Button>Create</Button>
+          <Button
+            onClick={async() => {
+              await createGroup(name)
+              setOpen(false);
+            }}
+          >Create</Button>
         </DialogActions>
       </Dialog>
       <Drawer variant="permanent" {...other}>

@@ -157,6 +157,16 @@ export const getGroupManagerWithId = async (
   }
 }
 
+export const getGroupWithUserId = async (
+  groupId: string
+): Promise<AxiosResponse> => {
+  try {
+    return await request.get(`/listGroupByName/${groupId}`)
+  } catch (error) {
+    throw error as Error
+  }
+}
+
 // Post
 export const createGroup = async (
   groupId: string,
