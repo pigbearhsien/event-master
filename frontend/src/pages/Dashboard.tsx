@@ -7,7 +7,7 @@ import {
   Grid,
   ButtonGroup,
   Divider,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import { Bell } from "lucide-react";
 import DashboardCalendar from "@/components/dashboard/DashboardCalendar";
@@ -19,7 +19,7 @@ type Props = {};
 
 const Dashboard = (props: Props) => {
   const [view, setView] = React.useState("calendar"); // ["calendar", "todo"
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   const { loggedInId } = useEvent();
 
@@ -30,7 +30,7 @@ const Dashboard = (props: Props) => {
     setLoading(false)
   }
 
-  fetchDashboard()
+  fetchDashboard();
 
   return (
     <>

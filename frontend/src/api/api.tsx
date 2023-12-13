@@ -1,4 +1,4 @@
-import axios, {  AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 import {
   Group,
   EventGroupCreate,
@@ -12,29 +12,31 @@ import {
 
 export const request: AxiosInstance = axios.create({
   baseURL: "http://localhost:8000/api",
-  withCredentials: true
+  withCredentials: true,
 });
 
 // Get
 
 export const getAllUser = async (): Promise<void> => {
-  try{
-    const result : AxiosResponse<User[]> = await request.get<User[]>("/users")
-    console.log(result)
+  try {
+    const result: AxiosResponse<User[]> = await request.get<User[]>("/users");
+    console.log(result);
   } catch (error) {
-    throw error as Error
+    throw error as Error;
   }
-}
+};
 
 export const getUser = async (userId: string): Promise<User | null> => {
-  try{
-    const result : AxiosResponse<User> = await request.get<User>(`/users/${userId}`)
-    console.log(result)
-    return result.data
+  try {
+    const result: AxiosResponse<User> = await request.get<User>(
+      `/getUser/${userId}`
+    );
+    console.log(result);
+    return result.data;
   } catch (error) {
-    throw error as Error
+    throw error as Error;
   }
-}
+};
 
 export const getGroupEvents = async (
   userId: string
@@ -46,7 +48,9 @@ export const getGroupEvents = async (
   }
 };
 
-export const getTodos = async (userId: string): Promise<AxiosResponse<Todo[]>> => {
+export const getTodos = async (
+  userId: string
+): Promise<AxiosResponse<Todo[]>> => {
   try {
     return await request.get<Todo[]>(`/allTodos/${userId}`);
   } catch (error) {
@@ -73,7 +77,9 @@ export const getUserPeriodPossibility = async (
   AxiosResponse<{ definitely: number; maybe: number; unavailable: number }>
 > => {
   try {
-    return await request.get(`/userPeriodPossibility/${groupId}/${userId}/${period}`);
+    return await request.get(
+      `/userPeriodPossibility/${groupId}/${userId}/${period}`
+    );
   } catch (error) {
     throw error as Error;
   }
@@ -120,7 +126,9 @@ export const getMyVote = async (
   }
 };
 
-export const getMessages = async (groupId: string): Promise<AxiosResponse<Chat[]>> => {
+export const getMessages = async (
+  groupId: string
+): Promise<AxiosResponse<Chat[]>> => {
   try {
     return await request.get(`/messages/${groupId}`);
   } catch (error) {
@@ -135,16 +143,22 @@ export const createGroup = async (
   name: string
 ): Promise<AxiosResponse<Group>> => {
   try {
-    return await request.post<Group>(`/createGroup/${userId}`, { groupId, name });
+    return await request.post<Group>(`/createGroup/${userId}`, {
+      groupId,
+      name,
+    });
   } catch (error) {
     throw error as Error;
   }
 };
 
-export const createUser = async (userInfo: User): Promise<AxiosResponse<User>> => {
+export const createUser = async (
+  userInfo: User
+): Promise<AxiosResponse<User>> => {
   try {
     return await request.post<User>("/createUser", userInfo);
   } catch (error) {
+    console.log(error);
     throw error as Error;
   }
 };
@@ -171,7 +185,10 @@ export const deleteUserFromGroup = async (
   }
 };
 
-export const addManager = async (groupId: string, userId: string):Promise<AxiosResponse> => {
+export const addManager = async (
+  groupId: string,
+  userId: string
+): Promise<AxiosResponse> => {
   try {
     return await request.post("/addManager", { groupId, userId });
   } catch (error) {
@@ -179,9 +196,7 @@ export const addManager = async (groupId: string, userId: string):Promise<AxiosR
   }
 };
 
-export const assignTodo = async (
-  todoInfo : Todo
-): Promise<AxiosResponse> => {
+export const assignTodo = async (todoInfo: Todo): Promise<AxiosResponse> => {
   try {
     return await request.post("/assignTodo", todoInfo);
   } catch (error) {
@@ -195,7 +210,11 @@ export const setEventTime = async (
   eventEnd: Date
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/setEventTime", { eventId, eventStart, eventEnd });
+    return await request.post("/setEventTime", {
+      eventId,
+      eventStart,
+      eventEnd,
+    });
   } catch (error) {
     throw error as Error;
   }
@@ -203,7 +222,7 @@ export const setEventTime = async (
 
 export const deleteEvent = async (eventId: string): Promise<AxiosResponse> => {
   try {
-    return await request.delete(`/deleteEvent/${eventId}`)
+    return await request.delete(`/deleteEvent/${eventId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -215,7 +234,11 @@ export const insertUserToEvent = async (
   isAccepted: boolean
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/insertUsetToEvent", { eventId, userId, isAccepted});
+    return await request.post("/insertUsetToEvent", {
+      eventId,
+      userId,
+      isAccepted,
+    });
   } catch (error) {
     throw error as Error;
   }
@@ -232,10 +255,12 @@ export const deleteUserFromEvent = async (
   }
 };
 
-export const createGroupEvent = async (param: EventGroupCreate): Promise<AxiosResponse> =>{
-  try{
-  return await request.post("/createGroupEvent", param);
-  } catch (error){
-    throw error as Error
+export const createGroupEvent = async (
+  param: EventGroupCreate
+): Promise<AxiosResponse> => {
+  try {
+    return await request.post("/createGroupEvent", param);
+  } catch (error) {
+    throw error as Error;
   }
-}
+};

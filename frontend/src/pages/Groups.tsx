@@ -16,6 +16,8 @@ import { MessageSquare } from "lucide-react";
 import GroupEvent from "@/components/group/GroupEvent";
 import GroupInfo from "@/components/group/GroupInfo";
 import GroupTodo from "@/components/group/GroupTodo";
+import { messages } from "@/mockdata";
+import TextField from "@mui/material/TextField";
 
 type Props = {};
 
@@ -71,16 +73,74 @@ const Groups = (props: Props) => {
 
       {/* Chat Room */}
       <Drawer anchor="right" open={isOpen} variant="persistent">
-        <Box sx={{ width: 500 }} role="presentation">
+        <Box
+          sx={{
+            width: 500,
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <Typography variant="h6" sx={{ p: 2 }}>
             Chat Room
           </Typography>
           <Divider />
+          <Box sx={{ px: 2, overflowY: "auto", flexGrow: 1 }}>
+            {messages.map((message) => (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  //細的底線、灰色
+                  borderBottom: 1,
+                  borderStyle: "solid",
+                  borderColor: "grey.300",
+                  px: 1,
+                  py: 2,
+                  gap: 1,
+                }}
+              >
+                <Box sx={{ display: "flex" }} gap={1}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    {message.speakerName}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "grey.500" }}>
+                    {message.timing}
+                  </Typography>
+                </Box>
+                <Typography variant="body2">{message.content}</Typography>
+              </Box>
+            ))}
+          </Box>
+
+          <Box
+            sx={{
+              p: 2,
+              borderTop: 1,
+              borderStyle: "solid",
+              borderColor: "grey.300",
+            }}
+          >
+            <Grid container spacing={2} alignItems={"center"}>
+              <Grid item xs={10}>
+                <TextField
+                  id="message"
+                  type="text"
+                  fullWidth
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <Button variant="contained">Send</Button>
+              </Grid>
+            </Grid>
+          </Box>
         </Box>
       </Drawer>
     </>
   ) : (
-    <div>Group not found</div>
+    <div>No Group</div>
   );
 };
 
