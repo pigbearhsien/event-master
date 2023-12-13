@@ -47,7 +47,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
             name=user.name,
             account=user.account,
             password=user.password,
-            profile_pid_url=user.profilePicUrl
+            profile_pic_url=user.profilePicUrl
         )
         db.add(db_user)
         db.commit()
@@ -73,7 +73,7 @@ def list_all_user(db: Session = Depends(get_db)):
                     name=user.name,
                     account=user.account,
                     password=user.password,
-                    profilePicUrl=user.profile_pid_url,
+                    profilePicUrl=user.profile_pic_url,
                 )
             )
         return users
@@ -94,7 +94,7 @@ def list_user_by_id(user_id: str, db: Session = Depends(get_db)):
             name=db_user.name,
             account=db_user.account,
             password=db_user.password,
-            profilePicUrl=db_user.profile_pid_url,
+            profilePicUrl=db_user.profile_pic_url,
         )
         return user
     except HTTPException as e:
@@ -119,7 +119,7 @@ def list_user_by_name(user_name: str, db: Session = Depends(get_db)):
                     name=user.name,
                     account=user.account,
                     password=user.password,
-                    profilePicUrl=user.profile_pid_url,
+                    profilePicUrl=user.profile_pic_url,
                 )
             )
         return users
@@ -140,7 +140,7 @@ def update_user_by_id(user_id: str, user: UserSchema, db: Session = Depends(get_
         db_user.name = user.name
         db_user.account = user.account
         db_user.password = user.password
-        db_user.profile_pid_url = user.profilePicUrl
+        db_user.profile_pic_url = user.profilePicUrl
         db.commit()
         db.refresh(db_user)
         return db_user
