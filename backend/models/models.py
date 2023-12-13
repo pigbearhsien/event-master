@@ -10,7 +10,7 @@ class UserTable(Base):
     name = Column(String(40), nullable=False)
     account = Column(String(40), nullable=False)
     password = Column(String(10), nullable=False)
-    profile_pid_url = Column(Text)
+    profile_pid_url = Column(Text, nullable=True)
 
 class IsAdmin(Base):
     __tablename__ = 'isadmin'
@@ -23,7 +23,7 @@ class PrivateEvent(Base):
     event_start = Column(DateTime, nullable=False)
     event_end = Column(DateTime, nullable=False)
     name = Column(String(10), nullable=False)
-    description = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
 
 class GroupTable(Base):
     __tablename__ = 'group_table'
