@@ -22,6 +22,7 @@ function App() {
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
       {/* <LocalizationProvider dateAdapter={AdapterMoment}> */}
+      <EventProvider>
       <Router>
         <SignedIn>
           <Layout>
@@ -38,7 +39,7 @@ function App() {
         </SignedOut>
       </Router>
       {/* </LocalizationProvider> */}
-
+      </EventProvider>
     </ClerkProvider>
   );
 }
