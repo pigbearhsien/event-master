@@ -9,7 +9,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import { LayoutDashboard, Plus, Users } from "lucide-react";
-import { groups } from "@/mockdata";
+// import { groups } from "@/mockdata";
 import { useEffect, useState } from "react";
 import * as api from "../api/api";
 import Button from "@mui/material/Button";
@@ -22,6 +22,8 @@ import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import InputLabel from "@mui/material/InputLabel";
 import DialogTitle from "@mui/material/DialogTitle";
+import { v4 as uuidv4 } from "uuid";
+import { Group } from "@/typing/typing.d";
 // type Props = {};
 
 export default function Navigator(props: DrawerProps) {
@@ -29,11 +31,46 @@ export default function Navigator(props: DrawerProps) {
   const { ...other } = props;
   const { user, isSignedIn } = useUser();
 
+  const [name, setName] = useState("");
   useEffect(() => {
     if (isSignedIn) {
       // checkUser();
     }
   }, [isSignedIn]);
+
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [fetched, setFetched] = useState(false);
+  const fetchGroup = async () => {
+    setFetched(true);
+    var groupsData;
+    try {
+      if (!user) return;
+      groupsData = await api.getAllBelongGroups(user?.id);
+      groupsData.data.map((group) => {
+        setGroups((groups) => [...groups, group]);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(groups);
+  }, [groups]);
+
+  console.log("fetched", fetched)
+  if (fetched === false) {
+    fetchGroup();
+  }
+
+  const createGroup = async (name: string) => {
+    try {
+      if (!user) return;
+      await api.createGroup(uuidv4(), user?.id, name);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const location = useLocation();
   const path = location.pathname.split("/");
@@ -46,7 +83,7 @@ export default function Navigator(props: DrawerProps) {
             To create a group, please enter the group name here.
           </DialogContentText> */}
           <FormControl sx={{ mt: 2, minWidth: 120 }}>
-            <InputLabel htmlFor="max-width">maxWidth</InputLabel>
+            <InputLabel htmlFor="max-width"></InputLabel>
             <TextField
               autoFocus
               margin="dense"
@@ -54,6 +91,9 @@ export default function Navigator(props: DrawerProps) {
               label="Group Name"
               type="text"
               fullWidth
+              onChange={(event) => {
+                setName(event?.target.value);
+              }}
             />
           </FormControl>
         </DialogContent>
@@ -65,7 +105,14 @@ export default function Navigator(props: DrawerProps) {
           >
             Cancel
           </Button>
-          <Button>Create</Button>
+          <Button
+            onClick={async () => {
+              await createGroup(name);
+              setOpen(false);
+            }}
+          >
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
       <Drawer variant="permanent" {...other}>
@@ -92,16 +139,16 @@ export default function Navigator(props: DrawerProps) {
                 <Plus size={18} color="#929292" />
               </IconButton>
             </ListItem>
-            {groups.map(({ id, name: childId }) => (
-              <ListItem disablePadding key={id}>
+            {groups.map((group) => (
+              <ListItem disablePadding key={group.groupId}>
                 <ListItemButton
                   component={Link}
-                  to={`/groups/${id}/event`}
-                  selected={path[1] === "groups" && path[2] === id}
+                  to={`/groups/${group.groupId}/event`}
+                  selected={path[1] === "groups" && path[2] === group.groupId}
                   sx={{ py: 1 }}
                 >
                   <Users />
-                  <ListItemText sx={{ ml: 1.5 }}>{childId}</ListItemText>
+                  <ListItemText sx={{ ml: 1.5 }}>{group.name}</ListItemText>
                 </ListItemButton>
               </ListItem>
             ))}

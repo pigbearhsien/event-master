@@ -19,18 +19,38 @@ import GroupTodo from "@/components/group/GroupTodo";
 import TextField from "@mui/material/TextField";
 import { useUser } from "@clerk/clerk-react";
 import { Chat } from "@/typing/typing.d";
-import { getMessages } from "@/api/api";
+import * as api from "@/api/api";
 
 type Props = {};
 
 const Groups = (props: Props) => {
   const { groupId } = useParams();
-  const group = groups.find((g) => g.id === groupId);
+  // const group = groups.find((g) => g.id === groupId);
 
   const location = useLocation();
   const path = location.pathname.split("/");
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const [group, setGroup] = useState<{ id: string; name: string }>();
+  // const [fetched, setFetched] = useState(false);
+  const fetchThisGroup = async () => {
+    // setFetched(true)
+    var thisGroup;
+    try {
+      if (!groupId) return;
+      thisGroup = await api.getGroup(groupId);
+      console.log(thisGroup);
+      setGroup(thisGroup.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(()=>{
+    // console.log("this group")
+    fetchThisGroup()
+  }, [groupId])
 
   const [messages, setMessages] = useState<Chat[]>([]);
   const [messageSent, setMessageSent] = useState("");
@@ -40,7 +60,7 @@ const Groups = (props: Props) => {
   useEffect(() => {
     if (groupId) {
       console.log("Get Messages!!!");
-      getMessages(groupId).then((res) => {
+      api.getMessages(groupId).then((res) => {
         setMessages(res.data);
       });
     }
