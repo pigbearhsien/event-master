@@ -13,8 +13,30 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.DEBUG)
+tags_metadata = [
+    {
+        "name": "user",
+        "description": "Operations with users.",
+    },
+    {
+        "name": "manager",
+        "description": "Operations with managers.",
+    },
+    {
+        "name": "organizer",
+        "description": "Operations with organizers.",
+    },
+    {
+        "name": "admin",
+        "description": "Operations with admins.",
+    },
+    {
+        "name": "crud",
+        "description": "CRUD operations.",
+    },
+]
 
-app = FastAPI()
+app = FastAPI(openapi_tags=tags_metadata)
 
 origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
@@ -38,6 +60,14 @@ def root(db: Session = Depends(get_db)):
         logging.error(e)
         raise HTTPException(status_code=500, detail="Database is not connected")
 
+
+
+
+app.include_router(user_router.router, prefix="/api", tags=["user"], dependencies=[Depends(get_db)])
+app.include_router(manager_router.router, prefix="/api", tags=["manager"], dependencies=[Depends(get_db)])
+app.include_router(organizer_router.router, prefix="/api", tags=["organizer"], dependencies=[Depends(get_db)])
+app.include_router(admin_router.router, prefix="/api", tags=["admin"], dependencies=[Depends(get_db)])
+app.include_router(crud_router.router, prefix="/api", tags=["crud"], dependencies=[Depends(get_db)])
 app.include_router(user_router.router, prefix="/api", tags=["user"], dependencies=[Depends(get_db)])
 app.include_router(manager_router.router, prefix="/api", tags=["manager"], dependencies=[Depends(get_db)])
 app.include_router(organizer_router.router, prefix="/api", tags=["organizer"], dependencies=[Depends(get_db)])

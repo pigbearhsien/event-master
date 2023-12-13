@@ -39,7 +39,7 @@ router = APIRouter()
 
 # User CRUD
 # Create User
-@router.post("/createUser", response_model=UserSchema)
+@router.post("/createUser", response_model=UserSchema, operation_id="create_user2")
 def create_user(user: UserSchema, db: Session = Depends(get_db)):
     try:
         db_user = UserModel(
@@ -169,7 +169,7 @@ def delete_user_by_id(user_id: str, db: Session = Depends(get_db)):
     
 # Group CRUD
 # Create Group
-@router.post("/createGroup", response_model=GroupSchema)
+@router.post("/createGroup", response_model=GroupSchema, operation_id="create_group2")
 def create_group(group: GroupSchema, db: Session = Depends(get_db)):
     try:
         db_group = GroupModel(
