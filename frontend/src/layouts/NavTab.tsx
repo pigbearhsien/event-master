@@ -1,24 +1,41 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 
 export default function NavTabs() {
-  const [value, setValue] = useState(0);
   const { groupId } = useParams();
+  const location = useLocation();
+  const path = location.pathname.split("/");
+  const [value, setValue] = useState(path[path.length - 1]);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  useEffect(() => {
+    setValue(path[path.length - 1]);
+  }, [location]);
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Tabs value={value} onChange={handleChange} aria-label="nav tabs">
-        <Tab label="Event" component={Link} to={`/groups/${groupId}/event`} />
-        <Tab label="Todo" component={Link} to={`/groups/${groupId}/todo`} />
-        <Tab label="Info" component={Link} to={`/groups/${groupId}/info`} />
+      <Tabs value={value} aria-label="nav tabs">
+        <Tab
+          value={"event"}
+          label="Event"
+          component={Link}
+          to={`/groups/${groupId}/event`}
+        />
+        <Tab
+          value={"todo"}
+          label="Todo"
+          component={Link}
+          to={`/groups/${groupId}/todo`}
+        />
+        <Tab
+          value={"info"}
+          label="Info"
+          component={Link}
+          to={`/groups/${groupId}/info`}
+        />
       </Tabs>
     </Box>
   );

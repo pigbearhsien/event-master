@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import Calendar from "@/components/Calendar";
+import Calendar from "@/partials/Calendar";
 import {
   Typography,
   Button,

@@ -61,8 +61,7 @@ type User = {
   userId: string;
   name: string;
   account: string;
-  password: string;
-  profile_pic_url: string | null;
+  profilePicUrl: string | null;
 };
 
 type Vote = {
