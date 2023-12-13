@@ -50,43 +50,42 @@ def list_all_table_in_db(db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+from sqlalchemy import MetaData, Table
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from database import get_db
 
-# 列出所有使用者
-@router.get("/listAllUser", response_model=List[UserSchema])
-def list_all_user(db: Session = Depends(get_db)):
+@router.get("/listAllTableSchema")
+def list_all_table_schema(db: Session = Depends(get_db)):
     try:
-        db_users = db.query(UserModel).all()
-        logging.info(db_users[0])
-        # parse user name
-        users = []
-        for user in db_users:
-            users.append(
-                UserSchema(
-                    userId=user.userid,
-                    name=user.name,
-                    account=user.account,
-                    password=user.password,
-                    profilePicUrl=user.profile_pid_url,
-                )
-            )
-
-        return users
+        metadata = MetaData()
+        metadata.reflect(bind=db.get_bind())
+        table_schemas = {}
+        for table_name in metadata.tables.keys():
+            table = Table(table_name, metadata, autoload_with=db.get_bind())
+            table_schemas[table_name] = {
+                column.name: str(column.type)
+                for column in table.columns
+            }
+        return table_schemas
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 
-# 列出所有團隊
-@router.get("/listAllGroup", response_model=List[GroupSchema])
-def list_all_group(db: Session = Depends(get_db)):
-    try:
-        db_groups = db.query(GroupModel).all()
-        # parse group name
-        groups = []
-        for group in db_groups:
-            groups.append(GroupSchema(groupId=group.groupid, name=group.name))
+@router.get("/listAllModelSchemas")
+def list_all_model_schemas():
+    schemas = {
+        "UserSchema": UserSchema.schema(),
+        "GroupSchema": GroupSchema.schema(),
+        "GroupEventSchema": GroupEventSchema.schema(),
+        "AvailableTimeSchema": AvailableTimeSchema.schema(),
+        "UserJoinEventSchema": UserJoinEventSchema.schema(),
+        "GroupHasUserSchema": GroupHasUserSchema.schema(),
+        "TodoSchema": TodoSchema.schema(),
+        "PrivateEventSchema": PrivateEventSchema.schema(),
+        "ChatSchema": ChatSchema.schema(),
+    }
+    return schemas
 
-        return groups
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+
