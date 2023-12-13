@@ -95,7 +95,7 @@ const Groups = (props: Props) => {
   const onMessageSend = () => {
     if (messageSent) {
       const msg = {
-        groupId: group?.id,
+        groupId: groupId,
         speakerId: user?.id,
         timing: new Date().toISOString(),
         content: messageSent,
@@ -218,7 +218,11 @@ const Groups = (props: Props) => {
                   variant="outlined"
                   value={messageSent}
                   onChange={(e) => setMessageSent(e.target.value)}
-                  onSubmit={onMessageSend}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      onMessageSend();
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={2}>
