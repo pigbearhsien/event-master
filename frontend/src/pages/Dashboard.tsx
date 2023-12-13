@@ -23,9 +23,10 @@ const Dashboard = (props: Props) => {
 
   const { loggedInId } = useEvent();
 
-  const fetchDashboard = async () => {
+
+  const fetchDashboard = async()=>{
     const data_events = await api.getGroupEvents("10010")
-    console.log(data_events);
+    console.log(data_events.data);
     setLoading(false)
   }
 
