@@ -39,3 +39,99 @@ export const allEvents = [
     isPrivate: false,
   },
 ];
+
+export const messages = [
+  {
+    speakerName: "John",
+    content: "Hello",
+    timing: "2023-12-18 10:00",
+  },
+  {
+    speakerName: "John",
+    content: "Hi",
+    timing: "2023-12-18 10:01",
+  },
+  {
+    speakerName: "John",
+    content: "How are you?",
+    timing: "2023-12-18 10:02",
+  },
+  {
+    speakerName: "John",
+    content: "I'm fine, thank you",
+    timing: "2023-12-18 10:03",
+  },
+  {
+    speakerName: "John",
+    content: "And you?",
+    timing: "2023-12-18 10:04",
+  },
+  {
+    speakerName: "John",
+    content: "I'm fine too",
+    timing: "2023-12-18 10:05",
+  },
+  {
+    speakerName: "John",
+    // content: "Hello",
+    // 很長的 content
+    content:
+      "Simple dialogs can provide additional details or actions about a list item. For example, they can display avatars, icons, clarifying subtext, or orthogonal actions (such as adding an account).",
+    timing: "2023-12-18 10:00",
+  },
+  {
+    speakerName: "John",
+    content: "Hi",
+    timing: "2023-12-18 10:01",
+  },
+  {
+    speakerName: "John",
+    content: "How are you?",
+    timing: "2023-12-18 10:02",
+  },
+  {
+    speakerName: "John",
+    content: "I'm fine, thank you",
+    timing: "2023-12-18 10:03",
+  },
+  {
+    speakerName: "John",
+    content: "And you?",
+    timing: "2023-12-18 10:04",
+  },
+  {
+    speakerName: "John",
+    content: "I'm fine too",
+    timing: "2023-12-18 10:05",
+  },
+  {
+    speakerName: "John",
+    content: "Hello",
+    timing: "2023-12-18 10:00",
+  },
+  {
+    speakerName: "John",
+    content: "Hi",
+    timing: "2023-12-18 10:01",
+  },
+  {
+    speakerName: "John",
+    content: "How are you?",
+    timing: "2023-12-18 10:02",
+  },
+  {
+    speakerName: "John",
+    content: "I'm fine, thank you",
+    timing: "2023-12-18 10:03",
+  },
+  {
+    speakerName: "John",
+    content: "And you?",
+    timing: "2023-12-18 10:04",
+  },
+  {
+    speakerName: "John",
+    content: "I'm fine too",
+    timing: "2023-12-18 10:05",
+  },
+];

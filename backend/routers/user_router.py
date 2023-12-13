@@ -170,42 +170,39 @@ def get_user_groups(user_id: str, db: Session = Depends(get_db)):
 
 
 # 查詢自己所有確認參加的團隊活動
-@router.get("/getUserJoinEvents/{user_id}", response_model=List[GroupEventSchema])
+@router.get("/getUserJoinEvents/{user_id}", response_model=List)
 def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
     try:
-        logging.info(user_id)
-        db_group_event = (
-            db.query(GroupEventModel)
-            .join(
-                UserJoinEventModel,
-                GroupEventModel.eventid == UserJoinEventModel.eventid,
-            )
-            .filter(UserJoinEventModel.userid == user_id)
-            .all()
+        query = text(
+            """
+            SELECT * FROM group_event
+            JOIN user_join_event ON group_event.eventid = user_join_event.eventid
+            WHERE user_join_event.userid = :user_id
+            """
         )
-
-        # convert to schema
+        db_group_event = db.execute(query, {"user_id": user_id}).all()
+        logging.info(db_group_event)
+        # parse db_group_event to schema
         group_events = []
         for event in db_group_event:
             group_events.append(
-                GroupEventSchema(
-                    eventId=event.eventid,
-                    groupId=event.groupid,
-                    name=event.name,
-                    description=event.description,
-                    status=event.status,
-                    organizerId=event.organizerid,
-                    voteStart=event.vote_start,
-                    voteEnd=event.vote_end,
-                    voteDeadline=event.votedeadline,
-                    havePossibility=event.havepossibility,
-                    eventStart=event.event_start,
-                    eventEnd=event.event_end,
-                )
+                {
+                    "eventId": event.eventid,
+                    "groupId": event.groupid,
+                    "name": event.name,
+                    "description": event.description,
+                    "status": event.status,
+                    "organizerId": event.organizerid,
+                    "voteStart": event.vote_start,
+                    "voteEnd": event.vote_end,
+                    "voteDeadline": event.votedeadline,
+                    "havePossibility": event.havepossibility,
+                    "eventStart": event.event_start,
+                    "eventEnd": event.event_end,
+                    "userId": event.userid,
+                    "isAccepted": event.isaccepted,
+                }
             )
-
-        if not group_events:
-            raise HTTPException(status_code=404, detail="Event not found")
 
         return group_events
     except HTTPException as e:

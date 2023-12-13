@@ -6,11 +6,13 @@ from models import (
     Group as GroupModel,
     GroupEvent as GroupEventModel,
     GroupHasUser as GroupHasUserModel,
+    UserJoinEvent as UserJoinEventModel,
 )
 from schemas import (
     Group as GroupSchema,
     GroupEvent as GroupEventSchema,
     GroupHasUser as GroupHasUserSchema,
+    UserJoinEvent as UserJoinEventSchema,
 )
 
 import logging
@@ -36,6 +38,12 @@ def set_group_event_time(group_event: GroupEventSchema, db: Session = Depends(ge
         db_group_event.event_start = group_event.eventStart
         db_group_event.event_end = group_event.eventEnd
         db_group_event.status = group_event.status
+
+        db_user_join_event = (
+            db.query(UserJoinEventModel)
+            .filter(UserJoinEventModel.eventid == group_event.eventId)
+            .all()
+        )
 
         db.commit()
         return group_event
