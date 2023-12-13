@@ -192,7 +192,7 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
             else: 
                 db_group_event.status = 'End_Voting'
                 
-            if db_group_event.status is 'End_Voting':
+            if db_group_event.status == 'End_Voting':
                 if datetime.now() < db_group_event.event_start:
                     db_group_event.status = 'Not_Start_Yet'
                 elif datetime.now() < db_group_event.event_end:
@@ -338,6 +338,21 @@ def get_user_available_time(event_id: str, user_id: str, db: Session = Depends(g
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+@router.post("/createMessage", response_model=ChatSchema)
+def create_message(chat: ChatSchema, db: Session = Depends(get_db)):
+    try:
+        db_chat = ChatModel(
+            speakerid=chat.speakerId,
+            groupid=chat.groupId,
+            content=chat.content,
+            timing=chat.timing,
+        )
+        db.add(db_chat)
+        db.commit()
+        return chat
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # 用戶在特定團隊裡說的話
 @router.get("/getMessages/{group_id}", response_model=List[ChatSchema])
@@ -419,7 +434,7 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
             else: 
                 db_group_event.status = 'End_Voting'
                 
-            if db_group_event.status is 'End_Voting':
+            if db_group_event.status == 'End_Voting':
                 if datetime.now() < db_group_event.event_start:
                     db_group_event.status = 'Not_Start_Yet'
                 elif datetime.now() < db_group_event.event_end:
