@@ -50,9 +50,9 @@ export const getGroupEvents = async (
 
 export const getUserTodos = async (
   userId: string
-): Promise<AxiosResponse<Todo[]>> => {
+): Promise<AxiosResponse> => {
   try {
-    return await request.get<Todo[]>(`/getUserTodos/${userId}`);
+    return await request.get<any[]>(`/getUserTodos/${userId}`);
   } catch (error) {
     throw error as Error;
   }

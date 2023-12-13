@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import * as api from "../../api/api";
 import { useParams } from "react-router-dom";
 
@@ -23,7 +23,9 @@ const GroupEvent = (props: Props) => {
     }
   };
 
-  if (fetched === false) fetchThisGroupEvent();
+  useEffect(()=>{
+    fetchThisGroupEvent()
+  }, [groupId])
 
   return <div>GroupEvent</div>;
 };
