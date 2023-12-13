@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Plus, Pencil, Trash, Save, X } from "lucide-react";
-import * as api from "../../api/api"
+import * as api from "../../api/api";
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -19,7 +19,7 @@ import {
 } from "@mui/x-data-grid";
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import {v4 as uuidv4} from "uuid"
+import { v4 as uuidv4 } from "uuid";
 import { User } from "@/typing/typing.d";
 
 // const members = ["John", "Anson", "Xin"];
@@ -100,68 +100,76 @@ const GroupTodo = () => {
   const [rows, setRows] = useState(initialRows);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
-  const [todos, setTodos] = useState<any>([])
-  const [members, setMembers] = useState<User[]>([])
-  const [fetchedManager, setFetchedMaanager] = useState(false)
-  const [fetchedTodos, setFetchedTodos] = useState(false)
+  const [todos, setTodos] = useState<any>([]);
+  const [members, setMembers] = useState<any[]>([]);
+  const [fetchedManager, setFetchedMaanager] = useState(false);
+  const [fetchedTodos, setFetchedTodos] = useState(false);
   const { groupId } = useParams();
-  const {user} = useUser()
+  const { user } = useUser();
 
   // groupTodos
   const fetchGroupTodos = async () => {
-    setFetchedTodos(true)
-    var groupTodos: any
+    setFetchedTodos(true);
+    var groupTodos: any;
     try {
-      var userId: string = ""
-      if (user)
-        userId = user.id
-      groupTodos = await api.getUserTodos(userId)
-      groupTodos.data.map((todo: any)=>{
+      var userId: string = "";
+      if (user) userId = user.id;
+      groupTodos = await api.getUserTodos(userId);
+      console.log(groupTodos.data)
+      groupTodos.data.map((todo: any) => {
         if (todo.eventId === groupId)
-          setTodos((todos: any) => [...todos, todo])
-      })
+          setTodos((todos: any) => [...todos, todo]);
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const fetchGroupManagers = async () => {
-    setFetchedMaanager(true)
-    var groupManagers: any
+    setFetchedMaanager(true);
+    var groupManagers: any;
     try {
       if (!groupId) return;
-      groupManagers = await api.getGroupManagerWithId(groupId)
+      groupManagers = await api.getGroupManagerWithId(groupId);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const fetchGroupUsers = async () => {
-    var groupUsers: any
+    var groupUsers: any;
     try {
       if (!groupId) return;
-      groupUsers = await api.getGroupUsers(groupId)
-      setMembers(groupUsers.data)
+      groupUsers = await api.getGroupUsers(groupId);
+      setMembers(groupUsers.data);
+      console.log(groupUsers.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
-  useEffect(()=>{
-    fetchGroupManagers()
-    fetchGroupTodos()
-    fetchGroupUsers()
-    console.log(members)
-  }, [groupId])
+  useEffect(() => {
+    fetchGroupManagers();
+    fetchGroupTodos();
+    fetchGroupUsers();
+    console.log(members);
+  }, [groupId]);
 
-  useEffect(()=>{
-    console.log(rows)
-  }, [rows])
+  useEffect(() => {
+    console.log(rows);
+  }, [rows]);
 
-  const assignTodo = async (assigneeId:string, name: string, description: string, deadline: Date) => {
+  const assignTodo = async (
+    assigneeId: string,
+    name: string,
+    description: string,
+    deadline: Date
+  ) => {
     if (!user || !groupId) return;
     try {
-      await api.assignTodo({todoId: uuidv4(),
+      console.log("assgining")
+      const response = await api.assignTodo({
+        todoId: uuidv4(),
         groupId: groupId,
         assigneeId: assigneeId,
         assignerId: user.id,
@@ -169,11 +177,12 @@ const GroupTodo = () => {
         description: description,
         completed: false,
         deadline: deadline,
-      })
+      });
+      console.log(response)
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
@@ -213,11 +222,19 @@ const GroupTodo = () => {
   };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    console.log(newRow)
-    const updatedRow = { ...newRow, isNew: false, assigner: user?.id};
+    console.log(newRow);
+    const updatedRow = { ...newRow, isNew: false, assigner: user?.id };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    if(!user) return
-    assignTodo(user?.id, newRow.name, newRow.description, newRow.deadline)
+    
+    var id: string | undefined
+    members.map((member) => {
+      if (member.userName == newRow.assignee) {
+        console.log(member.userName, member.userId)
+        id = member.userId
+      }
+    });
+    if (!user || !id) {console.log(user, id);return updatedRow;}
+    assignTodo(user?.id, id, newRow.description, newRow.deadline);
     return updatedRow;
   };
 
@@ -256,7 +273,7 @@ const GroupTodo = () => {
       width: 130,
       editable: true,
       type: "singleSelect",
-      valueOptions: members.map((member) => member.name),
+      valueOptions: members.map((member) => member.userName),
     },
     {
       field: "deadline",
