@@ -521,11 +521,10 @@ def list_available_time_by_user_id(user_id: str, db: Session = Depends(get_db)):
 @router.get("/listAvailableTimeByEventId/{event_id}", response_model=List[AvailableTimeSchema])
 def list_available_time_by_event_id(event_id: str, db: Session = Depends(get_db)):
     try:
-        db_available_times = (
-            db.query(AvailableTimeModel)
-            .filter(AvailableTimeModel.eventid == event_id)
-            .all()
-        )
+        query = text("SELECT * FROM available_time WHERE eventid = :event_id")
+
+        db_available_times = db.execute(query, {"event_id": event_id}).fetchall()
+        
         if not db_available_times:
             raise HTTPException(status_code=404, detail="Available Time not found")
         # parse available time
@@ -1311,3 +1310,30 @@ def delete_private_event_by_id(private_event_id: str, db: Session = Depends(get_
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
+
+@router.get("/listAllVoteAvailableTimeByEventId/{event_id}", response_model=List )
+def list_all_vote_available_time_by_event_id(event_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("Select available_start, count(*), possibility_level FROM available_time WHERE eventid = :event_id group by available_start, possibility_level")
+
+        db_available_times = db.execute(query, {"event_id": event_id}).fetchall()
+        
+        if not db_available_times:
+            raise HTTPException(status_code=404, detail="Available Time not found")
+        # parse available time
+        available_times = []
+        for available_time in db_available_times:
+            available_times.append(
+                {
+                    "availableStart": available_time[0],
+                    "count": available_time[1],
+                    "possibilityLevel": available_time[2]
+                
+                }
+            )
+        return available_times
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
