@@ -777,11 +777,13 @@ def list_all_group_has_user(db: Session = Depends(get_db)):
 @router.get("/listGroupHasUserByGroupId/{group_id}", response_model=List[GroupHasUserSchema])
 def list_group_has_user_by_group_id(group_id: str, db: Session = Depends(get_db)):
     try:
-        db_group_has_users = (
-            db.query(GroupHasUserModel)
-            .filter(GroupHasUserModel.groupid == group_id)
-            .all()
-        )
+        query = text("SELECT groupid, user_table.userid, user_table.name FROM group_has_user JOIN user_table ON group_has_user.userid = user_table.userid WHERE groupid = :group_id")
+        # db_group_has_users = (
+        #     db.query(GroupHasUserModel)
+        #     .filter(GroupHasUserModel.groupid == group_id)
+        #     .all()
+        # )
+        db_group_has_users = db.execute(query, {"group_id": group_id}).fetchall()
         if not db_group_has_users:
             raise HTTPException(status_code=404, detail="Group Has User not found")
         # parse group has user
@@ -790,7 +792,8 @@ def list_group_has_user_by_group_id(group_id: str, db: Session = Depends(get_db)
             group_has_users.append(
                 GroupHasUserSchema(
                     groupId=group_has_user.groupid,
-                    userId=group_has_user.userid
+                    userId=group_has_user.userid,
+                    userName=group_has_user.name
                 )
             )
         return group_has_users
