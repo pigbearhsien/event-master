@@ -149,3 +149,4 @@ async def insert_todo_to_group(todo: TodoSchema, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+

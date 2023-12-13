@@ -580,3 +580,29 @@ def list_all_vote_count_by_event_id(event_id: str, db: Session = Depends(get_db)
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+@router.get("/listGroupHasManager/{group_id}", response_model=List)
+def list_group_has_manager(group_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("SELECT u.userid, u.name FROM group_has_manager gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
+
+        db_group_has_managers = db.execute(query, {"group_id": group_id}).fetchall()
+        
+        if not db_group_has_managers:
+            raise HTTPException(status_code=404, detail="Group Has Manager not found")
+        
+        # parse
+        group_has_managers = []
+        for group_has_manager in db_group_has_managers:
+            group_has_managers.append(
+                {
+                    "userId": group_has_manager.userid,
+                    "name": group_has_manager.name
+                }
+            )
+        return group_has_managers
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
