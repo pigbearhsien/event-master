@@ -199,7 +199,7 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
                     db_group_event.status = 'On_Going'
                 else:
                     db_group_event.status = 'Closure'
-                    
+
         # parse db_group_event to schema
         group_events = []
         for event in db_group_event:
@@ -221,7 +221,7 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
                     "isAccepted": event.isaccepted,
                 }
             )
-
+        
         return group_events
     except HTTPException as e:
         raise e
