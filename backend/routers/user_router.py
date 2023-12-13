@@ -1,5 +1,5 @@
 # user_router.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
@@ -28,6 +28,7 @@ from schemas import (
     Chat as ChatSchema,
 )
 
+import json
 from datetime import datetime
 import logging
 
@@ -299,7 +300,74 @@ def get_user_private_events(user_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
 
+# Dictionary to store active WebSocket connections for each group
+active_connections_by_group = {}
+# 送給上線團隊使用者訊息
+# Function to broadcast a message to all users in a group
+async def broadcast_message(group_id: str, message: dict):
+    if group_id in active_connections_by_group:
+        connections = active_connections_by_group[group_id]
+        for connection in connections:
+            try:
+                # parse json to string
+                message = json.dumps(message)
+                await connection.send_text(message)
+            except Exception as e:
+                print(f"Error broadcasting message to {group_id}: {e}")
+
+# 使用WebSocket接收訊息
+@router.websocket("/ws/{group_id}")
+async def websocket_endpoint(websocket: WebSocket, group_id: str, db: Session = Depends(get_db)):
+    await websocket.accept()
+    if group_id not in active_connections_by_group:
+        active_connections_by_group[group_id] = []
+
+    active_connections_by_group[group_id].append(websocket)
+    try: 
+        while True:
+            message = await websocket.receive_text()
+            message = json.loads(message)
+            # parse user id to user name
+            query = text(
+                """
+                SELECT name FROM user_table
+                JOIN chat ON user_table.userid = :speaker_id
+                """
+            )
+            speakerId = message.get("speakerId")
+            db_user = db.execute(query, {"speaker_id": speakerId}).first()
+            message = {
+                "speakerId": message.get("speakerId"),
+                "speakerName": db_user.name,
+                "groupId": message.get("groupId"),
+                "content": message.get("content"),
+                "timing": message.get("timing"),
+            }
+            try:
+                await broadcast_message(group_id, message)
+                # if success, save to database
+                db_chat = ChatModel(
+                    speakerid=message.get("speakerId"),
+                    groupid=message.get("groupId"),
+                    content=message.get("content"),
+                    timing=message.get("timing"),
+                )
+                db.add(db_chat)
+                db.commit()
+                
+            except Exception as e:
+                print(f"Error broadcasting message to {group_id}: {e}")
+            
+    except WebSocketDisconnect:
+        # Remove the WebSocket connection when disconnected
+        active_connections_by_group[group_id].remove(websocket)
+        print(f"WebSocket connection with {group_id} closed")
+
+
+    
+    
 
 # 查詢使用者在特定團隊活動的可以時間和程度
 @router.get(
@@ -355,21 +423,31 @@ def create_message(chat: ChatSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # 用戶在特定團隊裡說的話
-@router.get("/getMessages/{group_id}", response_model=List[ChatSchema])
+@router.get("/getMessages/{group_id}", response_model=List)
 def get_user_chat(group_id: str, db: Session = Depends(get_db)):
     try:
-        db_chat = db.query(ChatModel).filter(ChatModel.groupid == group_id).all()
+
+        query = text(
+            """
+            SELECT name, groupId, content, timing, speakerId FROM chat
+            JOIN user_table ON chat.speakerid = user_table.userid
+            WHERE groupId = :group_id
+            ORDER BY timing ASC
+            """
+        )
+        db_chat = db.execute(query, {"group_id": group_id}).all()
 
         # convert to schema
         chats = []
         for chat in db_chat:
             chats.append(
-                ChatSchema(
-                    speakerId=chat.speakerid,
-                    groupId=chat.groupid,
-                    content=chat.content,
-                    timing=chat.timing,
-                )
+                {
+                    "speakerId": chat.speakerid,
+                    "speakerName": chat.name,
+                    "groupId": chat.groupid,
+                    "content": chat.content,
+                    "timing": chat.timing,
+                }
             )
         if not chats:
             raise HTTPException(status_code=404, detail="Chat not found")
@@ -467,3 +545,29 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
 
 
 
+@router.get("/listAllVoteCountByEventId/{event_id}", response_model=List )
+def list_all_vote_count_by_event_id(event_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("Select available_start, count(*), possibility_level FROM available_time WHERE eventid = :event_id group by available_start, possibility_level")
+
+        db_available_times = db.execute(query, {"event_id": event_id}).fetchall()
+        
+        if not db_available_times:
+            raise HTTPException(status_code=404, detail="Available Time not found")
+        # parse available time
+        available_times = []
+        for available_time in db_available_times:
+            available_times.append(
+                {
+                    "availableStart": available_time[0],
+                    "count": available_time[1],
+                    "possibilityLevel": available_time[2]
+                
+                }
+            )
+        return available_times
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")

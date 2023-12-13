@@ -9,7 +9,6 @@ import {
   EventPrivate,
   Chat,
 } from "../typing/typing.d";
-import { group } from "console";
 
 export const request: AxiosInstance = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -131,7 +130,7 @@ export const getMessages = async (
   groupId: string
 ): Promise<AxiosResponse<Chat[]>> => {
   try {
-    return await request.get(`/messages/${groupId}`);
+    return await request.get(`/getMessages/${groupId}`);
   } catch (error) {
     throw error as Error;
   }

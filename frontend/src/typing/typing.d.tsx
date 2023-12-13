@@ -30,6 +30,7 @@ type EventPrivate = {
 type Chat = {
   groupId: string;
   speakerId: string;
+  speakerName: string;
   timing: Date;
   content: string;
 };
