@@ -232,26 +232,35 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
 
 
 # 查詢自己所有TODO
-@router.get("/getUserTodos/{user_id}", response_model=List[TodoSchema])
+@router.get("/getUserTodos/{user_id}", response_model=List)
 def get_user_todos(user_id: str, db: Session = Depends(get_db)):
     try:
-        db_todo = db.query(TodoModel).filter(TodoModel.assigneeid == user_id).all()
+
+        query = text(
+            """
+            SELECT todoid, groupid, assigneeid, u1.name as assigneeName, u2.name as assignerName, description, completed, deadline FROM todo
+            JOIN user_table AS u1 ON todo.assigneeid = u1.userid
+            JOIN user_table AS u2 ON todo.assignerid = u2.userid
+            WHERE assigneeid = :user_id or assignerid = :user_id
+
+            """
+        )
+        db_todo = db.execute(query, {"user_id": user_id}).all()
 
         # convert to schema
         todos = []
         for todo in db_todo:
-            todos.append(
-                TodoSchema(
-                    todoId=todo.todoid,
-                    groupId=todo.groupid,
-                    assigneeId=todo.assigneeid,
-                    assignerId=todo.assignerid,
-                    name=todo.name,
-                    description=todo.description,
-                    completed=todo.completed,
-                    deadline=todo.deadline,
-                )
-            )
+            todos.append({
+                "todoId": todo.todoid,
+                "assigneeId": todo.assigneeid,
+                "assigneeName": todo.assigneeName,
+                "assignerId": todo.assignerid,
+                "assignerName": todo.assignerName,
+                "content": todo.content,
+                "deadline": todo.deadline,
+                "completed": todo.completed,
+
+            })
 
         if not todos:
             raise HTTPException(status_code=404, detail="Todo not found")
