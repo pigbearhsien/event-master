@@ -9,6 +9,7 @@ import {
   EventPrivate,
   Chat,
 } from "../typing/typing.d";
+import { group } from "console";
 
 export const request: AxiosInstance = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -131,6 +132,16 @@ export const getMessages = async (
 ): Promise<AxiosResponse<Chat[]>> => {
   try {
     return await request.get(`/messages/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getGroupEventsWithId = async (
+  groupId: string
+): Promise<AxiosResponse<EventGroup[]>> => {
+  try {
+    return await request.get(`/listGroupEventByGroupId/${groupId}`);
   } catch (error) {
     throw error as Error;
   }
