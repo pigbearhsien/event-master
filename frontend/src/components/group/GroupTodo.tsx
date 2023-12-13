@@ -67,7 +67,7 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     // id 隨機產生
-    const id = Math.floor(Math.random() * 1000000);
+    const id = "new";
     setRows((oldRows) => [
       ...oldRows,
       {
@@ -245,11 +245,11 @@ const GroupTodo = () => {
         id = member.userId;
       }
     });
-    if (!user || !id) {
+    if (!user || !id || newRow.id !== "new") {
       console.log(user, id);
       return updatedRow;
     }
-    assignTodo(user?.id, id, newRow.description, newRow.deadline);
+    assignTodo(id, newRow.todo, newRow.description, newRow.deadline);
     return updatedRow;
   };
 
