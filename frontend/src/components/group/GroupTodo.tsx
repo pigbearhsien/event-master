@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Plus, Pencil, Trash, Save, X } from "lucide-react";
-
+import * as api from "../../api/api"
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -17,6 +17,8 @@ import {
   GridRowEditStopReasons,
   gridClasses,
 } from "@mui/x-data-grid";
+import { useParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 const members = ["John", "Anson", "Xin"];
 
@@ -91,6 +93,43 @@ function EditToolbar(props: EditToolbarProps) {
 const GroupTodo = () => {
   const [rows, setRows] = useState(initialRows);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
+  const [todos, setTodos] = useState<any>([])
+  const [fetchedManager, setFetchedMaanager] = useState(false)
+  const [fetchedTodos, setFetchedTodos] = useState(false)
+  const { groupId } = useParams();
+  const user = useUser()
+  // groupTodos
+  const fetchGroupTodos = async () => {
+    setFetchedTodos(true)
+    var groupTodos: any
+    try {
+      var userId: string = ""
+      if (user.user)
+        userId = user.user.id
+      groupTodos = await api.getUserTodos(userId)
+      groupTodos.data.map((todo: any)=>{
+        if (todo.eventId === groupId)
+          setTodos([...todos, todo])
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const fetchGroupManagers = async () => {
+    setFetchedMaanager(true)
+    var groupManagers: any
+    try {
+      if (!groupId) return;
+      groupManagers = await api.getGroupManagerWithId(groupId)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  if(fetchedManager === false) fetchGroupManagers()
+  if(fetchedTodos === false) fetchGroupTodos()
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,

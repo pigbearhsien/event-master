@@ -49,11 +49,11 @@ export const getGroupEvents = async (
   }
 };
 
-export const getTodos = async (
+export const getUserTodos = async (
   userId: string
 ): Promise<AxiosResponse<Todo[]>> => {
   try {
-    return await request.get<Todo[]>(`/allTodos/${userId}`);
+    return await request.get<Todo[]>(`/getUserTodos/${userId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -146,6 +146,16 @@ export const getGroupEventsWithId = async (
     throw error as Error;
   }
 };
+
+export const getGroupManagerWithId = async (
+  groupId: string
+): Promise<AxiosResponse<User[]>> => {
+  try {
+    return await request.get(`/listGroupHasManagerByGroupId/${groupId}`);
+  } catch (error){
+    throw error as Error;
+  }
+}
 
 // Post
 export const createGroup = async (
