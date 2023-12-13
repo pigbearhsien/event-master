@@ -44,7 +44,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
             name=user.name,
             account=user.account,
             password=user.password,
-            profile_pic_url=user.profilePicUrl,
+            profile_pid_url=user.profilePicUrl,
         )
         db.add(db_user)
         db.commit()
