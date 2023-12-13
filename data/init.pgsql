@@ -1,13 +1,13 @@
 CREATE TABLE USER_table(
     UserID varchar(50) NOT NULL,
-    Name varchar(40) NOT NULL,
-    Account varchar(40) NOT NULL,
-    Password varchar(10) NOT NULL,
-    Profile_pid_url text,
+    Name varchar(50) NOT NULL,
+    Account varchar(50) NOT NULL,
+    Password varchar(20) NOT NULL,
+    Profile_pic_url text,
     PRIMARY KEY (UserID)
 );
 
-COPY USER_table(UserID, Name, Account, PASSWORD, Profile_pid_url)
+COPY USER_table(UserID, Name, Account, PASSWORD, Profile_pic_url)
 FROM
     '/Users/xin/coding/DBMS_project/data/users.csv' DELIMITER ',' CSV HEADER;
 
@@ -24,7 +24,7 @@ CREATE TABLE PRIVATE_EVENT(
     UserID varchar(50) NOT NULL,
     Event_Start timestamp NOT NULL,
     Event_End timestamp NOT NULL,
-    Name varchar(20) NOT NULL,
+    Name varchar(50) NOT NULL,
     Description text NOT NULL,
     PRIMARY KEY (EventID),
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
@@ -34,7 +34,7 @@ COPY PRIVATE_EVENT(EventID, UserID, Event_Start, Event_End, Name, Description) F
 
 CREATE TABLE GROUP_table(
     GroupID varchar(50) NOT NULL,
-    name varchar(20) NOT NULL,
+    name varchar(50) NOT NULL,
     PRIMARY KEY (GroupID)
 );
 
@@ -63,7 +63,7 @@ COPY GROUP_HAS_MANAGER(GroupID, UserID) FROM'/Users/xin/coding/DBMS_project/data
 CREATE TABLE GROUP_EVENT(
     EventID varchar(50) NOT NULL,
     GroupID varchar(50) NOT NULL,
-    name varchar(20) NOT NULL,
+    name varchar(50) NOT NULL,
     Description text NOT NULL,
     Event_Start timestamp,
     Event_End timestamp,
@@ -83,7 +83,7 @@ COPY GROUP_EVENT(EventID, GroupID, name, Description, Event_Start, Event_End, St
 CREATE TABLE USER_JOIN_EVENT(
     UserID varchar(50) NOT NULL,
     EventID varchar(50) NOT NULL,
-    IsAccepted bool NOT NULL,
+    IsAccepted bool,
     PRIMARY KEY (UserID, EventID),
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (EventID) REFERENCES GROUP_EVENT(EventID) ON DELETE CASCADE ON UPDATE CASCADE
@@ -95,7 +95,7 @@ CREATE TABLE AVAILABLE_TIME(
     UserID varchar(50) NOT NULL,
     EventID varchar(50) NOT NULL,
     Available_Start timestamp NOT NULL,
-    Possibility_level varchar(10) NOT NULL CHECK (Possibility_level IN ('Definitely', 'Maybe')),
+    Possibility_level varchar(20) NOT NULL CHECK (Possibility_level IN ('Definitely', 'Maybe')),
     PRIMARY KEY (UserID, EventID, Available_Start),
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (EventID) REFERENCES GROUP_EVENT(EventID) ON DELETE CASCADE ON UPDATE CASCADE
@@ -108,7 +108,7 @@ CREATE TABLE TODO(
     GroupID varchar(50) NOT NULL,
     AssigneeID varchar(50) NOT NULL,
     AssignerID varchar(50) NOT NULL,
-    Name varchar(20) NOT NULL,
+    Name varchar(50) NOT NULL,
     Description text NOT NULL,
     Completed bool NOT NULL,
     Deadline timestamp NOT NULL,
