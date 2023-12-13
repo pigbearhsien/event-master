@@ -6,7 +6,7 @@ class User(BaseModel):
     name: str
     account: str
     password: str
-    profilePicUrl: Optional[HttpUrl]
+    profilePicUrl: Optional[str]
 
     class Config:
         orm_mode = True
