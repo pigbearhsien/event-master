@@ -20,7 +20,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { v4 as uuidv4 } from "uuid";
-import { User } from "@/typing/typing.d";
+import { Todo, User } from "@/typing/typing.d";
 
 // const members = ["John", "Anson", "Xin"];
 
@@ -97,7 +97,7 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const GroupTodo = () => {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState<any[]>([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   const [todos, setTodos] = useState<any>([]);
@@ -115,10 +115,21 @@ const GroupTodo = () => {
       var userId: string = "";
       if (user) userId = user.id;
       groupTodos = await api.getUserTodos(userId);
-      console.log(groupTodos.data)
+      console.log(groupTodos.data);
       groupTodos.data.map((todo: any) => {
-        if (todo.eventId === groupId)
-          setTodos((todos: any) => [...todos, todo]);
+        if (todo.groupId === groupId) {
+          var todoIsNew = {
+            id : todo.todoId,
+            assignee: todo.assigneeName,
+            assigner: todo.assignerName,
+            completed: false,
+            deadline: todo.deadline,
+            description: todo.description,
+            todo: todo.name,
+            isNew: false,
+          };
+          setRows((rows: any) => [...rows, todoIsNew]);
+        }
       });
     } catch (error) {
       console.log(error);
@@ -167,7 +178,7 @@ const GroupTodo = () => {
   ) => {
     if (!user || !groupId) return;
     try {
-      console.log("assgining")
+      console.log("assgining");
       const response = await api.assignTodo({
         todoId: uuidv4(),
         groupId: groupId,
@@ -178,7 +189,7 @@ const GroupTodo = () => {
         completed: false,
         deadline: deadline,
       });
-      console.log(response)
+      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -206,7 +217,7 @@ const GroupTodo = () => {
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+    setRows(rows.filter((row) => row.todoId !== id));
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -215,9 +226,9 @@ const GroupTodo = () => {
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
     });
 
-    const editedRow = rows.find((row) => row.id === id);
+    const editedRow = rows.find((row) => row.todoId === id);
     if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
+      setRows(rows.filter((row) => row.todoId !== id));
     }
   };
 
@@ -225,15 +236,18 @@ const GroupTodo = () => {
     console.log(newRow);
     const updatedRow = { ...newRow, isNew: false, assigner: user?.id };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    
-    var id: string | undefined
+
+    var id: string | undefined;
     members.map((member) => {
       if (member.userName == newRow.assignee) {
-        console.log(member.userName, member.userId)
-        id = member.userId
+        console.log(member.userName, member.userId);
+        id = member.userId;
       }
     });
-    if (!user || !id) {console.log(user, id);return updatedRow;}
+    if (!user || !id) {
+      console.log(user, id);
+      return updatedRow;
+    }
     assignTodo(user?.id, id, newRow.description, newRow.deadline);
     return updatedRow;
   };
