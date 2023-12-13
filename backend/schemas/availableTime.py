@@ -4,7 +4,7 @@ from datetime import datetime
 class AvailableTime(BaseModel):
     userId: str
     eventId: str
-    available_start: datetime
+    availableStart: datetime
     possibilityLevel: Optional[str]
 
     class Config:
