@@ -115,7 +115,8 @@ const GroupTodo = () => {
       var userId: string = "";
       if (user) userId = user.id;
       groupTodos = await api.getUserTodos(userId);
-      console.log(groupTodos.data);
+      console.log("todoData", groupTodos.data);
+      setRows([])
       groupTodos.data.map((todo: any) => {
         if (todo.groupId === groupId) {
           var todoIsNew = {
@@ -123,7 +124,7 @@ const GroupTodo = () => {
             assignee: todo.assigneeName,
             assigner: todo.assignerName,
             completed: false,
-            deadline: todo.deadline,
+            deadline: new Date(todo.deadline),
             description: todo.description,
             todo: todo.name,
             isNew: false,
