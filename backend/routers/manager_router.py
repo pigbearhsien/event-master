@@ -35,7 +35,7 @@ async def create_group(
         db_group = GroupModel(groupid=group.groupId, name=group.name)
         logging.info(db_group)
         db.add(db_group)
-
+        
         # 2. Add Manager to Group
         db_manager = GroupHasManagerModel(groupid=group.groupId, userid=manager_id)
         db.add(db_manager)

@@ -5,6 +5,9 @@ import {
   SignedOut,
   RedirectToSignIn,
 } from "@clerk/clerk-react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+
 import Layout from "@/layouts/Layout";
 import Dashboard from "@/pages/Dashboard";
 import Groups from "@/pages/Groups";
@@ -18,22 +21,24 @@ const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 function App() {
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
+      {/* <LocalizationProvider dateAdapter={AdapterMoment}> */}
       <EventProvider>
-        <Router>
-          <SignedIn>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/groups/:groupId/event" element={<Groups />} />
-                <Route path="/groups/:groupId/todo" element={<Groups />} />
-                <Route path="/groups/:groupId/info" element={<Groups />} />
-              </Routes>
-            </Layout>
-          </SignedIn>
-          <SignedOut>
-            <RedirectToSignIn />
-          </SignedOut>
-        </Router>
+      <Router>
+        <SignedIn>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/groups/:groupId/event" element={<Groups />} />
+              <Route path="/groups/:groupId/todo" element={<Groups />} />
+              <Route path="/groups/:groupId/info" element={<Groups />} />
+            </Routes>
+          </Layout>
+        </SignedIn>
+        <SignedOut>
+          <RedirectToSignIn />
+        </SignedOut>
+      </Router>
+      {/* </LocalizationProvider> */}
       </EventProvider>
     </ClerkProvider>
   );

@@ -6,6 +6,7 @@ import {
   Button,
   Grid,
   ButtonGroup,
+  Divider,
   CircularProgress,
 } from "@mui/material";
 import { Bell } from "lucide-react";
@@ -18,17 +19,11 @@ type Props = {};
 
 const Dashboard = (props: Props) => {
   const [view, setView] = React.useState("calendar"); // ["calendar", "todo"
-  const [loading, setLoading] = React.useState(true);
+  const [groupEvents, setGroupEvents] = React.useState([]);
+  const [privateEvents, setPrivateEvents] = React.useState([]);
+  const [todos, setTodos] = React.useState([]);
 
   const { loggedInId } = useEvent();
-
-  const fetchDashboard = async()=>{
-    const data_events = await api.getGroupEvents("11246")
-    console.log(data_events);
-    setLoading(false)
-  }
-
-  fetchDashboard()
 
   return (
     <>
@@ -38,7 +33,7 @@ const Dashboard = (props: Props) => {
         color="transparent"
         position="static"
         elevation={0}
-        sx={{ zIndex: 0, mb: 2 }}
+        sx={{ zIndex: 0, mb: 1 }}
       >
         <Toolbar disableGutters>
           <Grid container alignItems="center" spacing={2}>
@@ -84,11 +79,10 @@ const Dashboard = (props: Props) => {
           </Grid>
         </Toolbar>
       </AppBar>
+      <Divider sx={{ mb: 3 }} />
 
       {/* Calendar */}
-      {loading ? (
-        <CircularProgress />
-      ) : view === "calendar" ? (
+      { view === "calendar" ? (
         <DashboardCalendar />
       ) : (
         <DashboardTodo />
