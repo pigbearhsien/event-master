@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { groups } from "@/mockdata";
 import NavTabs from "@/layouts/NavTab";
@@ -18,17 +18,38 @@ import GroupInfo from "@/components/group/GroupInfo";
 import GroupTodo from "@/components/group/GroupTodo";
 import { messages } from "@/mockdata";
 import TextField from "@mui/material/TextField";
+import * as api from "../api/api";
 
 type Props = {};
 
 const Groups = (props: Props) => {
   const { groupId } = useParams();
-  const group = groups.find((g) => g.id === groupId);
+  // const group = groups.find((g) => g.id === groupId);
 
   const location = useLocation();
   const path = location.pathname.split("/");
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const [group, setGroup] = useState<{ id: string; name: string }>();
+  // const [fetched, setFetched] = useState(false);
+  const fetchThisGroup = async () => {
+    // setFetched(true)
+    var thisGroup;
+    try {
+      if (!groupId) return;
+      thisGroup = await api.getGroup(groupId);
+      console.log(thisGroup);
+      setGroup(thisGroup.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(()=>{
+    // console.log("this group")
+    fetchThisGroup()
+  }, [groupId])
 
   return group ? (
     <>

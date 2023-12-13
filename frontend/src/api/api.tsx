@@ -100,7 +100,7 @@ export const getAllBelongGroups = async (
   userId: string
 ): Promise<AxiosResponse<Group[]>> => {
   try {
-    return await request.get(`/allBelongGroups/${userId}`);
+    return await request.get(`/getUserGroups/${userId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -152,20 +152,28 @@ export const getGroupManagerWithId = async (
 ): Promise<AxiosResponse<User[]>> => {
   try {
     return await request.get(`/listGroupHasManagerByGroupId/${groupId}`);
-  } catch (error){
+  } catch (error) {
     throw error as Error;
   }
-}
+};
 
-export const getGroupWithUserId = async (
+export const getGroup = async (groupId: string): Promise<AxiosResponse> => {
+  try {
+    return await request.get(`/getGroup/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getGroupUsers = async (
   groupId: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.get(`/listGroupByName/${groupId}`)
+    return await request.get(`/listGroupHasUserByGroupId/${groupId}`);
   } catch (error) {
-    throw error as Error
+    throw error as Error;
   }
-}
+};
 
 // Post
 export const createGroup = async (
@@ -229,7 +237,7 @@ export const addManager = async (
 
 export const assignTodo = async (todoInfo: Todo): Promise<AxiosResponse> => {
   try {
-    return await request.post("/assignTodo", todoInfo);
+    return await request.post("/insertTodoToGroup", todoInfo);
   } catch (error) {
     throw error as Error;
   }
@@ -296,12 +304,10 @@ export const createGroupEvent = async (
   }
 };
 
-export const createMessage = async (
-  param: Chat
-): Promise<AxiosResponse> => {
+export const createMessage = async (param: Chat): Promise<AxiosResponse> => {
   try {
     return await request.post("/createMessage", param);
   } catch (error) {
     throw error as Error;
   }
-}
+};

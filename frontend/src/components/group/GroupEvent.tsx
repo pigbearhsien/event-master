@@ -1,16 +1,19 @@
 import React from "react";
 import * as api from "../../api/api";
+import { useParams } from "react-router-dom";
 
 type Props = {};
 
 const GroupEvent = (props: Props) => {
+  const { groupId } = useParams();
   const [events, setEvents] = React.useState<any>([]);
   const [fetched, setFetched] = React.useState(false);
 
   const fetchThisGroupEvent = async () => {
     var thisGroupEvent
     try{
-      thisGroupEvent = await api.getGroupEventsWithId()
+      if(!groupId) return
+      thisGroupEvent = await api.getGroupEventsWithId(groupId)
       console.log(thisGroupEvent)
       thisGroupEvent.data.map((event)=>{
         setEvents([...events, event])
