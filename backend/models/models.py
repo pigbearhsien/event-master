@@ -10,7 +10,7 @@ class UserTable(Base):
     name = Column(String(40), nullable=False)
     account = Column(String(40), nullable=False)
     password = Column(String(10), nullable=False)
-    profile_pid_url = Column(Text, nullable=True)
+    profile_pic_url = Column(Text, nullable=True)
 
 class IsAdmin(Base):
     __tablename__ = 'isadmin'
@@ -61,7 +61,7 @@ class UserJoinEvent(Base):
     __tablename__ = 'user_join_event'
     userid = Column(String(50), ForeignKey('user_table.userid'), primary_key=True)
     eventid = Column(String(50), ForeignKey('group_event.eventid'), primary_key=True)
-    isaccepted = Column(Boolean, nullable=False)
+    isaccepted = Column(Boolean)
 
 class AvailableTime(Base):
     __tablename__ = 'available_time'
