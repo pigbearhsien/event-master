@@ -107,7 +107,7 @@ def list_user_by_id(user_id: str, db: Session = Depends(get_db)):
 @router.get("/listUserByName/{user_name}", response_model=List[UserSchema])
 def list_user_by_name(user_name: str, db: Session = Depends(get_db)):
     try:
-        db_users = db.query(UserModel).filter(UserModel.username == user_name).all()
+        db_users = db.query(UserModel).filter(UserModel.name == user_name).all()
         if not db_users:
             raise HTTPException(status_code=404, detail="User not found")
         # parse user name
