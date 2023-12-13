@@ -581,10 +581,11 @@ def list_all_vote_count_by_event_id(event_id: str, db: Session = Depends(get_db)
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
     
+# 查詢管理員
 @router.get("/listGroupHasManager/{group_id}", response_model=List)
 def list_group_has_manager(group_id: str, db: Session = Depends(get_db)):
     try:
-        query = text("SELECT u.userid, u.name FROM group_has_manager gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
+        query = text("SELECT u.userid, u.name, u.account, u.profile_pic_url FROM group_has_manager gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
 
         db_group_has_managers = db.execute(query, {"group_id": group_id}).fetchall()
         
@@ -597,10 +598,41 @@ def list_group_has_manager(group_id: str, db: Session = Depends(get_db)):
             group_has_managers.append(
                 {
                     "userId": group_has_manager.userid,
-                    "name": group_has_manager.name
+                    "name": group_has_manager.name,
+                    "account": group_has_manager.account,
+                    "profilePicUrl": group_has_manager.profile_pic_url
                 }
             )
         return group_has_managers
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+# 查詢團隊成員
+@router.get("/listGroupHasUser/{group_id}", response_model=List)
+def list_group_has_user(group_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("SELECT u.userid, u.name, u.account, u.profile_pic_url FROM group_has_user gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
+
+        db_group_has_users = db.execute(query, {"group_id": group_id}).fetchall()
+        
+        if not db_group_has_users:
+            raise HTTPException(status_code=404, detail="Group Has User not found")
+        
+        # parse
+        group_has_users = []
+        for group_has_user in db_group_has_users:
+            group_has_users.append(
+                {
+                    "userId": group_has_user.userid,
+                    "name": group_has_user.name,
+                    "account": group_has_user.account,
+                    "profilePicUrl": group_has_user.profile_pic_url
+                }
+            )
+        return group_has_users
     except HTTPException as e:
         raise e
     except Exception as e:
