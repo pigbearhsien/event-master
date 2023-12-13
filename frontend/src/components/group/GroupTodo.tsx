@@ -67,7 +67,7 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     // id 隨機產生
-    const id = Math.floor(Math.random() * 1000000);
+    const id = "new";
     setRows((oldRows) => [
       ...oldRows,
       {
@@ -115,7 +115,8 @@ const GroupTodo = () => {
       var userId: string = "";
       if (user) userId = user.id;
       groupTodos = await api.getUserTodos(userId);
-      console.log(groupTodos.data);
+      console.log("todoData", groupTodos.data);
+      setRows([])
       groupTodos.data.map((todo: any) => {
         if (todo.groupId === groupId) {
           var todoIsNew = {
@@ -123,7 +124,7 @@ const GroupTodo = () => {
             assignee: todo.assigneeName,
             assigner: todo.assignerName,
             completed: false,
-            deadline: todo.deadline,
+            deadline: new Date(todo.deadline),
             description: todo.description,
             todo: todo.name,
             isNew: false,
@@ -244,11 +245,11 @@ const GroupTodo = () => {
         id = member.userId;
       }
     });
-    if (!user || !id) {
+    if (!user || !id || newRow.id !== "new") {
       console.log(user, id);
       return updatedRow;
     }
-    assignTodo(user?.id, id, newRow.description, newRow.deadline);
+    assignTodo(id, newRow.todo, newRow.description, newRow.deadline);
     return updatedRow;
   };
 

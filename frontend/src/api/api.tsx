@@ -150,7 +150,7 @@ export const getGroupManagerWithId = async (
   groupId: string
 ): Promise<AxiosResponse<User[]>> => {
   try {
-    return await request.get(`/listGroupHasManagerByGroupId/${groupId}`);
+    return await request.get(`/listGroupHasManager/${groupId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -168,7 +168,7 @@ export const getGroupUsers = async (
   groupId: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.get(`/listGroupHasUserByGroupId/${groupId}`);
+    return await request.get(`/listGroupHasUser/${groupId}`);
   } catch (error) {
     throw error as Error;
   }

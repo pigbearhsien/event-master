@@ -238,7 +238,7 @@ def get_user_todos(user_id: str, db: Session = Depends(get_db)):
 
         query = text(
             """
-            SELECT todoid, groupid, assigneeid, u1.name as assigneeName, u2.name as assignerName, description, completed, deadline FROM todo
+            SELECT todo.name as name, todoid, groupid, assigneeid, u1.name as assigneeName, assignerid, groupId, u2.name as assignerName, description, completed, deadline FROM todo
             JOIN user_table AS u1 ON todo.assigneeid = u1.userid
             JOIN user_table AS u2 ON todo.assignerid = u2.userid
             WHERE assigneeid = :user_id or assignerid = :user_id
@@ -253,13 +253,14 @@ def get_user_todos(user_id: str, db: Session = Depends(get_db)):
             todos.append({
                 "todoId": todo.todoid,
                 "assigneeId": todo.assigneeid,
-                "assigneeName": todo.assigneeName,
+                "assigneeName": todo.assigneename,
                 "assignerId": todo.assignerid,
-                "assignerName": todo.assignerName,
-                "content": todo.content,
+                "assignerName": todo.assignername,
+                "description": todo.description,
                 "deadline": todo.deadline,
                 "completed": todo.completed,
-
+                "groupId": todo.groupid,
+                "name": todo.name
             })
 
         if not todos:
