@@ -28,6 +28,7 @@ from schemas import (
     Chat as ChatSchema,
 )
 
+from datetime import datetime
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -125,6 +126,7 @@ def get_group_event_vote_result(event_id: str, db: Session = Depends(get_db)):
                 )
             )
 
+
         # if available_times is empty, return 404
         if not available_times:
             raise HTTPException(status_code=404, detail="Available Time not found")
@@ -182,6 +184,22 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         )
         db_group_event = db.execute(query, {"user_id": user_id}).all()
         logging.info(db_group_event)
+
+        # modify status according to current time
+        if db_group_event.vote_start:
+            if datetime.now() < db_group_event.deadline:
+                db_group_event.status = 'In_Voting'
+            else: 
+                db_group_event.status = 'End_Voting'
+                
+            if db_group_event.status is 'End_Voting':
+                if datetime.now() < db_group_event.event_start:
+                    db_group_event.status = 'Not_Start_Yet'
+                elif datetime.now() < db_group_event.event_end:
+                    db_group_event.status = 'On_Going'
+                else:
+                    db_group_event.status = 'Closure'
+                    
         # parse db_group_event to schema
         group_events = []
         for event in db_group_event:
@@ -393,6 +411,24 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
         db_group_event = db.query(GroupEventModel).filter(GroupEventModel.eventid == event_id).first()
         if not db_group_event:
             raise HTTPException(status_code=404, detail="Group Event not found")
+        
+        # modify status according to current time
+        if db_group_event.vote_start:
+            if datetime.now() < db_group_event.deadline:
+                db_group_event.status = 'In_Voting'
+            else: 
+                db_group_event.status = 'End_Voting'
+                
+            if db_group_event.status is 'End_Voting':
+                if datetime.now() < db_group_event.event_start:
+                    db_group_event.status = 'Not_Start_Yet'
+                elif datetime.now() < db_group_event.event_end:
+                    db_group_event.status = 'On_Going'
+                else:
+                    db_group_event.status = 'Closure'
+        
+
+                
 
         return GroupEventSchema(
             eventId=db_group_event.eventid,
