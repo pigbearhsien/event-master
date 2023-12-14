@@ -47,15 +47,16 @@ const Groups = (props: Props) => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     // console.log("this group")
-    fetchThisGroup()
-  }, [groupId])
+    fetchThisGroup();
+  }, [groupId]);
 
   const [messages, setMessages] = useState<Chat[]>([]);
   const [messageSent, setMessageSent] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const [loadingMsg, setLoadingMsg] = useState<Chat | null>();
 
   useEffect(() => {
     if (groupId) {
@@ -75,7 +76,10 @@ const Groups = (props: Props) => {
     newSocket.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
       const receivedMessage: Chat = data;
-      setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+
+      // if its sent by the user, don't add it to the messages
+
+      setLoadingMsg(receivedMessage);
     });
 
     // Clean up the WebSocket connection when the component unmounts
@@ -90,19 +94,36 @@ const Groups = (props: Props) => {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (loadingMsg) {
+      const receivedMessage = loadingMsg;
+      setLoadingMsg(null);
+      const recv_timing = new Date(receivedMessage.timing);
+      const timing = new Date(messages[messages.length - 1].timing);
+      if (
+        receivedMessage.speakerId === user?.id &&
+        recv_timing.toLocaleString() == timing.toLocaleString()
+      )
+        return;
+      setMessages((prevMessages) => [...prevMessages, loadingMsg]);
+    }
+  }, [loadingMsg]);
+
   const { user } = useUser();
 
   const onMessageSend = () => {
     if (messageSent) {
-      const msg = {
+      if (!user || !groupId) return;
+      const msg: Chat = {
         groupId: groupId,
         speakerId: user?.id,
-        timing: new Date().toISOString(),
+        speakerName: user?.fullName as string,
+        timing: new Date(),
         content: messageSent,
       };
 
       socket?.send(JSON.stringify(msg));
-
+      setMessages((prevMessages) => [...prevMessages, msg]);
       setMessageSent("");
     }
   };
@@ -193,7 +214,7 @@ const Groups = (props: Props) => {
                     </Typography>
                   </Typography>
                   <Typography variant="caption" sx={{ color: "grey.500" }}>
-                    {message.timing.toLocaleString()}
+                    {new Date(message.timing).toISOString()}
                   </Typography>
                 </Box>
                 <Typography variant="body2">{message.content}</Typography>
