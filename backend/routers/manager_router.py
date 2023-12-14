@@ -8,6 +8,7 @@ from models import (
     GroupHasManager as GroupHasManagerModel,
     GroupHasUser as GroupHasUserModel,
     Todo as TodoModel,
+    User as UserModel,
 )
 import logging
 from schemas import (
@@ -15,8 +16,8 @@ from schemas import (
     GroupHasManager as GroupHasManagerSchema,
     GroupHasUser as GroupHasUserSchema,
     Todo as TodoSchema,
+    User as UserSchema,
 )
-
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -70,6 +71,40 @@ async def insert_user_to_group(
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 
+@router.post(
+    "/insertUserToGroupByEmail/{group_id}/{user_email}"
+)
+async def insert_user_to_group_by_email(
+    group_id=str, user_email=str, db: Session = Depends(get_db)
+):
+    try:
+        db_user = db.query(UserModel).filter(UserModel.email == user_email).first()
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        db_group_has_user = GroupHasUserModel(
+            groupid=group_id, userid=db_user.userid
+        )
+        db.add(db_group_has_user)
+        db.commit()
+
+        # parse db_user to UserSchema
+        user = {
+            "userId": db_user.userid,
+            "name": db_user.name,
+            "account": db_user.email,
+            "profilePicUrl": db_user.profile_pic_url
+        }
+
+        return user
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+
 # 踢出團隊成員
 @router.delete("/deleteUserFromGroup/{group_id}/{user_id}")
 async def delete_user_from_group(
@@ -101,7 +136,39 @@ async def insertManager(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+@router.post(
+    "/assignManagerToGroupByEmail/{group_id}/{user_email}"
+)
+async def assign_manager_to_group_by_email(
+    group_id=str, user_email=str, db: Session = Depends(get_db)
+):
+    try:
+        db_user = db.query(UserModel).filter(UserModel.email == user_email).first()
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
 
+        db_group_has_manager = GroupHasManagerModel(
+            groupid=group_id, userid=db_user.userid
+        )
+        db.add(db_group_has_manager)
+        db.commit()
+
+        # parse db_user to UserSchema
+        user = {
+            "userId": db_user.userid,
+            "name": db_user.name,
+            "account": db_user.email,
+            "profilePicUrl": db_user.profile_pic_url
+        }
+
+        return user
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # 分析團隊成員投票狀況
 @router.get("/groupMemberVoteStatus/{group_id}/{user_id}")
