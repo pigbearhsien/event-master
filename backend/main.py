@@ -38,16 +38,13 @@ tags_metadata = [
 
 app = FastAPI(openapi_tags=tags_metadata)
 
-origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-    
 
 # Verify that the database is connected by testing get_db()
 # Try `curl localhost:8000` to see the result

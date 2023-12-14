@@ -319,10 +319,9 @@ active_connections_by_group = {}
 async def broadcast_message(group_id: str, message: dict):
     if group_id in active_connections_by_group:
         connections = active_connections_by_group[group_id]
+        message = json.dumps(message)
         for connection in connections:
             try:
-                # parse json to string
-                message = json.dumps(message)
                 await connection.send_text(message)
             except Exception as e:
                 print(f"Error broadcasting message to {group_id}: {e}")
