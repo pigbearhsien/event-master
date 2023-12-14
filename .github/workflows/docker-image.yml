@@ -24,7 +24,7 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}
 
     - name: Build Docker Image
-      run: docker build -t dbmscontainers.azurecr.io/backend:latest ./backend
+      run: docker build -t dbmscontainers.azurecr.io/dbms-backend:latest ./backend
 
     - name: Push Docker Image to ACR
-      run: docker push dbmscontainers.azurecr.io/backend:latest
+      run: docker push dbmscontainers.azurecr.io/dbms-backend:latest
