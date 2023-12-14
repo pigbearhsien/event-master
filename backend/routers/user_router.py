@@ -338,25 +338,15 @@ async def websocket_endpoint(websocket: WebSocket, group_id: str, db: Session = 
         while True:
             message = await websocket.receive_text()
             message = json.loads(message)
-            # parse user id to user name
-            query = text(
-                """
-                SELECT name FROM user_table
-                JOIN chat ON user_table.userid = :speaker_id
-                """
-            )
-            speakerId = message.get("speakerId")
-            db_user = db.execute(query, {"speaker_id": speakerId}).first()
             message = {
                 "speakerId": message.get("speakerId"),
-                "speakerName": db_user.name,
+                "speakerName": message.get("speakerName"),
                 "groupId": message.get("groupId"),
                 "content": message.get("content"),
                 "timing": message.get("timing"),
             }
             try:
                 await broadcast_message(group_id, message)
-                # if success, save to database
                 db_chat = ChatModel(
                     speakerid=message.get("speakerId"),
                     groupid=message.get("groupId"),
