@@ -174,12 +174,12 @@ const DashboardCalendar = () => {
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  {eventDetails.startTime.format("MMM DD , h:mm a")} -{" "}
+                  {eventDetails.startTime.format("dddd, MMM DD h:mm a")} -{" "}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  {eventDetails.endTime.format("MMM DD , h:mm a")}
+                  {eventDetails.endTime.format("dddd, MMM DD h:mm a")}
                 </Typography>
               </Grid>
               <Grid item xs={12}>

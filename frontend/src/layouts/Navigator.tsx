@@ -42,11 +42,7 @@ export default function Navigator(props: DrawerProps) {
       <Dialog open={open}>
         <DialogTitle>Create Group</DialogTitle>
         <DialogContent>
-          {/* <DialogContentText>
-            To create a group, please enter the group name here.
-          </DialogContentText> */}
-          <FormControl sx={{ mt: 2, minWidth: 120 }}>
-            <InputLabel htmlFor="max-width">maxWidth</InputLabel>
+          <FormControl sx={{ mt: 2, width: "50vh" }}>
             <TextField
               autoFocus
               margin="dense"

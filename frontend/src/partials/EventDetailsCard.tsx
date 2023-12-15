@@ -17,11 +17,11 @@ type EventDetails = {
   eventId: string | undefined;
   name: string | undefined;
   description: string | undefined;
-  eventStart: Date | undefined;
-  eventEnd: Date | undefined;
-  voteStart: Date | undefined;
-  voteEnd: Date | undefined;
-  voteDeadline: Date | undefined;
+  eventStart: Date | string | undefined;
+  eventEnd: Date | string | undefined;
+  voteStart: Date | string | undefined;
+  voteEnd: Date | string | undefined;
+  voteDeadline: Date | string | undefined;
   havePossibility: boolean | undefined;
 };
 
@@ -38,28 +38,34 @@ const EventDetailsCard = ({
   mode,
   setMode,
 }: EventDetailsCradProps) => {
-  useEffect(() => {
-    console.log(mode);
-  }, [mode]);
-  const handleChange = (field: keyof EventDetails, value: any) => {
-    if (eventDetails) {
-      setEventDetails({ ...eventDetails, [field]: value });
-    }
+  const handleChange = (key, value) => {
+    setEventDetails((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleCloseEvent = () => {
-    setMode("Viewing");
-  };
-
-  const renderDateTime = (date: Date | undefined) => {
-    return date ? moment(date).format("MMM DD, h:mm a") : "";
+    setMode("Creating");
+    setEventDetails({
+      eventId: "",
+      name: "",
+      description: "",
+      eventStart: null,
+      eventEnd: null,
+      voteStart: null,
+      voteEnd: null,
+      voteDeadline: null,
+      havePossibility: false,
+    });
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
-      <Grid container padding={2} rowSpacing={2}>
+      <Grid container paddingLeft={2} rowSpacing={2}>
         {/* 标题 */}
-        <Grid item xs={12}>
+        <Grid
+          item
+          xs={12}
+          sx={{ display: "flex", justifyContent: "space-between" }}
+        >
           <Typography variant="h6">
             {mode === "Creating"
               ? "New Event"
@@ -67,13 +73,19 @@ const EventDetailsCard = ({
               ? "Edit Event"
               : "Event Details"}
           </Typography>
+          {mode === "Viewing" && (
+            <IconButton onClick={handleCloseEvent}>
+              <X />
+            </IconButton>
+          )}
         </Grid>
 
         {/* 名称 */}
         <Grid item xs={12}>
+          <Typography sx={{ fontWeight: "bold" }}>Name</Typography>
           {mode !== "Viewing" ? (
             <TextField
-              label="Title"
+              label="Name"
               variant="standard"
               value={eventDetails?.name || ""}
               onChange={(e) => handleChange("name", e.target.value)}
@@ -84,42 +96,111 @@ const EventDetailsCard = ({
           )}
         </Grid>
 
-        {/* 开始时间 */}
-        {/* <Grid item xs={12}>
+        {/* 活動时间 */}
+        <Grid item xs={12}>
+          <Typography sx={{ fontWeight: "bold" }}>Time</Typography>
           {mode !== "Viewing" ? (
-            <DateTimePicker
-              label="Start Time"
-              value={eventDetails?.eventStart}
-              onChange={(newValue) => handleChange("eventStart", newValue)}
-              renderInput={(params) => <TextField {...params} />}
-            />
+            <>
+              <DateTimePicker
+                sx={{ mt: 1, width: "100%" }}
+                label="Start Time"
+                value={
+                  eventDetails?.eventStart !== null
+                    ? moment(eventDetails?.eventStart)
+                    : null
+                }
+                onChange={(newValue) => handleChange("eventStart", newValue)}
+              />
+              <DateTimePicker
+                sx={{ mt: 1, width: "100%" }}
+                label="End Time"
+                value={
+                  eventDetails?.eventEnd !== null
+                    ? moment(eventDetails?.eventEnd)
+                    : null
+                }
+                onChange={(newValue) => handleChange("eventEnd", newValue)}
+              />
+            </>
+          ) : eventDetails.eventStart && eventDetails.eventEnd ? (
+            <>
+              <Typography>
+                {moment(eventDetails.eventStart).format("dddd, MMM DD h:mm a")}{" "}
+                -{" "}
+              </Typography>
+              <Typography>
+                {moment(eventDetails.eventEnd).format("dddd, MMM DD h:mm a")}
+              </Typography>
+            </>
           ) : (
-            <Typography>{renderDateTime(eventDetails?.eventStart)}</Typography>
+            <Typography>Not Decided</Typography>
           )}
-        </Grid> */}
+        </Grid>
 
-        {/* 结束时间 */}
-        {/* <Grid item xs={12}>
+        {/* 投票 */}
+        <Grid item xs={12}>
+          <Typography sx={{ fontWeight: "bold" }}>Vote</Typography>
           {mode !== "Viewing" ? (
-            <DateTimePicker
-              label="End Time"
-              value={eventDetails?.eventEnd}
-              onChange={(newValue) => handleChange("eventEnd", newValue)}
-              renderInput={(params) => <TextField {...params} />}
-            />
+            <>
+              <DateTimePicker
+                sx={{ mt: 1, width: "100%" }}
+                label="Vote Deadline"
+                value={
+                  eventDetails?.voteDeadline !== null
+                    ? moment(eventDetails?.voteDeadline)
+                    : null
+                }
+                onChange={(newValue) => handleChange("voteDeadline", newValue)}
+              />
+              <DateTimePicker
+                sx={{ mt: 1, width: "100%" }}
+                label="Vote Start Time"
+                value={
+                  eventDetails?.voteStart !== null
+                    ? moment(eventDetails?.voteStart)
+                    : null
+                }
+                onChange={(newValue) => handleChange("voteStart", newValue)}
+              />
+              <DateTimePicker
+                sx={{ mt: 1, width: "100%" }}
+                label="Vote End Time"
+                value={
+                  eventDetails?.voteEnd !== null
+                    ? moment(eventDetails?.voteEnd)
+                    : null
+                }
+                onChange={(newValue) => handleChange("voteEnd", newValue)}
+              />
+            </>
           ) : (
-            <Typography>{renderDateTime(eventDetails?.eventEnd)}</Typography>
+            <>
+              <Typography>
+                {moment(eventDetails?.voteStart).format("dddd, MMM DD h:mm a")}{" "}
+                -{" "}
+              </Typography>
+              <Typography sx={{ mb: 1 }}>
+                {moment(eventDetails?.voteEnd).format("dddd, MMM DD h:mm a")}
+              </Typography>
+              <Typography>
+                {"("}
+                Deadline:{" "}
+                {moment(eventDetails?.voteDeadline).format("MMM DD , h:mm a")}
+                {")"}
+              </Typography>
+            </>
           )}
-        </Grid> */}
+        </Grid>
 
         {/* 描述 */}
         <Grid item xs={12}>
+          <Typography sx={{ fontWeight: "bold" }}>Description</Typography>
           {mode !== "Viewing" ? (
             <TextField
               label="Description"
               value={eventDetails?.description || ""}
               onChange={(e) => handleChange("description", e.target.value)}
-              minRows={5}
+              minRows={3}
               fullWidth
               multiline
             />
@@ -131,7 +212,7 @@ const EventDetailsCard = ({
         {/* 操作按钮 */}
         {mode !== "Viewing" && (
           <>
-            <Grid item>
+            <Grid item sx={{ marginLeft: "auto", marginRight: 1 }}>
               <Button variant="outlined" onClick={handleCloseEvent}>
                 Cancel
               </Button>

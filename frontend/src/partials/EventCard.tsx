@@ -18,7 +18,12 @@ const statusList = {
   Closure: { status: "End", color: "default", order: 5 },
 };
 
-const EventCard = ({ event, handleSelectEvent, setMode }) => {
+const EventCard = ({
+  event,
+  handleSelectEvent,
+  setMode,
+  handleViewVotingModal,
+}) => {
   return (
     <Grid item xs={6}>
       <Card
@@ -46,15 +51,19 @@ const EventCard = ({ event, handleSelectEvent, setMode }) => {
 
             <Box sx={{ marginLeft: "auto" }}>
               <IconButton
-                sx={{ zIndex: 1 }}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleSelectEvent(event);
                   setMode("Editing");
                 }}
               >
                 <Pencil size={15} />
               </IconButton>
-              <IconButton>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <Trash size={15} />
               </IconButton>
             </Box>
@@ -90,7 +99,14 @@ const EventCard = ({ event, handleSelectEvent, setMode }) => {
             p: 0,
           }}
         >
-          <Button size="small" variant="contained">
+          <Button
+            size="small"
+            variant="contained"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewVotingModal(event.eventId);
+            }}
+          >
             View Voting
           </Button>
           <Box sx={{ marginLeft: "auto" }}>
@@ -117,10 +133,19 @@ const EventCard = ({ event, handleSelectEvent, setMode }) => {
                     size="small"
                     variant="contained"
                     sx={{ marginRight: 1 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                   >
                     Join
                   </Button>
-                  <Button size="small" variant="contained">
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
                     Pass
                   </Button>
                 </Box>
