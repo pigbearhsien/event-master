@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { groups } from "@/mockdata";
 import NavTabs from "@/layouts/NavTab";
@@ -16,19 +16,117 @@ import { MessageSquare } from "lucide-react";
 import GroupEvent from "@/components/group/GroupEvent";
 import GroupInfo from "@/components/group/GroupInfo";
 import GroupTodo from "@/components/group/GroupTodo";
-import { messages } from "@/mockdata";
 import TextField from "@mui/material/TextField";
+import { useUser } from "@clerk/clerk-react";
+import { Chat } from "@/typing/typing.d";
+import * as api from "@/api/api";
 
 type Props = {};
 
 const Groups = (props: Props) => {
   const { groupId } = useParams();
-  const group = groups.find((g) => g.id === groupId);
+  // const group = groups.find((g) => g.id === groupId);
 
   const location = useLocation();
   const path = location.pathname.split("/");
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const [group, setGroup] = useState<{ id: string; name: string }>();
+  // const [fetched, setFetched] = useState(false);
+  const fetchThisGroup = async () => {
+    // setFetched(true)
+    var thisGroup;
+    try {
+      if (!groupId) return;
+      thisGroup = await api.getGroup(groupId);
+      console.log(thisGroup);
+      setGroup(thisGroup.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    // console.log("this group")
+    fetchThisGroup();
+  }, [groupId]);
+
+  const [messages, setMessages] = useState<Chat[]>([]);
+  const [messageSent, setMessageSent] = useState("");
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const [loadingMsg, setLoadingMsg] = useState<Chat | null>();
+
+  useEffect(() => {
+    if (groupId) {
+      console.log("Get Messages!!!");
+      api.getMessages(groupId).then((res) => {
+        setMessages(res.data);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Establish WebSocket connection when the component mounts
+    const newSocket = new WebSocket(`ws://localhost:8000/api/ws/${groupId}`);
+    setSocket(newSocket);
+
+    // Listen for messages from the server
+    newSocket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      const receivedMessage: Chat = data;
+
+      // if its sent by the user, don't add it to the messages
+
+      setLoadingMsg(receivedMessage);
+    });
+
+    // Clean up the WebSocket connection when the component unmounts
+    return () => {
+      newSocket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (loadingMsg) {
+      const receivedMessage = loadingMsg;
+      setLoadingMsg(null);
+      const recv_timing = new Date(receivedMessage.timing);
+      const timing = new Date(messages[messages.length - 1].timing);
+      if (
+        receivedMessage.speakerId === user?.id &&
+        recv_timing.toLocaleString() == timing.toLocaleString()
+      )
+        return;
+      setMessages((prevMessages) => [...prevMessages, loadingMsg]);
+    }
+  }, [loadingMsg]);
+
+  const { user } = useUser();
+
+  const onMessageSend = () => {
+    if (messageSent) {
+      if (!user || !groupId) return;
+      const msg: Chat = {
+        groupId: groupId,
+        speakerId: user?.id,
+        speakerName: user?.fullName as string,
+        timing: new Date(),
+        content: messageSent,
+      };
+
+      socket?.send(JSON.stringify(msg));
+      setMessages((prevMessages) => [...prevMessages, msg]);
+      setMessageSent("");
+    }
+  };
 
   return group ? (
     <>
@@ -86,8 +184,9 @@ const Groups = (props: Props) => {
           </Typography>
           <Divider />
           <Box sx={{ px: 2, overflowY: "auto", flexGrow: 1 }}>
-            {messages.map((message) => (
+            {messages.map((message, index) => (
               <Box
+                ref={index === messages.length - 1 ? messagesEndRef : null}
                 sx={{
                   display: "flex",
                   flexDirection: "column",
@@ -103,10 +202,19 @@ const Groups = (props: Props) => {
               >
                 <Box sx={{ display: "flex" }} gap={1}>
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    {message.speakerName}
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: "bold",
+                        color:
+                          message.speakerId === user?.id ? "blue" : "inherit",
+                      }}
+                    >
+                      {message.speakerName}
+                    </Typography>
                   </Typography>
                   <Typography variant="caption" sx={{ color: "grey.500" }}>
-                    {message.timing}
+                    {new Date(message.timing).toISOString()}
                   </Typography>
                 </Box>
                 <Typography variant="body2">{message.content}</Typography>
@@ -129,10 +237,19 @@ const Groups = (props: Props) => {
                   type="text"
                   fullWidth
                   variant="outlined"
+                  value={messageSent}
+                  onChange={(e) => setMessageSent(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      onMessageSend();
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={2}>
-                <Button variant="contained">Send</Button>
+                <Button variant="contained" onClick={onMessageSend}>
+                  Send
+                </Button>
               </Grid>
             </Grid>
           </Box>

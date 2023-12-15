@@ -47,7 +47,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
             name=user.name,
             account=user.account,
             password=user.password,
-            profile_pid_url=user.profilePicUrl
+            profile_pic_url=user.profilePicUrl
         )
         db.add(db_user)
         db.commit()
@@ -73,7 +73,7 @@ def list_all_user(db: Session = Depends(get_db)):
                     name=user.name,
                     account=user.account,
                     password=user.password,
-                    profilePicUrl=user.profile_pid_url,
+                    profilePicUrl=user.profile_pic_url,
                 )
             )
         return users
@@ -94,7 +94,7 @@ def list_user_by_id(user_id: str, db: Session = Depends(get_db)):
             name=db_user.name,
             account=db_user.account,
             password=db_user.password,
-            profilePicUrl=db_user.profile_pid_url,
+            profilePicUrl=db_user.profile_pic_url,
         )
         return user
     except HTTPException as e:
@@ -107,7 +107,7 @@ def list_user_by_id(user_id: str, db: Session = Depends(get_db)):
 @router.get("/listUserByName/{user_name}", response_model=List[UserSchema])
 def list_user_by_name(user_name: str, db: Session = Depends(get_db)):
     try:
-        db_users = db.query(UserModel).filter(UserModel.username == user_name).all()
+        db_users = db.query(UserModel).filter(UserModel.name == user_name).all()
         if not db_users:
             raise HTTPException(status_code=404, detail="User not found")
         # parse user name
@@ -119,7 +119,7 @@ def list_user_by_name(user_name: str, db: Session = Depends(get_db)):
                     name=user.name,
                     account=user.account,
                     password=user.password,
-                    profilePicUrl=user.profile_pid_url,
+                    profilePicUrl=user.profile_pic_url,
                 )
             )
         return users
@@ -140,7 +140,7 @@ def update_user_by_id(user_id: str, user: UserSchema, db: Session = Depends(get_
         db_user.name = user.name
         db_user.account = user.account
         db_user.password = user.password
-        db_user.profile_pid_url = user.profilePicUrl
+        db_user.profile_pic_url = user.profilePicUrl
         db.commit()
         db.refresh(db_user)
         return db_user
@@ -521,11 +521,10 @@ def list_available_time_by_user_id(user_id: str, db: Session = Depends(get_db)):
 @router.get("/listAvailableTimeByEventId/{event_id}", response_model=List[AvailableTimeSchema])
 def list_available_time_by_event_id(event_id: str, db: Session = Depends(get_db)):
     try:
-        db_available_times = (
-            db.query(AvailableTimeModel)
-            .filter(AvailableTimeModel.eventid == event_id)
-            .all()
-        )
+        query = text("SELECT * FROM available_time WHERE eventid = :event_id")
+
+        db_available_times = db.execute(query, {"event_id": event_id}).fetchall()
+        
         if not db_available_times:
             raise HTTPException(status_code=404, detail="Available Time not found")
         # parse available time
@@ -778,11 +777,13 @@ def list_all_group_has_user(db: Session = Depends(get_db)):
 @router.get("/listGroupHasUserByGroupId/{group_id}", response_model=List[GroupHasUserSchema])
 def list_group_has_user_by_group_id(group_id: str, db: Session = Depends(get_db)):
     try:
-        db_group_has_users = (
-            db.query(GroupHasUserModel)
-            .filter(GroupHasUserModel.groupid == group_id)
-            .all()
-        )
+        query = text("SELECT groupid, user_table.userid, user_table.name FROM group_has_user JOIN user_table ON group_has_user.userid = user_table.userid WHERE groupid = :group_id")
+        # db_group_has_users = (
+        #     db.query(GroupHasUserModel)
+        #     .filter(GroupHasUserModel.groupid == group_id)
+        #     .all()
+        # )
+        db_group_has_users = db.execute(query, {"group_id": group_id}).fetchall()
         if not db_group_has_users:
             raise HTTPException(status_code=404, detail="Group Has User not found")
         # parse group has user
@@ -791,7 +792,8 @@ def list_group_has_user_by_group_id(group_id: str, db: Session = Depends(get_db)
             group_has_users.append(
                 GroupHasUserSchema(
                     groupId=group_has_user.groupid,
-                    userId=group_has_user.userid
+                    userId=group_has_user.userid,
+                    userName=group_has_user.name
                 )
             )
         return group_has_users
@@ -1311,3 +1313,4 @@ def delete_private_event_by_id(private_event_id: str, db: Session = Depends(get_
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
+

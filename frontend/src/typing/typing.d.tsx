@@ -30,6 +30,7 @@ type EventPrivate = {
 type Chat = {
   groupId: string;
   speakerId: string;
+  speakerName: string;
   timing: Date;
   content: string;
 };
@@ -61,6 +62,7 @@ type User = {
   userId: string;
   name: string;
   account: string;
+  password: string;
   profilePicUrl: string | null;
 };
 
@@ -68,7 +70,7 @@ type Vote = {
   userId: string;
   name: string;
   available_start: Date;
-  possibility_level: string;
+  possibilityLevel: string;
 };
 
 export type {

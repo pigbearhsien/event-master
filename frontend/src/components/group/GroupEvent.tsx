@@ -4,10 +4,34 @@ import { Grid } from "@mui/material";
 import EventCard from "@/partials/EventCard";
 import EventDetailsCard from "@/partials/EventDetailsCard";
 import VotingModal from "@/partials/VotingModal";
+import * as api from "../../api/api";
+import { useParams } from "react-router-dom";
 
 type Props = {};
 
 const GroupEvent = (props: Props) => {
+  const { groupId } = useParams();
+  const [events, setEvents] = useState([]);
+  const [fetched, setFetched] = useState(false);
+
+  const fetchThisGroupEvent = async () => {
+    let thisGroupEvent;
+    try {
+      if (!groupId) return;
+      thisGroupEvent = await api.getGroupEventsWithId(groupId);
+      console.log(thisGroupEvent);
+      thisGroupEvent.data.map((event) => {
+        setEvents([...events, event]);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchThisGroupEvent();
+  }, [groupId]);
+
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [voteModalEventId, setVoteModalEventId] = useState("");
   const [eventDetails, setEventDetails] = useState({

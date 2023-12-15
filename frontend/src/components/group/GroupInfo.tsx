@@ -17,6 +17,8 @@ import {
   GridRowEditStopReasons,
   gridClasses,
 } from "@mui/x-data-grid";
+import * as api from "@/api/api";
+import { useParams } from "react-router-dom";
 
 const role = ["Manager", "Member"];
 
@@ -79,8 +81,60 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const GroupInfo = () => {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState<any[]>([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
+  // const [members, setMembers] = useState<any[]>([]);
+  const [manager, setManager] = useState<any[]>([]);
+
+  const { groupId } = useParams();
+
+  const fetchGroupManagers = async () => {
+    var managers: any;
+    try {
+      if (!groupId) return;
+      managers = await api.getGroupManagerWithId(groupId);
+      console.log("manager", managers.data);
+      setManager(managers.data)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchGroupUsers = async () => {
+    var groupUsers: any;
+    try {
+      if (!groupId) return;
+      groupUsers = await api.getGroupUsers(groupId);
+      console.log(groupUsers)
+      setRows([])
+      groupUsers.data.map((user: any)=>{
+        var role = "Member"
+        manager.map((manager)=>{
+          if (manager.userId == user.userId)
+            role = "Manager"
+        })
+        var row = {
+          id: user.userId,
+          name: user.name,
+          email: user.account,
+          role: role,
+          isNew: false,
+        }
+        setRows((rows) => [...rows, row])
+      })
+      console.log(groupUsers.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroupManagers();
+  }, [groupId]);
+  useEffect(()=>{
+    fetchGroupUsers();
+  }, [manager])
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,

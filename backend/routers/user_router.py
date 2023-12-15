@@ -1,5 +1,5 @@
 # user_router.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
@@ -28,6 +28,8 @@ from schemas import (
     Chat as ChatSchema,
 )
 
+import json
+from datetime import datetime
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -44,7 +46,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
             name=user.name,
             account=user.account,
             password=user.password,
-            profile_pid_url=user.profilePicUrl,
+            profile_pic_url=user.profilePicUrl,
         )
         db.add(db_user)
         db.commit()
@@ -125,6 +127,7 @@ def get_group_event_vote_result(event_id: str, db: Session = Depends(get_db)):
                 )
             )
 
+
         # if available_times is empty, return 404
         if not available_times:
             raise HTTPException(status_code=404, detail="Available Time not found")
@@ -170,43 +173,56 @@ def get_user_groups(user_id: str, db: Session = Depends(get_db)):
 
 
 # 查詢自己所有確認參加的團隊活動
-@router.get("/getUserJoinEvents/{user_id}", response_model=List[GroupEventSchema])
+@router.get("/getUserJoinEvents/{user_id}", response_model=List)
 def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
     try:
-        logging.info(user_id)
-        db_group_event = (
-            db.query(GroupEventModel)
-            .join(
-                UserJoinEventModel,
-                GroupEventModel.eventid == UserJoinEventModel.eventid,
-            )
-            .filter(UserJoinEventModel.userid == user_id)
-            .all()
+        query = text(
+            """
+            SELECT * FROM group_event
+            JOIN user_join_event ON group_event.eventid = user_join_event.eventid
+            WHERE user_join_event.userid = :user_id
+            """
         )
+        db_group_event = db.execute(query, {"user_id": user_id}).all()
+        logging.info(db_group_event)
 
-        # convert to schema
+        # modify status according to current time
+        if db_group_event.vote_start:
+            if datetime.now() < db_group_event.deadline:
+                db_group_event.status = 'In_Voting'
+            else: 
+                db_group_event.status = 'End_Voting'
+                
+            if db_group_event.status == 'End_Voting':
+                if datetime.now() < db_group_event.event_start:
+                    db_group_event.status = 'Not_Start_Yet'
+                elif datetime.now() < db_group_event.event_end:
+                    db_group_event.status = 'On_Going'
+                else:
+                    db_group_event.status = 'Closure'
+
+        # parse db_group_event to schema
         group_events = []
         for event in db_group_event:
             group_events.append(
-                GroupEventSchema(
-                    eventId=event.eventid,
-                    groupId=event.groupid,
-                    name=event.name,
-                    description=event.description,
-                    status=event.status,
-                    organizerId=event.organizerid,
-                    voteStart=event.vote_start,
-                    voteEnd=event.vote_end,
-                    voteDeadline=event.votedeadline,
-                    havePossibility=event.havepossibility,
-                    eventStart=event.event_start,
-                    eventEnd=event.event_end,
-                )
+                {
+                    "eventId": event.eventid,
+                    "groupId": event.groupid,
+                    "name": event.name,
+                    "description": event.description,
+                    "status": event.status,
+                    "organizerId": event.organizerid,
+                    "voteStart": event.vote_start,
+                    "voteEnd": event.vote_end,
+                    "voteDeadline": event.votedeadline,
+                    "havePossibility": event.havepossibility,
+                    "eventStart": event.event_start,
+                    "eventEnd": event.event_end,
+                    "userId": event.userid,
+                    "isAccepted": event.isaccepted,
+                }
             )
-
-        if not group_events:
-            raise HTTPException(status_code=404, detail="Event not found")
-
+        
         return group_events
     except HTTPException as e:
         raise e
@@ -216,26 +232,36 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
 
 
 # 查詢自己所有TODO
-@router.get("/getUserTodos/{user_id}", response_model=List[TodoSchema])
+@router.get("/getUserTodos/{user_id}", response_model=List)
 def get_user_todos(user_id: str, db: Session = Depends(get_db)):
     try:
-        db_todo = db.query(TodoModel).filter(TodoModel.assigneeid == user_id).all()
+
+        query = text(
+            """
+            SELECT todo.name as name, todoid, groupid, assigneeid, u1.name as assigneeName, assignerid, groupId, u2.name as assignerName, description, completed, deadline FROM todo
+            JOIN user_table AS u1 ON todo.assigneeid = u1.userid
+            JOIN user_table AS u2 ON todo.assignerid = u2.userid
+            WHERE assigneeid = :user_id or assignerid = :user_id
+
+            """
+        )
+        db_todo = db.execute(query, {"user_id": user_id}).all()
 
         # convert to schema
         todos = []
         for todo in db_todo:
-            todos.append(
-                TodoSchema(
-                    todoId=todo.todoid,
-                    groupId=todo.groupid,
-                    assigneeId=todo.assigneeid,
-                    assignerId=todo.assignerid,
-                    name=todo.name,
-                    description=todo.description,
-                    completed=todo.completed,
-                    deadline=todo.deadline,
-                )
-            )
+            todos.append({
+                "todoId": todo.todoid,
+                "assigneeId": todo.assigneeid,
+                "assigneeName": todo.assigneename,
+                "assignerId": todo.assignerid,
+                "assignerName": todo.assignername,
+                "description": todo.description,
+                "deadline": todo.deadline,
+                "completed": todo.completed,
+                "groupId": todo.groupid,
+                "name": todo.name
+            })
 
         if not todos:
             raise HTTPException(status_code=404, detail="Todo not found")
@@ -284,7 +310,63 @@ def get_user_private_events(user_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
 
+# Dictionary to store active WebSocket connections for each group
+active_connections_by_group = {}
+# 送給上線團隊使用者訊息
+# Function to broadcast a message to all users in a group
+async def broadcast_message(group_id: str, message: dict):
+    if group_id in active_connections_by_group:
+        connections = active_connections_by_group[group_id]
+        message = json.dumps(message)
+        for connection in connections:
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                print(f"Error broadcasting message to {group_id}: {e}")
+
+# 使用WebSocket接收訊息
+@router.websocket("/ws/{group_id}")
+async def websocket_endpoint(websocket: WebSocket, group_id: str, db: Session = Depends(get_db)):
+    await websocket.accept()
+    if group_id not in active_connections_by_group:
+        active_connections_by_group[group_id] = []
+
+    active_connections_by_group[group_id].append(websocket)
+    try: 
+        while True:
+            message = await websocket.receive_text()
+            message = json.loads(message)
+            message = {
+                "speakerId": message.get("speakerId"),
+                "speakerName": message.get("speakerName"),
+                "groupId": message.get("groupId"),
+                "content": message.get("content"),
+                "timing": message.get("timing"),
+            }
+            try:
+                await broadcast_message(group_id, message)
+                db_chat = ChatModel(
+                    speakerid=message.get("speakerId"),
+                    groupid=message.get("groupId"),
+                    content=message.get("content"),
+                    timing=message.get("timing"),
+                )
+                db.add(db_chat)
+                db.commit()
+                
+            except Exception as e:
+                print(f"Error broadcasting message to {group_id}: {e}")
+            
+    except WebSocketDisconnect:
+        # Remove the WebSocket connection when disconnected
+        active_connections_by_group[group_id].remove(websocket)
+        print(f"WebSocket connection with {group_id} closed")
+
+
+    
+    
 
 # 查詢使用者在特定團隊活動的可以時間和程度
 @router.get(
@@ -323,23 +405,48 @@ def get_user_available_time(event_id: str, user_id: str, db: Session = Depends(g
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+@router.post("/createMessage", response_model=ChatSchema)
+def create_message(chat: ChatSchema, db: Session = Depends(get_db)):
+    try:
+        db_chat = ChatModel(
+            speakerid=chat.speakerId,
+            groupid=chat.groupId,
+            content=chat.content,
+            timing=chat.timing,
+        )
+        db.add(db_chat)
+        db.commit()
+        return chat
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # 用戶在特定團隊裡說的話
-@router.get("/getMessages/{group_id}", response_model=List[ChatSchema])
+@router.get("/getMessages/{group_id}", response_model=List)
 def get_user_chat(group_id: str, db: Session = Depends(get_db)):
     try:
-        db_chat = db.query(ChatModel).filter(ChatModel.groupid == group_id).all()
+
+        query = text(
+            """
+            SELECT name, groupId, content, timing, speakerId FROM chat
+            JOIN user_table ON chat.speakerid = user_table.userid
+            WHERE groupId = :group_id
+            ORDER BY timing ASC
+            """
+        )
+        db_chat = db.execute(query, {"group_id": group_id}).all()
 
         # convert to schema
         chats = []
         for chat in db_chat:
             chats.append(
-                ChatSchema(
-                    speakerId=chat.speakerid,
-                    groupId=chat.groupid,
-                    content=chat.content,
-                    timing=chat.timing,
-                )
+                {
+                    "speakerId": chat.speakerid,
+                    "speakerName": chat.name,
+                    "groupId": chat.groupid,
+                    "content": chat.content,
+                    "timing": chat.timing,
+                }
             )
         if not chats:
             raise HTTPException(status_code=404, detail="Chat not found")
@@ -396,6 +503,24 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
         db_group_event = db.query(GroupEventModel).filter(GroupEventModel.eventid == event_id).first()
         if not db_group_event:
             raise HTTPException(status_code=404, detail="Group Event not found")
+        
+        # modify status according to current time
+        if db_group_event.vote_start:
+            if datetime.now() < db_group_event.deadline:
+                db_group_event.status = 'In_Voting'
+            else: 
+                db_group_event.status = 'End_Voting'
+                
+            if db_group_event.status == 'End_Voting':
+                if datetime.now() < db_group_event.event_start:
+                    db_group_event.status = 'Not_Start_Yet'
+                elif datetime.now() < db_group_event.event_end:
+                    db_group_event.status = 'On_Going'
+                else:
+                    db_group_event.status = 'Closure'
+        
+
+                
 
         return GroupEventSchema(
             eventId=db_group_event.eventid,
@@ -419,3 +544,87 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
 
 
 
+@router.get("/listAllVoteCountByEventId/{event_id}", response_model=List )
+def list_all_vote_count_by_event_id(event_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("Select available_start, count(*), possibility_level FROM available_time WHERE eventid = :event_id group by available_start, possibility_level")
+
+        db_available_times = db.execute(query, {"event_id": event_id}).fetchall()
+        
+        if not db_available_times:
+            raise HTTPException(status_code=404, detail="Available Time not found")
+        # parse available time
+        available_times = []
+        for available_time in db_available_times:
+            available_times.append(
+                {
+                    "availableStart": available_time[0],
+                    "count": available_time[1],
+                    "possibilityLevel": available_time[2]
+                
+                }
+            )
+        return available_times
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+# 查詢管理員
+@router.get("/listGroupHasManager/{group_id}", response_model=List)
+def list_group_has_manager(group_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("SELECT u.userid, u.name, u.account, u.profile_pic_url FROM group_has_manager gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
+
+        db_group_has_managers = db.execute(query, {"group_id": group_id}).fetchall()
+        
+        if not db_group_has_managers:
+            raise HTTPException(status_code=404, detail="Group Has Manager not found")
+        
+        # parse
+        group_has_managers = []
+        for group_has_manager in db_group_has_managers:
+            group_has_managers.append(
+                {
+                    "userId": group_has_manager.userid,
+                    "name": group_has_manager.name,
+                    "account": group_has_manager.account,
+                    "profilePicUrl": group_has_manager.profile_pic_url
+                }
+            )
+        return group_has_managers
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+# 查詢團隊成員
+@router.get("/listGroupHasUser/{group_id}", response_model=List)
+def list_group_has_user(group_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("SELECT u.userid, u.name, u.account, u.profile_pic_url FROM group_has_user gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
+
+        db_group_has_users = db.execute(query, {"group_id": group_id}).fetchall()
+        
+        if not db_group_has_users:
+            raise HTTPException(status_code=404, detail="Group Has User not found")
+        
+        # parse
+        group_has_users = []
+        for group_has_user in db_group_has_users:
+            group_has_users.append(
+                {
+                    "userId": group_has_user.userid,
+                    "name": group_has_user.name,
+                    "account": group_has_user.account,
+                    "profilePicUrl": group_has_user.profile_pic_url
+                }
+            )
+        return group_has_users
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")

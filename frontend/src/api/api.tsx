@@ -48,11 +48,11 @@ export const getGroupEvents = async (
   }
 };
 
-export const getTodos = async (
+export const getUserTodos = async (
   userId: string
-): Promise<AxiosResponse<Todo[]>> => {
+): Promise<AxiosResponse> => {
   try {
-    return await request.get<Todo[]>(`/allTodos/${userId}`);
+    return await request.get<any[]>(`/getUserTodos/${userId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -99,7 +99,7 @@ export const getAllBelongGroups = async (
   userId: string
 ): Promise<AxiosResponse<Group[]>> => {
   try {
-    return await request.get(`/allBelongGroups/${userId}`);
+    return await request.get(`/getUserGroups/${userId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -130,7 +130,45 @@ export const getMessages = async (
   groupId: string
 ): Promise<AxiosResponse<Chat[]>> => {
   try {
-    return await request.get(`/messages/${groupId}`);
+    return await request.get(`/getMessages/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getGroupEventsWithId = async (
+  groupId: string
+): Promise<AxiosResponse<EventGroup[]>> => {
+  try {
+    return await request.get(`/listGroupEventByGroupId/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getGroupManagerWithId = async (
+  groupId: string
+): Promise<AxiosResponse<User[]>> => {
+  try {
+    return await request.get(`/listGroupHasManager/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getGroup = async (groupId: string): Promise<AxiosResponse> => {
+  try {
+    return await request.get(`/getGroup/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getGroupUsers = async (
+  groupId: string
+): Promise<AxiosResponse> => {
+  try {
+    return await request.get(`/listGroupHasUser/${groupId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -198,7 +236,7 @@ export const addManager = async (
 
 export const assignTodo = async (todoInfo: Todo): Promise<AxiosResponse> => {
   try {
-    return await request.post("/assignTodo", todoInfo);
+    return await request.post("/insertTodoToGroup", todoInfo);
   } catch (error) {
     throw error as Error;
   }
@@ -260,6 +298,14 @@ export const createGroupEvent = async (
 ): Promise<AxiosResponse> => {
   try {
     return await request.post("/createGroupEvent", param);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const createMessage = async (param: Chat): Promise<AxiosResponse> => {
+  try {
+    return await request.post("/createMessage", param);
   } catch (error) {
     throw error as Error;
   }

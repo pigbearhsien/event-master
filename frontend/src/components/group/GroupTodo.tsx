@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Plus, Pencil, Trash, Save, X } from "lucide-react";
-
+import * as api from "../../api/api";
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -17,8 +17,12 @@ import {
   GridRowEditStopReasons,
   gridClasses,
 } from "@mui/x-data-grid";
+import { useParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { v4 as uuidv4 } from "uuid";
+import { Todo, User } from "@/typing/typing.d";
 
-const members = ["John", "Anson", "Xin"];
+// const members = ["John", "Anson", "Xin"];
 
 const initialRows: GridRowsProp = [
   {
@@ -63,13 +67,17 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     // id 隨機產生
-    const id = Math.floor(Math.random() * 1000000);
+    const id = "new";
     setRows((oldRows) => [
       ...oldRows,
       {
         id,
-        name: "",
-        age: "",
+        assignee: "",
+        assigner: "",
+        completed: false,
+        deadline: "",
+        description: "",
+        todo: "",
         isNew: true,
       },
     ]);
@@ -89,8 +97,104 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const GroupTodo = () => {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState<any[]>([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
+  const [todos, setTodos] = useState<any>([]);
+  const [members, setMembers] = useState<any[]>([]);
+  const [fetchedManager, setFetchedMaanager] = useState(false);
+  const [fetchedTodos, setFetchedTodos] = useState(false);
+  const { groupId } = useParams();
+  const { user } = useUser();
+
+  // groupTodos
+  const fetchGroupTodos = async () => {
+    setFetchedTodos(true);
+    var groupTodos: any;
+    try {
+      var userId: string = "";
+      if (user) userId = user.id;
+      groupTodos = await api.getUserTodos(userId);
+      console.log("todoData", groupTodos.data);
+      setRows([])
+      groupTodos.data.map((todo: any) => {
+        if (todo.groupId === groupId) {
+          var todoIsNew = {
+            id : todo.todoId,
+            assignee: todo.assigneeName,
+            assigner: todo.assignerName,
+            completed: false,
+            deadline: new Date(todo.deadline),
+            description: todo.description,
+            todo: todo.name,
+            isNew: false,
+          };
+          setRows((rows: any) => [...rows, todoIsNew]);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchGroupManagers = async () => {
+    setFetchedMaanager(true);
+    var groupManagers: any;
+    try {
+      if (!groupId) return;
+      groupManagers = await api.getGroupManagerWithId(groupId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchGroupUsers = async () => {
+    var groupUsers: any;
+    try {
+      if (!groupId) return;
+      groupUsers = await api.getGroupUsers(groupId);
+      setMembers(groupUsers.data);
+      console.log(groupUsers.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroupManagers();
+    fetchGroupTodos();
+    fetchGroupUsers();
+    console.log(members);
+  }, [groupId]);
+
+  useEffect(() => {
+    console.log(rows);
+  }, [rows]);
+
+  const assignTodo = async (
+    assigneeId: string,
+    name: string,
+    description: string,
+    deadline: Date
+  ) => {
+    if (!user || !groupId) return;
+    try {
+      console.log("assgining");
+      const response = await api.assignTodo({
+        todoId: uuidv4(),
+        groupId: groupId,
+        assigneeId: assigneeId,
+        assignerId: user.id,
+        name: name,
+        description: description,
+        completed: false,
+        deadline: deadline,
+      });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
@@ -107,10 +211,14 @@ const GroupTodo = () => {
 
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    // rows.map((row)=>{
+    //   if(row.id === id)
+    //     console.log(row)
+    // })
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+    setRows(rows.filter((row) => row.todoId !== id));
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -119,15 +227,29 @@ const GroupTodo = () => {
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
     });
 
-    const editedRow = rows.find((row) => row.id === id);
+    const editedRow = rows.find((row) => row.todoId === id);
     if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
+      setRows(rows.filter((row) => row.todoId !== id));
     }
   };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
+    console.log(newRow);
+    const updatedRow = { ...newRow, isNew: false, assigner: user?.id };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+
+    var id: string | undefined;
+    members.map((member) => {
+      if (member.userName == newRow.assignee) {
+        console.log(member.userName, member.userId);
+        id = member.userId;
+      }
+    });
+    if (!user || !id || newRow.id !== "new") {
+      console.log(user, id);
+      return updatedRow;
+    }
+    assignTodo(id, newRow.todo, newRow.description, newRow.deadline);
     return updatedRow;
   };
 
@@ -166,7 +288,7 @@ const GroupTodo = () => {
       width: 130,
       editable: true,
       type: "singleSelect",
-      valueOptions: members,
+      valueOptions: members.map((member) => member.userName),
     },
     {
       field: "deadline",
