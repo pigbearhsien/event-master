@@ -13,9 +13,11 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { allEvents } from "@/mockdata";
 import { X } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import * as api from "../../api/api";
 import { useUser } from "@clerk/clerk-react";
+import { EventPrivate } from "../typing/typing.d";
 
 type Props = {};
 const DashboardCalendar = () => {
@@ -117,62 +119,77 @@ const DashboardCalendar = () => {
     await data_events?.data.map((event) => {
       var eventWithIsPrivate: any = {
         description: event.description,
-        end: new Date(event.eventEnd),
-        eventId: event.eventId,
+        end: new Date(event.event_end),
+        eventId: event.eventid,
         isPrivate: false,
-        start: new Date(event.eventStart),
+        start: new Date(event.event_start),
         title: event.name,
       };
       newEventData.push(eventWithIsPrivate);
     });
 
     await data_private_events?.data.map((event) => {
-      // var eventWithIsPrivate: any = event;
-      // eventWithIsPrivate.isPrivate = true;
-      var eventWithIsPrivate: any = event;
-      eventWithIsPrivate.isPrivate = true;
       var eventWithIsPrivate: any = {
         description: event.description,
-        end: new Date(event.eventEnd),
-        eventId: event.eventId,
+        end: new Date(event.event_end),
+        eventId: event.eventid,
         isPrivate: true,
-        start: new Date(event.eventStart),
+        start: new Date(event.event_start),
         title: event.name,
       };
       newEventData.push(eventWithIsPrivate);
     });
 
     setEventData(newEventData);
-
-    // await data_events?.data.map((event) => {
-    //   var eventWithIsPrivate: any = event;
-    //   eventWithIsPrivate.isPrivate = false;
-    //   // var eventWithIsPrivate: any = {
-    //   //   description: event.description,
-    //   //   end: new Date(event.eventEnd),
-    //   //   eventId: event.eventId,
-    //   //   isPrivate: false,
-    //   //   start: new Date(event.eventStart),
-    //   //   title: event.name,
-    //   // };
-    //   setEventData([...eventData, eventWithIsPrivate]);
-    // });
-    // await data_private_events?.data.map((event) => {
-    //   var eventWithIsPrivate: any = event;
-    //   eventWithIsPrivate.isPrivate = true;
-    //   // var eventWithIsPrivate: any = {
-    //   //   description: event.description,
-    //   //   end: new Date(event.eventEnd),
-    //   //   eventId: event.eventId,
-    //   //   isPrivate: true,
-    //   //   start: new Date(event.eventStart),
-    //   //   title: event.name,
-    //   // };
-    //   setEventData([...eventData, eventWithIsPrivate]);
-    // });
     setLoading(false);
   };
   if (fetched == false) fetchDashboard();
+
+  var newData: EventPrivate = {
+    eventid: uuidv4(),
+    userid: user?.id,
+    name: eventDetails.title,
+    description: eventDetails.description,
+    event_start: eventDetails.startTime,
+    event_end: eventDetails.endTime,
+  };
+
+  var data: EventPrivate = {
+    eventid: eventDetails.eventId,
+    userid: user?.id,
+    name: eventDetails.title,
+    description: eventDetails.description,
+    event_start: eventDetails.startTime,
+    event_end: eventDetails.endTime,
+  };
+
+  const handleSaveEvent = async () => {
+    if (mode === "Creating") {
+      try {
+        const response = await api.createPrivateEvent(newData);
+        console.log(response.data);
+        var eventWithIsPrivate: any = {
+          description: response.description,
+          end: new Date(response.event_end),
+          eventId: response.eventid,
+          isPrivate: true,
+          start: new Date(response.event_start),
+          title: response.name,
+        };
+        setEventData([...eventData, newData]);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (mode === "Editing") {
+      try {
+        const response = await api.updatePrivateEvent(data);
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
 
   useEffect(() => {
     console.log(allEvents);
@@ -251,7 +268,7 @@ const DashboardCalendar = () => {
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="contained">Save</Button>
+                <Button variant="contained" onClick={handleSaveEvent}>Save</Button>
               </Grid>
             </Grid>
           ) : (
@@ -292,7 +309,16 @@ const DashboardCalendar = () => {
                     </Button>
                   </Grid>
                   <Grid item>
-                    <Button variant="contained" className=" ml-1">
+                    <Button variant="contained" className=" ml-1"
+                      onClick={async () => {
+                        try {
+                          await api.deletePrivateEvent(eventDetails.eventId);
+                          setEventData(eventData.filter((event) => event.eventId !== eventDetails.eventId));
+                          handleCloseEvent();
+                        } catch (error) {
+                          console.error(error);
+                        }
+                      }}>
                       Delete
                     </Button>
                   </Grid>

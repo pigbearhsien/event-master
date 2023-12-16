@@ -8,6 +8,8 @@ import {
   Vote,
   EventPrivate,
   Chat,
+  EventGroupJoinUser,
+  UserJoinEvent,
 } from "../typing/typing.d";
 
 export const request: AxiosInstance = axios.create({
@@ -105,6 +107,16 @@ export const getAllBelongGroups = async (
   }
 };
 
+export const createPrivateEvent = async (
+  event: EventPrivate
+): Promise<AxiosResponse<EventPrivate>> => {
+  try {
+    return await request.post("/createPrivateEvent", event);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
 export const getPrivateEvents = async (
   userId: string
 ): Promise<AxiosResponse<EventPrivate[]>> => {
@@ -114,6 +126,26 @@ export const getPrivateEvents = async (
     throw error as Error;
   }
 };
+
+export const updatePrivateEvent = async (
+  eventId: string
+): Promise<AxiosResponse<EventPrivate>> => {
+  try {
+    return await request.put(`/updatePrivateEventById/${eventId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
+export const deletePrivateEvent = async (
+  eventId: string
+): Promise<AxiosResponse> => {
+  try {
+    return await request.delete(`/deletePrivateEventById/${eventId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+}
 
 export const getMyVote = async (
   userId: string,
@@ -138,13 +170,13 @@ export const getMessages = async (
 
 export const getGroupEventsWithId = async (
   groupId: string
-): Promise<AxiosResponse<EventGroup[]> | any> => {
+): Promise<AxiosResponse<EventGroupJoinUser[]> | any> => {
   try {
     return await request.get(`/listGroupEventByGroupId/${groupId}`);
   } catch (error: any) {
     if (error.response.status === 404) {
-        
-        return { data: [] as EventGroup[]};
+
+      return { data: [] as EventGroupJoinUser[] };
     }
     throw error as Error;
   }
@@ -299,7 +331,7 @@ export const deleteUserFromEvent = async (
 
 export const createGroupEvent = async (
   param: EventGroupCreate
-): Promise<AxiosResponse<EventGroup>> => {
+): Promise<AxiosResponse<EventGroupJoinUser>> => {
   var data: any = param
   data.eventStart = null
   data.eventEnd = null
@@ -323,10 +355,31 @@ export const createMessage = async (param: Chat): Promise<AxiosResponse> => {
 
 
 export const updateGroupEvent = async (
-  event : EventGroup
+  event: EventGroup
 ): Promise<AxiosResponse<EventGroup>> => {
   try {
     return await request.put("/updateGroupEvent", event);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
+export const getUserJoinEvent = async (
+  eventId: string,
+  userId: string
+): Promise<AxiosResponse<UserJoinEvent>> => {
+  try {
+    return await request.get(`/getUserJoinEvent/${eventId}/${userId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
+export const deleteGroupEvent = async (
+  eventId: string
+): Promise<AxiosResponse> => {
+  try {
+    return await request.delete(`/deleteGroupEvent/${eventId}`);
   } catch (error) {
     throw error as Error;
   }

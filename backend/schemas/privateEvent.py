@@ -4,10 +4,10 @@ from datetime import datetime
 
 
 class PrivateEvent(BaseModel):
-    eventId: str
-    userId: str
-    eventStart: datetime
-    eventEnd: datetime
+    eventid: str
+    userid: str
+    event_start: datetime
+    event_end: datetime
     name: str
     description: Optional[str]
 

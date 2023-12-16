@@ -13,7 +13,7 @@ class GroupEventJoinUser(BaseModel):
     organizerId: str
     organizerName: str
     organizerAccount: str
-    organizerProfilePicUrl: str
+    organizerProfilePicUrl: Optional[str]
     voteStart: datetime
     voteEnd: datetime
     voteDeadline: Optional[datetime]

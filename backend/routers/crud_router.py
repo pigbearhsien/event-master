@@ -449,22 +449,22 @@ def delete_group_event_by_id(group_event_id: str, db: Session = Depends(get_db))
 
 # AvailableTime CRUD
 # Create AvailableTime
-@router.post("/createAvailableTime", response_model=AvailableTimeSchema)
-def create_available_time(available_time: AvailableTimeSchema, db: Session = Depends(get_db)):
-    try:
-        db_available_time = AvailableTimeModel(
-            userid=available_time.userId,
-            eventid=available_time.eventId,
-            available_start=available_time.availableStart,
-            possibility_level=available_time.possibilityLevel
-        )
-        db.add(db_available_time)
-        db.commit()
-        db.refresh(db_available_time)
-        return db_available_time
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+# @router.post("/createAvailableTime", response_model=AvailableTimeSchema)
+# def create_available_time(available_time: AvailableTimeSchema, db: Session = Depends(get_db)):
+#     try:
+#         db_available_time = AvailableTimeModel(
+#             userid=available_time.userId,
+#             eventid=available_time.eventId,
+#             available_start=available_time.availableStart,
+#             possibility_level=available_time.possibilityLevel
+#         )
+#         db.add(db_available_time)
+#         db.commit()
+#         db.refresh(db_available_time)
+#         return db_available_time
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
 # Read AvailableTime
 # List all available times
@@ -1198,17 +1198,16 @@ def delete_todo_by_todo_id(todo_id: str, db: Session = Depends(get_db)):
 @router.post("/createPrivateEvent", response_model=PrivateEventSchema)
 def create_private_event(private_event: PrivateEventSchema, db: Session = Depends(get_db)):
     try:
-        db_private_event = PrivateEventSchema(
-                eventId=private_event.eventid,
-                userId=private_event.userid,
-                name=private_event.name,
-                description=private_event.description,
-                eventStart=private_event.event_start,
-                eventEnd=private_event.event_end,
-            )
+        db_private_event = PrivateEventModel(
+            eventid=private_event.eventid,
+            userid=private_event.userid,
+            name=private_event.name,
+            description=private_event.description,
+            event_start=private_event.event_start,
+            event_end=private_event.event_end
+        )
         db.add(db_private_event)
         db.commit()
-        db.refresh(db_private_event)
         return db_private_event
     except Exception as e:
         print(e)
@@ -1216,24 +1215,21 @@ def create_private_event(private_event: PrivateEventSchema, db: Session = Depend
 
 # Read PrivateEvent
 # List all private events
-@router.get("/listAllPrivateEvent", response_model=List[PrivateEventSchema])
-def list_all_private_event(db: Session = Depends(get_db)):
+@router.post("/createPrivateEvent", response_model=PrivateEventSchema)
+def create_private_event(private_event: PrivateEventSchema, db: Session = Depends(get_db)):
     try:
-        db_private_events = db.query(PrivateEventModel).all()
-        # parse private event
-        private_events = []
-        for private_event in db_private_events:
-            private_events.append(
-                PrivateEventSchema(
-                eventId=private_event.eventid,
-                userId=private_event.userid,
-                name=private_event.name,
-                description=private_event.description,
-                eventStart=private_event.event_start,
-                eventEnd=private_event.event_end,
-            )
-            )
-        return private_events
+        db_private_event = PrivateEventModel(
+            eventid=private_event.eventId,
+            userid=private_event.userId,
+            name=private_event.name,
+            description=private_event.description,
+            event_start=private_event.eventStart,
+            event_end=private_event.eventEnd
+        )
+        db.add(db_private_event)
+        db.commit()
+        db.refresh(db_private_event)
+        return db_private_event
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
