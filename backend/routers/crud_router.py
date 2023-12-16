@@ -416,8 +416,8 @@ def update_group_event_by_id(group_event_id: str, group_event: GroupEventSchema,
         db_group_event.organizerid = group_event.organizerId
         db_group_event.vote_start = group_event.voteStart
         db_group_event.vote_end = group_event.voteEnd
-        db_group_event.vote_deadline = group_event.voteDeadline
-        db_group_event.have_possibility = group_event.havePossibility
+        db_group_event.votedeadline = group_event.voteDeadline
+        db_group_event.havepossibility = group_event.havePossibility
         db.commit()
         return group_event
     except HTTPException as e:
