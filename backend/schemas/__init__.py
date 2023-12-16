@@ -9,5 +9,5 @@ from .privateEvent import PrivateEvent
 from .todo import Todo
 from .user import User
 from .userJoinEvent import UserJoinEvent
-from .groupEventJoinUser import GroupEventJoinUser
+from .GroupEventJoinUser import GroupEventJoinUser
 from .todoJoinUser import TodoJoinUser
