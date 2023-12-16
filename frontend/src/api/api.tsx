@@ -9,6 +9,7 @@ import {
   EventPrivate,
   Chat,
   EventGroupJoinUser,
+  UserJoinEvent,
 } from "../typing/typing.d";
 
 export const request: AxiosInstance = axios.create({
@@ -328,6 +329,17 @@ export const updateGroupEvent = async (
 ): Promise<AxiosResponse<EventGroup>> => {
   try {
     return await request.put("/updateGroupEvent", event);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
+export const getUserJoinEvent = async (
+  eventId: string,
+  userId: string
+): Promise<AxiosResponse<UserJoinEvent>> => {
+  try {
+    return await request.get(`/getUserJoinEvent/${eventId}/${userId}`);
   } catch (error) {
     throw error as Error;
   }

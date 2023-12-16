@@ -10,6 +10,8 @@ import { Grid, IconButton } from "@mui/material";
 import moment from "moment";
 import { Pencil, Trash } from "lucide-react";
 import { EventGroupJoinUser } from "@/typing/typing.d";
+import * as api from "@/api/api";
+import { useUser } from "@clerk/clerk-react";
 
 type StatusList = {
   [key: string]: {
@@ -40,6 +42,23 @@ const EventCard = ({
   setMode,
   handleViewVotingModal,
 }: EventCardProps) => {
+  const [isAccepted, setIsAccepted] = React.useState<boolean | null>(null);
+  const { user } = useUser();
+  // api: getUserJoinEvent
+  const fetchUserJoinEvent = async () => {
+    try {
+      if(!user) return;
+      const response = await api.getUserJoinEvent(event.eventId, user.id);
+      console.log(response);
+      setIsAccepted(response.data.isAccepted);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  React.useEffect(() => {
+    fetchUserJoinEvent();
+  }, [event]);
+
   return (
     <Grid item xs={6}>
       <Card
@@ -126,8 +145,8 @@ const EventCard = ({
             View Voting
           </Button>
           <Box sx={{ marginLeft: "auto" }}>
-            {event.isAccepted !== null ? (
-              event.isAccepted ? (
+            {isAccepted !== null ? (
+              isAccepted ? (
                 <Typography
                   sx={{ fontSize: 15, fontWeight: "bold" }}
                   color="primary"

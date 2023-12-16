@@ -232,6 +232,36 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+# 獲取User Join Event
+@router.get("/getUserJoinEvent/{event_id}/{user_id}", response_model=UserJoinEventSchema)
+def get_user_join_event(event_id: str, user_id: str, db: Session = Depends(get_db)):
+    try:
+        db_user_join_event = (
+            db.query(UserJoinEventModel)
+            .filter(
+                UserJoinEventModel.eventid == event_id,
+                UserJoinEventModel.userid == user_id,
+            )
+            .first()
+        )
+        if not db_user_join_event:
+            return UserJoinEventSchema(
+                eventId=event_id,
+                userId=user_id,
+                isAccepted=None,
+            )
+
+        return UserJoinEventSchema(
+            eventId=db_user_join_event.eventid,
+            userId=db_user_join_event.userid,
+            isAccepted=db_user_join_event.isaccepted,
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+
 
 # 查詢自己所有TODO
 @router.get("/getUserTodos/{user_id}", response_model=List)
