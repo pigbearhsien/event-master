@@ -10,6 +10,7 @@ import {
   Chat,
   EventGroupJoinUser,
   UserJoinEvent,
+  CreateAvailableTime,
 } from "../typing/typing.d";
 
 export const request: AxiosInstance = axios.create({
@@ -50,9 +51,7 @@ export const getGroupEvents = async (
   }
 };
 
-export const getUserTodos = async (
-  userId: string
-): Promise<AxiosResponse> => {
+export const getUserTodos = async (userId: string): Promise<AxiosResponse> => {
   try {
     return await request.get<any[]>(`/getUserTodos/${userId}`);
   } catch (error) {
@@ -115,7 +114,7 @@ export const createPrivateEvent = async (
   } catch (error) {
     throw error as Error;
   }
-}
+};
 
 export const getPrivateEvents = async (
   userId: string
@@ -137,7 +136,7 @@ export const updatePrivateEvent = async (
   } catch (error) {
     throw error as Error;
   }
-}
+};
 
 export const deletePrivateEvent = async (
   eventId: string
@@ -147,7 +146,7 @@ export const deletePrivateEvent = async (
   } catch (error) {
     throw error as Error;
   }
-}
+};
 
 export const getMyVote = async (
   userId: string,
@@ -177,7 +176,6 @@ export const getGroupEventsWithId = async (
     return await request.get(`/listGroupEventByGroupId/${groupId}`);
   } catch (error: any) {
     if (error.response.status === 404) {
-
       return { data: [] as EventGroupJoinUser[] };
     }
     throw error as Error;
@@ -207,6 +205,14 @@ export const getGroupUsers = async (
 ): Promise<AxiosResponse> => {
   try {
     return await request.get(`/listGroupHasUser/${groupId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const getVoteResultCnt = async (eventId: string): Promise<AxiosResponse> => {
+  try {
+    return await request.get(`listAllVoteCountByEventId/${eventId}`);
   } catch (error) {
     throw error as Error;
   }
@@ -244,7 +250,9 @@ export const insertUserToGroup = async (
   account: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post(`/insertUserToGroupByEmail/${groupId}/${account}`);
+    return await request.post(
+      `/insertUserToGroupByEmail/${groupId}/${account}`
+    );
   } catch (error) {
     throw error as Error;
   }
@@ -266,7 +274,9 @@ export const addManager = async (
   account: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post(`/assignManagerToGroupByEmail/${groupId}/${account}`);
+    return await request.post(
+      `/assignManagerToGroupByEmail/${groupId}/${account}`
+    );
   } catch (error) {
     throw error as Error;
   }
@@ -334,10 +344,10 @@ export const deleteUserFromEvent = async (
 export const createGroupEvent = async (
   param: EventGroupCreate
 ): Promise<AxiosResponse<EventGroupJoinUser>> => {
-  var data: any = param
-  data.eventStart = null
-  data.eventEnd = null
-  data.status = "In_Voting"
+  var data: any = param;
+  data.eventStart = null;
+  data.eventEnd = null;
+  data.status = "In_Voting";
   try {
     return await request.post("/createGroupEvent", data);
   } catch (error) {
@@ -353,9 +363,6 @@ export const createMessage = async (param: Chat): Promise<AxiosResponse> => {
   }
 };
 
-
-
-
 export const updateGroupEvent = async (
   event: EventGroup
 ): Promise<AxiosResponse<EventGroup>> => {
@@ -364,7 +371,7 @@ export const updateGroupEvent = async (
   } catch (error) {
     throw error as Error;
   }
-}
+};
 
 export const getUserJoinEvent = async (
   eventId: string,
@@ -375,7 +382,7 @@ export const getUserJoinEvent = async (
   } catch (error) {
     throw error as Error;
   }
-}
+};
 
 export const deleteGroupEvent = async (
   eventId: string
@@ -385,11 +392,21 @@ export const deleteGroupEvent = async (
   } catch (error) {
     throw error as Error;
   }
-}
+};
 
-// export const createAvailableTime = async (
-//   userId: string,
-//   eventId: string,
-//   availableStart: "2023-12-16T08:26:09.063Z",
-//   possibilityLevel: "string"
-// )
+export const createAvailableTime = async (
+  timeArr: CreateAvailableTime[]
+): Promise<AxiosResponse> => {
+  try {
+    var payload: any[] = [];
+    timeArr.map((timeObj) => {
+      payload = [
+        ...payload,
+        { ...timeObj, availableStart: timeObj.availableStart.toISOString },
+      ];
+    });
+    return await request.post("/createAvailableTime", timeArr);
+  } catch (error) {
+    throw error as Error;
+  }
+};
