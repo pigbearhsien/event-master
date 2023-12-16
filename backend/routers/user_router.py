@@ -189,7 +189,7 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         # modify status according to current time
         for event in db_group_event:
             if event.vote_start:
-                if datetime.now() < event.deadline:
+                if datetime.now() < event.votedeadline:
                     event.status = 'In_Voting'
                 else: 
                     event.status = 'End_Voting'

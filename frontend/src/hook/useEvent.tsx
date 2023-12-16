@@ -37,10 +37,10 @@ const EventProvider = ({ children }: IProps) => {
       return;
     }
     var getUser;
-    try{
+    try {
       getUser = await api.getUser(user.id);
-    } catch(e: any){
-      console.log(e)
+    } catch (e: any) {
+      console.log(e);
     }
     console.log("getUser", getUser);
     if (getUser == null) {
@@ -60,9 +60,9 @@ const EventProvider = ({ children }: IProps) => {
   };
 
   useEffect(() => {
-    console.log(user.isSignedIn, loggedInId);
+    // console.log(user.isSignedIn, loggedInId);
     if (user.isSignedIn && loggedInId == "") {
-      console.log(user);
+      // console.log(user);
       fetchUser(user.user);
     }
   }, [user.isSignedIn]);

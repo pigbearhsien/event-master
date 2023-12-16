@@ -8,13 +8,13 @@ type EventGroup = {
   groupId: string;
   name: string;
   description: string;
-  eventStart: Date;
-  eventEnd: Date;
+  eventStart: Date | null;
+  eventEnd: Date | null;
   status: string;
-  organizer: string;
-  vote_start: Date;
-  vote_end: Date;
-  vote_deadline: Date;
+  organizerId: string;
+  voteStart: Date;
+  voteEnd: Date;
+  voteDeadline: Date;
   havePossibility: boolean;
 };
 
@@ -41,10 +41,10 @@ type EventGroupCreate = {
   name: string;
   description: string;
   organizerId: string;
-  voteStart: string;
-  voteEnd: string;
-  voteDeadline: string;
-  havePossibility: string;
+  voteStart: Date;
+  voteEnd: Date;
+  voteDeadline: Date;
+  havePossibility: boolean;
 };
 
 type Todo = {
@@ -58,11 +58,19 @@ type Todo = {
   deadline: Date;
 };
 
+type TodoJoinUser = Todo &{
+  assigneeName: string,
+  assignerName: string,
+}
+
+type EventGroupJoinUser = EventGroup &{
+  organizerName: string,
+}
+
 type User = {
   userId: string;
   name: string;
   account: string;
-  password: string;
   profilePicUrl: string | null;
 };
 
@@ -82,4 +90,6 @@ export type {
   Vote,
   EventPrivate,
   Chat,
+  TodoJoinUser,
+  EventGroupJoinUser
 };

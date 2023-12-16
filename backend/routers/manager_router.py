@@ -78,7 +78,7 @@ async def insert_user_to_group_by_email(
     group_id=str, user_email=str, db: Session = Depends(get_db)
 ):
     try:
-        db_user = db.query(UserModel).filter(UserModel.email == user_email).first()
+        db_user = db.query(UserModel).filter(UserModel.account == user_email).first()
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -92,7 +92,7 @@ async def insert_user_to_group_by_email(
         user = {
             "userId": db_user.userid,
             "name": db_user.name,
-            "account": db_user.email,
+            "account": db_user.account,
             "profilePicUrl": db_user.profile_pic_url
         }
 
@@ -144,7 +144,7 @@ async def assign_manager_to_group_by_email(
     group_id=str, user_email=str, db: Session = Depends(get_db)
 ):
     try:
-        db_user = db.query(UserModel).filter(UserModel.email == user_email).first()
+        db_user = db.query(UserModel).filter(UserModel.account == user_email).first()
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -158,7 +158,7 @@ async def assign_manager_to_group_by_email(
         user = {
             "userId": db_user.userid,
             "name": db_user.name,
-            "account": db_user.email,
+            "account": db_user.account,
             "profilePicUrl": db_user.profile_pic_url
         }
 

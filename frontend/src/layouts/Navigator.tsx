@@ -58,7 +58,7 @@ export default function Navigator(props: DrawerProps) {
     console.log(groups);
   }, [groups]);
 
-  console.log("fetched", fetched)
+  console.log("fetched", fetched);
   if (fetched === false) {
     fetchGroup();
   }
@@ -66,7 +66,14 @@ export default function Navigator(props: DrawerProps) {
   const createGroup = async (name: string) => {
     try {
       if (!user) return;
-      await api.createGroup(uuidv4(), user?.id, name);
+      const groupId = uuidv4()
+      await api.createGroup(groupId, user?.id, name);
+
+      const newGroup: Group = {
+        groupId: groupId,
+        name: name,
+      };
+      setGroups((groups) => [...groups, newGroup]);
     } catch (error) {
       console.log(error);
     }
@@ -79,11 +86,7 @@ export default function Navigator(props: DrawerProps) {
       <Dialog open={open}>
         <DialogTitle>Create Group</DialogTitle>
         <DialogContent>
-          {/* <DialogContentText>
-            To create a group, please enter the group name here.
-          </DialogContentText> */}
-          <FormControl sx={{ mt: 2, minWidth: 120 }}>
-            <InputLabel htmlFor="max-width"></InputLabel>
+          <FormControl sx={{ mt: 2, width: "50vh" }}>
             <TextField
               autoFocus
               margin="dense"

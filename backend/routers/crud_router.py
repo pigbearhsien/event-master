@@ -397,34 +397,34 @@ def list_group_event_by_id(group_event_id: str, db: Session = Depends(get_db)):
 
 # Update GroupEvent
 # Update group event by id
-@router.put("/updateGroupEventById/{group_event_id}", response_model=GroupEventSchema)
-def update_group_event_by_id(group_event_id: str, group_event: GroupEventSchema, db: Session = Depends(get_db)):
-    try:
-        db_group_event = (
-            db.query(GroupEventModel)
-            .filter(GroupEventModel.eventid == group_event_id)
-            .first()
-        )
-        if not db_group_event:
-            raise HTTPException(status_code=404, detail="Group Event not found")
+# @router.put("/updateGroupEventById/{group_event_id}", response_model=GroupEventSchema)
+# def update_group_event_by_id(group_event_id: str, group_event: GroupEventSchema, db: Session = Depends(get_db)):
+#     try:
+#         db_group_event = (
+#             db.query(GroupEventModel)
+#             .filter(GroupEventModel.eventid == group_event_id)
+#             .first()
+#         )
+#         if not db_group_event:
+#             raise HTTPException(status_code=404, detail="Group Event not found")
         
-        db_group_event.eventid = group_event.eventId
-        db_group_event.groupid = group_event.groupId
-        db_group_event.name = group_event.name
-        db_group_event.description = group_event.description
-        db_group_event.status = group_event.status
-        db_group_event.organizerid = group_event.organizerId
-        db_group_event.vote_start = group_event.voteStart
-        db_group_event.vote_end = group_event.voteEnd
-        db_group_event.votedeadline = group_event.voteDeadline
-        db_group_event.havepossibility = group_event.havePossibility
-        db.commit()
-        return group_event
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+#         db_group_event.eventid = group_event.eventId
+#         db_group_event.groupid = group_event.groupId
+#         db_group_event.name = group_event.name
+#         db_group_event.description = group_event.description
+#         db_group_event.status = group_event.status
+#         db_group_event.organizerid = group_event.organizerId
+#         db_group_event.vote_start = group_event.voteStart
+#         db_group_event.vote_end = group_event.voteEnd
+#         db_group_event.vote_deadline = group_event.voteDeadline
+#         db_group_event.have_possibility = group_event.havePossibility
+#         db.commit()
+#         return group_event
+#     except HTTPException as e:
+#         raise e
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # Delete GroupEvent
 # Delete group event by id

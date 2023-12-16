@@ -15,10 +15,11 @@ import { allEvents } from "@/mockdata";
 import { X } from "lucide-react";
 import moment from "moment";
 import * as api from "../../api/api";
+import { useUser } from "@clerk/clerk-react";
 
 type Props = {};
-
 const DashboardCalendar = () => {
+  const { user } = useUser();
   const [mode, setMode] = useState<"Editing" | "Creating" | "Viewing">(
     "Creating"
   );
@@ -97,33 +98,83 @@ const DashboardCalendar = () => {
     console.log("fetch");
     var data_events: any;
     try {
-      data_events = await api.getGroupEvents("9084987872");
+      data_events = await api.getGroupEvents("7912896340");
       console.log(data_events.data);
     } catch (e: any) {
       console.log(e);
     }
     var data_private_events: any;
     try {
-      data_private_events = await api.getPrivateEvents("9084987872");
+      data_private_events = await api.getPrivateEvents("7912896340");
       console.log(data_private_events);
     } catch (e: any) {
       console.log(e);
     }
+
+
+    let newEventData = [...eventData];
     await data_events?.data.map((event) => {
-      var eventWithIsPrivate: any = event;
-      eventWithIsPrivate.isPrivate = false;
-      setEventData([...eventData, eventWithIsPrivate]);
+      var eventWithIsPrivate: any = {
+        description: event.description,
+        end: new Date(event.eventEnd),
+        eventId: event.eventId,
+        isPrivate: false,
+        start: new Date(event.eventStart),
+        title: event.name,
+      };
+      newEventData.push(eventWithIsPrivate);
     });
+
     await data_private_events?.data.map((event) => {
+      // var eventWithIsPrivate: any = event;
+      // eventWithIsPrivate.isPrivate = true;
       var eventWithIsPrivate: any = event;
       eventWithIsPrivate.isPrivate = true;
-      setEventData([...eventData, eventWithIsPrivate]);
+      var eventWithIsPrivate: any = {
+        description: event.description,
+        end: new Date(event.eventEnd),
+        eventId: event.eventId,
+        isPrivate: true,
+        start: new Date(event.eventStart),
+        title: event.name,
+      };
+      newEventData.push(eventWithIsPrivate);
     });
+
+    setEventData(newEventData);
+
+    // await data_events?.data.map((event) => {
+    //   var eventWithIsPrivate: any = event;
+    //   eventWithIsPrivate.isPrivate = false;
+    //   // var eventWithIsPrivate: any = {
+    //   //   description: event.description,
+    //   //   end: new Date(event.eventEnd),
+    //   //   eventId: event.eventId,
+    //   //   isPrivate: false,
+    //   //   start: new Date(event.eventStart),
+    //   //   title: event.name,
+    //   // };
+    //   setEventData([...eventData, eventWithIsPrivate]);
+    // });
+    // await data_private_events?.data.map((event) => {
+    //   var eventWithIsPrivate: any = event;
+    //   eventWithIsPrivate.isPrivate = true;
+    //   // var eventWithIsPrivate: any = {
+    //   //   description: event.description,
+    //   //   end: new Date(event.eventEnd),
+    //   //   eventId: event.eventId,
+    //   //   isPrivate: true,
+    //   //   start: new Date(event.eventStart),
+    //   //   title: event.name,
+    //   // };
+    //   setEventData([...eventData, eventWithIsPrivate]);
+    // });
     setLoading(false);
   };
   if (fetched == false) fetchDashboard();
 
   useEffect(() => {
+    console.log(allEvents)
     console.log(eventData);
   }, [eventData]);
 
@@ -138,7 +189,8 @@ const DashboardCalendar = () => {
               showMultiDayTimes
               onSelectEvent={handleSelectEvent}
               onSelectSlot={handleSelectSlot}
-              events={allEvents}
+              // events={allEvents}
+              events={eventData}
               views={{ month: true, week: true, day: true }}
               eventPropGetter={eventPropGetter}
             />
@@ -213,12 +265,12 @@ const DashboardCalendar = () => {
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  {eventDetails.startTime.format("MMM DD , h:mm a")} -{" "}
+                  {eventDetails.startTime.format("dddd, MMM DD h:mm a")} -{" "}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  {eventDetails.endTime.format("MMM DD , h:mm a")}
+                  {eventDetails.endTime.format("dddd, MMM DD h:mm a")}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
