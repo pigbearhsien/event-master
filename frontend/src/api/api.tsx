@@ -8,6 +8,7 @@ import {
   Vote,
   EventPrivate,
   Chat,
+  EventGroupJoinUser,
 } from "../typing/typing.d";
 
 export const request: AxiosInstance = axios.create({
@@ -138,13 +139,13 @@ export const getMessages = async (
 
 export const getGroupEventsWithId = async (
   groupId: string
-): Promise<AxiosResponse<EventGroup[]> | any> => {
+): Promise<AxiosResponse<EventGroupJoinUser[]> | any> => {
   try {
     return await request.get(`/listGroupEventByGroupId/${groupId}`);
   } catch (error: any) {
     if (error.response.status === 404) {
         
-        return { data: [] as EventGroup[]};
+        return { data: [] as EventGroupJoinUser[]};
     }
     throw error as Error;
   }
@@ -299,7 +300,7 @@ export const deleteUserFromEvent = async (
 
 export const createGroupEvent = async (
   param: EventGroupCreate
-): Promise<AxiosResponse<EventGroup>> => {
+): Promise<AxiosResponse<EventGroupJoinUser>> => {
   var data: any = param
   data.eventStart = null
   data.eventEnd = null

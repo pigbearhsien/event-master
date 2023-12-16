@@ -60,11 +60,17 @@ type Todo = {
 
 type TodoJoinUser = Todo &{
   assigneeName: string,
+  assigneeAccount: string,
+  assigneeProfilePicUrl: string | null,
   assignerName: string,
+  assignerAccount: string,
+  assignerProfilePicUrl: string | null,
 }
 
 type EventGroupJoinUser = EventGroup &{
   organizerName: string,
+  organizerAccount: string,
+  organizerProfilePicUrl: string | null,
 }
 
 type User = {

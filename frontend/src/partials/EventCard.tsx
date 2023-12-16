@@ -9,8 +9,17 @@ import Chip from "@mui/material/Chip";
 import { Grid, IconButton } from "@mui/material";
 import moment from "moment";
 import { Pencil, Trash } from "lucide-react";
+import { EventGroupJoinUser } from "@/typing/typing.d";
 
-const statusList = {
+type StatusList = {
+  [key: string]: {
+    status: string;
+    color: string;
+    order: number;
+  };
+};
+
+const statusList: StatusList = {
   In_Voting: { status: "Voting", color: "success", order: 4 },
   End_Voting: { status: "Voting End", color: "success", order: 3 },
   Not_Start_Yet: { status: "Incoming", color: "warning", order: 2 },
@@ -18,12 +27,19 @@ const statusList = {
   Closure: { status: "End", color: "default", order: 5 },
 };
 
+interface EventCardProps {
+  event: EventGroupJoinUser;
+  handleSelectEvent: (event: any) => void;
+  setMode: React.Dispatch<React.SetStateAction<"Editing" | "Creating" | "Viewing">>;
+  handleViewVotingModal: (eventId: string) => void;
+}
+
 const EventCard = ({
   event,
   handleSelectEvent,
   setMode,
   handleViewVotingModal,
-}) => {
+}: EventCardProps) => {
   return (
     <Grid item xs={6}>
       <Card
@@ -44,7 +60,7 @@ const EventCard = ({
           >
             <Chip
               size="small"
-              color={statusList[event.status].color}
+              color={statusList[event.status].color as any}
               label={statusList[event.status].status}
               variant="outlined"
             />

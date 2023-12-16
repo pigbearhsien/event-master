@@ -6,14 +6,14 @@ import EventDetailsCard from "@/partials/EventDetailsCard";
 import VotingModal from "@/partials/VotingModal";
 import * as api from "../../api/api";
 import { useParams } from "react-router-dom";
-import { EventGroup } from "@/typing/typing.d";
+import { EventGroup, EventGroupJoinUser } from "@/typing/typing.d";
 import { AxiosResponse } from "axios";
 
 type Props = {};
 
 const GroupEvent = (props: Props) => {
   const { groupId } = useParams();
-  const [events, setEvents] = useState<EventGroup[]>([]);
+  const [events, setEvents] = useState<EventGroupJoinUser[]>([]);
   // const [fetched, setFetched] = useState(false);
 
   const fetchThisGroupEvent = async () => {
@@ -38,11 +38,13 @@ const GroupEvent = (props: Props) => {
 
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [voteModalEvent, setVoteModalEvent] = useState<EventGroup | null>(null);
-  const [eventDetails, setEventDetails] = useState<EventGroup>({
+  
+  const [eventDetails, setEventDetails] = useState<EventGroupJoinUser>({
     eventId: "",
     groupId: groupId,
     name: "",
     organizerId: "",
+    organizerName: "",
     description: "",
     status: "",
     eventStart: null,
@@ -51,7 +53,7 @@ const GroupEvent = (props: Props) => {
     voteEnd: new Date(),
     voteDeadline: new Date(),
     havePossibility: false,
-  } as EventGroup);
+  } as EventGroupJoinUser);
   const [mode, setMode] = useState<"Editing" | "Creating" | "Viewing">(
     "Creating"
   );
@@ -63,6 +65,7 @@ const GroupEvent = (props: Props) => {
       eventId: event.eventId,
       groupId: event.groupId,
       organizerId: event.organizerId,
+      organizerName: event.organizerName,
       name: event.name,
       status: event.status,
       description: event.description,
@@ -72,10 +75,17 @@ const GroupEvent = (props: Props) => {
       voteEnd: event.voteEnd,
       voteDeadline: event.voteDeadline,
       havePossibility: event.havePossibility,
-    } as EventGroup);
+    } as EventGroupJoinUser);
   };
 
-  const handleViewVotingModal = (event) => {
+  const handleViewVotingModal = (event: EventGroupJoinUser) => {
+    // force casting into EventGroup
+    event = event as Omit<EventGroup, 'organizerName' | 'organizerAccount' | 'organizerProfilePicUrl'> & {
+      organizerName: string;
+      organizerAccount: string;
+      organizerProfilePicUrl: string | null;
+    };
+
     setVoteModalOpen(true);
     setVoteModalEvent(event);
   };
