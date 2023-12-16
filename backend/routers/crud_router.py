@@ -358,42 +358,42 @@ def list_group_event_by_id(group_event_id: str, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
-# List group event by group id
-@router.get("/listGroupEventByGroupId/{group_id}", response_model=List[GroupEventSchema])
-def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
-    try:
-        db_group_events = (
-            db.query(GroupEventModel)
-            .filter(GroupEventModel.groupid == group_id)
-            .all()
-        )
-        if not db_group_events:
-            raise HTTPException(status_code=404, detail="Group Event not found")
-        # parse group event
-        group_events = []
-        for group_event in db_group_events:
-            group_events.append(
-                GroupEventSchema(
-                    eventId=group_event.eventid,
-                    groupId=group_event.groupid,
-                    name=group_event.name,
-                    description=group_event.description,
-                    eventStart=group_event.event_start,
-                    eventEnd=group_event.event_end,
-                    status=group_event.status,
-                    organizerId=group_event.organizerid,
-                    voteStart=group_event.vote_start,
-                    voteEnd=group_event.vote_end,
-                    voteDeadline=group_event.votedeadline,
-                    havePossibility=group_event.havepossibility
-                )
-            )
-        return group_events
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+# # List group event by group id
+# @router.get("/listGroupEventByGroupId/{group_id}", response_model=List[GroupEventSchema])
+# def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
+#     try:
+#         db_group_events = (
+#             db.query(GroupEventModel)
+#             .filter(GroupEventModel.groupid == group_id)
+#             .all()
+#         )
+#         if not db_group_events:
+#             raise HTTPException(status_code=404, detail="Group Event not found")
+#         # parse group event
+#         group_events = []
+#         for group_event in db_group_events:
+#             group_events.append(
+#                 GroupEventSchema(
+#                     eventId=group_event.eventid,
+#                     groupId=group_event.groupid,
+#                     name=group_event.name,
+#                     description=group_event.description,
+#                     eventStart=group_event.event_start,
+#                     eventEnd=group_event.event_end,
+#                     status=group_event.status,
+#                     organizerId=group_event.organizerid,
+#                     voteStart=group_event.vote_start,
+#                     voteEnd=group_event.vote_end,
+#                     voteDeadline=group_event.votedeadline,
+#                     havePossibility=group_event.havepossibility
+#                 )
+#             )
+#         return group_events
+#     except HTTPException as e:
+#         raise e
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # Update GroupEvent
 # Update group event by id
@@ -416,8 +416,8 @@ def update_group_event_by_id(group_event_id: str, group_event: GroupEventSchema,
         db_group_event.organizerid = group_event.organizerId
         db_group_event.vote_start = group_event.voteStart
         db_group_event.vote_end = group_event.voteEnd
-        db_group_event.vote_deadline = group_event.voteDeadline
-        db_group_event.have_possibility = group_event.havePossibility
+        db_group_event.votedeadline = group_event.voteDeadline
+        db_group_event.havepossibility = group_event.havePossibility
         db.commit()
         return group_event
     except HTTPException as e:
