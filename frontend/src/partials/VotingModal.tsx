@@ -20,8 +20,11 @@ import moment from "moment";
 import { X } from "lucide-react";
 import { availbleHour } from "@/mockdata";
 import "./VotingModal.css";
+import { CreateAvailableTime } from "@/typing/typing.d";
+import { useUser } from "@clerk/clerk-react";
 
 const VotingModal = ({ open, setOpen, event }) => {
+  const {user} = useUser()
   function MyWeek({
     date,
     localizer,
@@ -95,6 +98,10 @@ const VotingModal = ({ open, setOpen, event }) => {
   };
 
   const handleSave = () => {
+    var arr: CreateAvailableTime[] = []
+    availableHour.map((time)=>{
+      arr = [...arr, {userId: user?.id, eventId: event.eventId, availableStart: time, possibilityLevel: ""}]
+    })
     console.log(availableHour);
   };
 

@@ -86,6 +86,13 @@ type User = {
   profilePicUrl: string | null;
 };
 
+type CreateAvailableTime = {
+  userId: string;
+  eventId: string;
+  availableStart: Date;
+  possibilityLevel: string;
+}
+
 type Vote = {
   userId: string;
   name: string;
@@ -104,5 +111,6 @@ export type {
   Chat,
   TodoJoinUser,
   EventGroupJoinUser,
-  UserJoinEvent
+  UserJoinEvent,
+  CreateAvailableTime
 };

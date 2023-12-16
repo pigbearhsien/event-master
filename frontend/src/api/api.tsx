@@ -384,3 +384,10 @@ export const deleteGroupEvent = async (
     throw error as Error;
   }
 }
+
+// export const createAvailableTime = async (
+//   userId: string,
+//   eventId: string,
+//   availableStart: "2023-12-16T08:26:09.063Z",
+//   possibilityLevel: "string"
+// )
