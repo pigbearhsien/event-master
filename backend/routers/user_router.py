@@ -367,7 +367,6 @@ async def websocket_endpoint(websocket: WebSocket, group_id: str, db: Session = 
 
 
     
-    
 
 # 查詢使用者在特定團隊活動的可以時間和程度
 @router.get(
