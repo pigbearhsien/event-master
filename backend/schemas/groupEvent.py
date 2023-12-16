@@ -15,7 +15,7 @@ class GroupEvent(BaseModel):
     voteStart: datetime
     voteEnd: datetime
     voteDeadline: Optional[datetime]
-    havePossibility: bool
+    havePossibility: Optional[bool]
 
     class Config:
         orm_mode = True

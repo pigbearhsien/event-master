@@ -128,8 +128,8 @@ def update_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
         db_group_event.organizerid = group_event.organizerId
         db_group_event.vote_start = group_event.voteStart
         db_group_event.vote_end = group_event.voteEnd
-        db_group_event.vote_deadline = group_event.voteDeadline
-        db_group_event.have_possibility = group_event.havePossibility
+        db_group_event.votedeadline = group_event.voteDeadline
+        db_group_event.havepossibility = group_event.havePossibility
         db.commit()
         return group_event
     except HTTPException as e:
@@ -138,3 +138,25 @@ def update_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
+# 新增團隊活動
+@router.post("/createGroupEvent", response_model=GroupEventSchema)
+def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
+    try:
+        db_group_event = GroupEventModel(
+            eventid=group_event.eventId,
+            groupid=group_event.groupId,
+            name=group_event.name,
+            description=group_event.description,
+            status=group_event.status,
+            organizerid=group_event.organizerId,
+            votestart=group_event.voteStart,
+            voteend=group_event.voteEnd,
+            votedeadline=group_event.voteDeadline,
+            havepossibility=group_event.havePossibility,
+        )
+        db.add(db_group_event)
+        db.commit()
+        return group_event
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")

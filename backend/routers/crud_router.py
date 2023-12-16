@@ -270,30 +270,30 @@ def delete_group_by_id(group_id: str, db: Session = Depends(get_db)):
     
 # GroupEvent CRUD
 # Create GroupEvent
-@router.post("/createGroupEvent", response_model=GroupEventSchema)
-def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
-    try:
-        db_group_event = GroupEventModel(
-            eventid=group_event.eventId,
-            groupid=group_event.groupId,
-            name=group_event.name,
-            description=group_event.description,
-            event_start=group_event.eventStart,
-            event_end=group_event.eventEnd,
-            status=group_event.status,
-            organizerid=group_event.organizerId,
-            vote_start=group_event.voteStart,
-            vote_end=group_event.voteEnd,
-            votedeadline=group_event.voteDeadline,
-            havepossibility=group_event.havePossibility
-        )
-        db.add(db_group_event)
-        db.commit()
-        db.refresh(db_group_event)
-        return db_group_event
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+# @router.post("/createGroupEvent", response_model=GroupEventSchema)
+# def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
+#     try:
+#         db_group_event = GroupEventModel(
+#             eventid=group_event.eventId,
+#             groupid=group_event.groupId,
+#             name=group_event.name,
+#             description=group_event.description,
+#             event_start=group_event.eventStart,
+#             event_end=group_event.eventEnd,
+#             status=group_event.status,
+#             organizerid=group_event.organizerId,
+#             vote_start=group_event.voteStart,
+#             vote_end=group_event.voteEnd,
+#             votedeadline=group_event.voteDeadline,
+#             havepossibility=group_event.havePossibility
+#         )
+#         db.add(db_group_event)
+#         db.commit()
+#         db.refresh(db_group_event)
+#         return db_group_event
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
 # Read GroupEvent
 # List all group events
