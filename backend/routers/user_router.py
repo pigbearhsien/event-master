@@ -668,3 +668,37 @@ def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+@router.get("/getPrivateEventsByUserId", response_model=List[PrivateEventSchema])
+def get_private_events_by_user_id(user_id: str, db: Session = Depends(get_db)):
+    try:
+        db_private_event = (
+            db.query(PrivateEventModel)
+            .filter(PrivateEventModel.userid == user_id)
+            .all()
+        )
+
+        # convert to schema
+        private_events = []
+        for event in db_private_event:
+            private_events.append(
+                PrivateEventSchema(
+                    eventId=event.eventid,
+                    userId=event.userid,
+                    name=event.name,
+                    description=event.description,
+                    eventStart=event.event_start,
+                    eventEnd=event.event_end,
+                )
+            )
+
+        if not private_events:
+            raise HTTPException(status_code=404, detail="Private Event not found")
+        return private_events
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
