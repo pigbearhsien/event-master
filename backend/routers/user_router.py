@@ -628,3 +628,43 @@ def list_group_has_user(group_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+    
+
+# List group event by group id
+@router.get("/listGroupEventByGroupId/{group_id}", response_model=List)
+def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
+    try:
+        query = text("SELECT ge.*, u.name AS organizer_name, u.account AS organizer_account, u.profile_pic_url AS organizer_profile_pic_url FROM group_event ge JOIN user_table u ON ge.organizerid = u.userid WHERE ge.groupid = :group_id")
+
+        db_group_events = db.execute(query, {"group_id": group_id}).fetchall()
+        
+        if not db_group_events:
+            raise HTTPException(status_code=404, detail="Group Event not found")
+        # parse group event
+        group_events = []
+        for group_event in db_group_events:
+            group_events.append(
+                {
+                    "eventId": group_event.eventid,
+                    "groupId": group_event.groupid,
+                    "name": group_event.name,
+                    "description": group_event.description,
+                    "status": group_event.status,
+                    "organizerId": group_event.organizerid,
+                    "organizerName": group_event.organizer_name,
+                    "organizerAccount": group_event.organizer_account,
+                    "organizerProfilePicUrl": group_event.organizer_profile_pic_url,
+                    "voteStart": group_event.vote_start,
+                    "voteEnd": group_event.vote_end,
+                    "voteDeadline": group_event.votedeadline,
+                    "havePossibility": group_event.havepossibility,
+                    "eventStart": group_event.event_start,
+                    "eventEnd": group_event.event_end,
+                }
+            )
+        return group_events
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
