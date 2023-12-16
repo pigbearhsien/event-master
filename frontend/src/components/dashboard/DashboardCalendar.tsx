@@ -146,10 +146,18 @@ const DashboardCalendar = () => {
   };
   if (fetched == false) fetchDashboard();
 
-  var data: EventPrivate = {
+  var newData: EventPrivate = {
     eventid: uuidv4(),
     userid: user?.id,
-    // userid: "7912896340",
+    name: eventDetails.title,
+    description: eventDetails.description,
+    event_start: eventDetails.startTime,
+    event_end: eventDetails.endTime,
+  };
+
+  var data: EventPrivate = {
+    eventid: eventDetails.eventId,
+    userid: user?.id,
     name: eventDetails.title,
     description: eventDetails.description,
     event_start: eventDetails.startTime,
@@ -157,20 +165,30 @@ const DashboardCalendar = () => {
   };
 
   const handleSaveEvent = async () => {
-    try {
-      const response = await api.createPrivateEvent(data);
-      console.log(response.data);
-      var eventWithIsPrivate: any = {
-        description: response.description,
-        end: new Date(response.event_end),
-        eventId: response.eventid,
-        isPrivate: true,
-        start: new Date(response.event_start),
-        title: response.name,
-      };
-      setEventData([...eventData, eventWithIsPrivate]);
-    } catch (error) {
-      console.error(error);
+    if (mode === "Creating") {
+      try {
+        const response = await api.createPrivateEvent(newData);
+        console.log(response.data);
+        var eventWithIsPrivate: any = {
+          description: response.description,
+          end: new Date(response.event_end),
+          eventId: response.eventid,
+          isPrivate: true,
+          start: new Date(response.event_start),
+          title: response.name,
+        };
+        setEventData([...eventData, newData]);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (mode === "Editing") {
+      try {
+        const response = await api.updatePrivateEvent(data);
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -295,7 +313,6 @@ const DashboardCalendar = () => {
                     <Button variant="contained" className=" ml-1"
                       onClick={async () => {
                         try {
-                          // 假設你有一個 API 客戶端可以刪除 event
                           await api.deletePrivateEvent(eventDetails.eventId);
                           setEventData(eventData.filter((event) => event.eventId !== eventDetails.eventId));
                           handleCloseEvent();

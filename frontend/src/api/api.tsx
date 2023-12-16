@@ -125,6 +125,16 @@ export const getPrivateEvents = async (
   }
 };
 
+export const updatePrivateEvent = async (
+  eventId: string
+): Promise<AxiosResponse<EventPrivate>> => {
+  try {
+    return await request.put(`/updatePrivateEventById/${eventId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
 export const deletePrivateEvent = async (
   eventId: string
 ): Promise<AxiosResponse> => {
