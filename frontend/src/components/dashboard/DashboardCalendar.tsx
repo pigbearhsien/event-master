@@ -146,14 +146,7 @@ const DashboardCalendar = () => {
   };
   if (fetched == false) fetchDashboard();
 
-  var newData: EventPrivate = {
-    eventid: uuidv4(),
-    userid: user?.id,
-    name: eventDetails.title,
-    description: eventDetails.description,
-    event_start: eventDetails.startTime,
-    event_end: eventDetails.endTime,
-  };
+  
 
   var data: EventPrivate = {
     eventid: eventDetails.eventId,
@@ -167,17 +160,50 @@ const DashboardCalendar = () => {
   const handleSaveEvent = async () => {
     if (mode === "Creating") {
       try {
+
+        const newData: EventPrivate = {
+          eventid: uuidv4(),
+          userid: user?.id,
+          name: eventDetails.title,
+          description: eventDetails.description,
+          event_start: eventDetails.startTime,
+          event_end: eventDetails.endTime,
+        };
+
+        setEventData((prev:any)=>{
+          const data = {
+            description: newData.description,
+            end: newData.event_end,
+            eventId: newData.eventId,
+            isPrivate: true,
+            start: newData.event_start,
+            title: newData.name,
+          }
+          // await prev?.data.map((event) => {
+          //   var eventWithIsPrivate: any = {
+          //     description: event.description,
+          //     end: new Date(event.event_end),
+          //     eventId: event.eventid,
+          //     isPrivate: false,
+          //     start: new Date(event.event_start),
+          //     title: event.name,
+          //   };
+          //   newEventData.push(eventWithIsPrivate);
+          // });
+          return [...prev, data]
+        });
+       
         const response = await api.createPrivateEvent(newData);
         console.log(response.data);
-        var eventWithIsPrivate: any = {
-          description: response.description,
-          end: new Date(response.event_end),
-          eventId: response.eventid,
-          isPrivate: true,
-          start: new Date(response.event_start),
-          title: response.name,
-        };
-        setEventData([...eventData, newData]);
+        // var eventWithIsPrivate: any = {
+        //   description: response.description,
+        //   end: new Date(response.event_end),
+        //   eventId: response.eventid,
+        //   isPrivate: true,
+        //   start: new Date(response.event_start),
+        //   title: response.name,
+        // };
+        // setEventData([...eventData, newData]);
       } catch (error) {
         console.error(error);
       }
@@ -192,6 +218,14 @@ const DashboardCalendar = () => {
     }
   };
 
+  useEffect(()=>{
+    if(loading){
+      setLoading(false)
+    }
+  },[loading])
+
+
+
   useEffect(() => {
     console.log(allEvents)
     console.log(eventData);
@@ -202,7 +236,7 @@ const DashboardCalendar = () => {
       <Box>
         <Grid container alignItems="start" columnSpacing={3}>
           <Grid item xs={9} className="h-screen overflow-y-scroll">
-            <Calendar
+            {!loading&&<Calendar
               selectable
               dayLayoutAlgorithm="no-overlap"
               showMultiDayTimes
@@ -212,7 +246,7 @@ const DashboardCalendar = () => {
               events={eventData}
               views={{ month: true, week: true, day: true }}
               eventPropGetter={eventPropGetter}
-            />
+            />}
           </Grid>
           {mode !== "Viewing" ? (
             <Grid
