@@ -187,19 +187,20 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         logging.info(db_group_event)
 
         # modify status according to current time
-        if db_group_event.vote_start:
-            if datetime.now() < db_group_event.deadline:
-                db_group_event.status = 'In_Voting'
-            else: 
-                db_group_event.status = 'End_Voting'
-                
-            if db_group_event.status == 'End_Voting':
-                if datetime.now() < db_group_event.event_start:
-                    db_group_event.status = 'Not_Start_Yet'
-                elif datetime.now() < db_group_event.event_end:
-                    db_group_event.status = 'On_Going'
-                else:
-                    db_group_event.status = 'Closure'
+        for event in db_group_event:
+            if event.vote_start:
+                if datetime.now() < event.deadline:
+                    event.status = 'In_Voting'
+                else: 
+                    event.status = 'End_Voting'
+                    
+                if event.status == 'End_Voting':
+                    if datetime.now() < event.event_start:
+                        event.status = 'Not_Start_Yet'
+                    elif datetime.now() < event.event_end:
+                        event.status = 'On_Going'
+                    else:
+                        event.status = 'Closure'
 
         # parse db_group_event to schema
         group_events = []
