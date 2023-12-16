@@ -56,7 +56,7 @@ def set_group_event_time(group_event: GroupEventSchema, db: Session = Depends(ge
 
 
 # 確認活動不成立（刪除）
-@router.delete("/deleteGroupEvent/{event_id}", response_model=GroupEventSchema)
+@router.delete("/deleteGroupEvent/{event_id}")
 def delete_group_event(event_id: str, db: Session = Depends(get_db)):
     try:
         db_group_event = (
@@ -64,6 +64,8 @@ def delete_group_event(event_id: str, db: Session = Depends(get_db)):
             .filter(GroupEventModel.eventid == event_id)
             .first()
         )
+
+        logging.debug(db_group_event)
 
         if not db_group_event:
             raise HTTPException(status_code=404, detail="Event not found")
