@@ -31,7 +31,7 @@ type EventDetails = {
   voteStart: Date | string | null;
   voteEnd: Date | string | null;
   voteDeadline: Date | string | null;
-  havePossibility: boolean ;
+  havePossibility: boolean;
 };
 
 interface EventDetailsCradProps {
@@ -73,8 +73,8 @@ const EventDetailsCard = ({
     console.log(eventDetails);
     if (!eventDetails || !groupId || !user) return;
     eventDetails.eventId = uuidv4();
-    
-    if (!eventDetails.voteStart || !eventDetails.voteEnd || !eventDetails.voteDeadline){
+
+    if (!eventDetails.voteStart || !eventDetails.voteEnd || !eventDetails.voteDeadline) {
       setSnackBarOpen(true);
       return;
     }
@@ -87,8 +87,8 @@ const EventDetailsCard = ({
     var data: EventGroupCreate = {
       eventId: uuidv4(),
       groupId: groupId,
-      name: eventDetails.name?? "",
-      description: eventDetails.description?? "",
+      name: eventDetails.name ?? "",
+      description: eventDetails.description ?? "",
       organizerId: user.id,
       voteStart: eventDetails.voteStart,
       voteEnd: eventDetails?.voteEnd,
@@ -111,8 +111,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-              ? "Edit Event"
-              : "Event Details"}
+                ? "Edit Event"
+                : "Event Details"}
           </Typography>
           {mode === "Viewing" && (
             <IconButton onClick={handleCloseEvent}>
@@ -147,7 +147,7 @@ const EventDetailsCard = ({
                 control={
                   <Checkbox
                     checked={eventDetails?.havePossibility}
-                    onChange={(event)=>{handleChange("havePossibility", event.target.checked)}}
+                    onChange={(event) => { handleChange("havePossibility", event.target.checked) }}
                   />
                 }
               />
@@ -173,6 +173,7 @@ const EventDetailsCard = ({
           {mode !== "Viewing" ? (
             <>
               <DateTimePicker
+                minutesStep={30}
                 sx={{ mt: 1, width: "100%" }}
                 label="Vote Deadline"
                 value={
@@ -183,6 +184,7 @@ const EventDetailsCard = ({
                 onChange={(newValue) => handleChange("voteDeadline", newValue)}
               />
               <DateTimePicker
+                minutesStep={30}
                 sx={{ mt: 1, width: "100%" }}
                 label="Vote Start Time"
                 value={
@@ -193,6 +195,7 @@ const EventDetailsCard = ({
                 onChange={(newValue) => handleChange("voteStart", newValue)}
               />
               <DateTimePicker
+                minutesStep={30}
                 sx={{ mt: 1, width: "100%" }}
                 label="Vote End Time"
                 value={

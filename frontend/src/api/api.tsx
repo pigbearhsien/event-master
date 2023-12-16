@@ -109,7 +109,7 @@ export const getPrivateEvents = async (
   userId: string
 ): Promise<AxiosResponse<EventPrivate[]>> => {
   try {
-    return await request.get(`/allPrivateEvents/${userId}`);
+    return await request.get(`/getUserPrivateEvents/${userId}`);
   } catch (error) {
     throw error as Error;
   }
