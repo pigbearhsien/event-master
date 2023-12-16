@@ -318,3 +318,16 @@ export const createMessage = async (param: Chat): Promise<AxiosResponse> => {
     throw error as Error;
   }
 };
+
+
+
+
+export const updateGroupEvent = async (
+  event : EventGroup
+): Promise<AxiosResponse<EventGroup>> => {
+  try {
+    return await request.put("/updateGroupEvent", event);
+  } catch (error) {
+    throw error as Error;
+  }
+}

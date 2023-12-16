@@ -35,10 +35,10 @@ type EventDetails = {
 };
 
 interface EventDetailsCradProps {
-  eventDetails: EventDetails | undefined;
-  setEventDetails: React.Dispatch<React.SetStateAction<EventDetails>>;
+  eventDetails: EventDetails;
+  setEventDetails: React.Dispatch<React.SetStateAction<EventGroup>>
   mode: string;
-  setMode: (mode: string) => void;
+  setMode: React.Dispatch<React.SetStateAction<"Editing" | "Creating" | "Viewing">>;
   setEvents: React.Dispatch<React.SetStateAction<EventGroup[]>>;
 }
 
@@ -72,6 +72,21 @@ const EventDetailsCard = ({
   const { groupId } = useParams();
   const { user } = useUser();
   const handleSaveEvent = async () => {
+    if(mode === "Viewing") return;
+    if(mode === "Editing"){
+      const d = await api.updateGroupEvent(eventDetails as EventGroup)
+      console.log(d)
+      setEvents((events) => events.map((event) => {
+        if(event.eventId === eventDetails.eventId){
+          return eventDetails as EventGroup
+        }
+        return event
+      }
+      ))
+
+      setMode("Viewing")
+      return
+    }
     console.log(eventDetails);
     if (!eventDetails || !groupId || !user) return;
     eventDetails.eventId = uuidv4();
@@ -100,8 +115,9 @@ const EventDetailsCard = ({
     const d = await api.createGroupEvent(data);
     const event = d.data
     // console.log(event)
+    // setEvents(()=>)
     setEvents((events) => [...events, event]);
-    
+    setMode("Viewing")
   };
 
   return (
@@ -120,7 +136,7 @@ const EventDetailsCard = ({
               ? "Edit Event"
               : "Event Details"}
           </Typography>
-          {mode === "Viewing" && (
+          {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>
               <X />
             </IconButton>

@@ -13,7 +13,7 @@ type Props = {};
 const GroupEvent = (props: Props) => {
   const { groupId } = useParams();
   const [events, setEvents] = useState<EventGroup[]>([]);
-  const [fetched, setFetched] = useState(false);
+  // const [fetched, setFetched] = useState(false);
 
   const fetchThisGroupEvent = async () => {
     let thisGroupEvent;
@@ -37,17 +37,20 @@ const GroupEvent = (props: Props) => {
 
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [voteModalEventId, setVoteModalEventId] = useState("");
-  const [eventDetails, setEventDetails] = useState({
+  const [eventDetails, setEventDetails] = useState<EventGroup>({
     eventId: "",
+    groupId: groupId,
     name: "",
+    organizerId: "",
     description: "",
+    status: "",
     eventStart: null,
     eventEnd: null,
-    voteStart: null,
-    voteEnd: null,
-    voteDeadline: null,
+    voteStart: new Date(),
+    voteEnd: new Date(),
+    voteDeadline: new Date(),
     havePossibility: false,
-  });
+  } as EventGroup);
   const [mode, setMode] = useState<"Editing" | "Creating" | "Viewing">(
     "Creating"
   );
@@ -57,7 +60,10 @@ const GroupEvent = (props: Props) => {
     setMode("Viewing");
     setEventDetails({
       eventId: event.eventId,
+      groupId: event.groupId,
+      organizerId: event.organizerId,
       name: event.name,
+      status: event.status,
       description: event.description,
       eventStart: event.eventStart,
       eventEnd: event.eventEnd,
@@ -65,10 +71,10 @@ const GroupEvent = (props: Props) => {
       voteEnd: event.voteEnd,
       voteDeadline: event.voteDeadline,
       havePossibility: event.havePossibility,
-    });
+    } as EventGroup);
   };
 
-  const handleViewVotingModal = (eventId) => {
+  const handleViewVotingModal = (eventId: string) => {
     setVoteModalOpen(true);
     setVoteModalEventId(eventId);
   };

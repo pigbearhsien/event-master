@@ -11,7 +11,7 @@ type EventGroup = {
   eventStart: Date | null;
   eventEnd: Date | null;
   status: string;
-  organizer: string;
+  organizerId: string;
   voteStart: Date;
   voteEnd: Date;
   voteDeadline: Date;
