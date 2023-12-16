@@ -1199,26 +1199,6 @@ def delete_todo_by_todo_id(todo_id: str, db: Session = Depends(get_db)):
 def create_private_event(private_event: PrivateEventSchema, db: Session = Depends(get_db)):
     try:
         db_private_event = PrivateEventModel(
-            eventid=private_event.eventid,
-            userid=private_event.userid,
-            name=private_event.name,
-            description=private_event.description,
-            event_start=private_event.event_start,
-            event_end=private_event.event_end
-        )
-        db.add(db_private_event)
-        db.commit()
-        return db_private_event
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
-
-# Read PrivateEvent
-# List all private events
-@router.post("/createPrivateEvent", response_model=PrivateEventSchema)
-def create_private_event(private_event: PrivateEventSchema, db: Session = Depends(get_db)):
-    try:
-        db_private_event = PrivateEventModel(
             eventid=private_event.eventId,
             userid=private_event.userId,
             name=private_event.name,
@@ -1229,10 +1209,11 @@ def create_private_event(private_event: PrivateEventSchema, db: Session = Depend
         db.add(db_private_event)
         db.commit()
         db.refresh(db_private_event)
-        return db_private_event
+        return private_event
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
     
 # List private event by id
 @router.get("/listPrivateEventById/{private_event_id}", response_model=PrivateEventSchema)
@@ -1262,31 +1243,6 @@ def list_private_event_by_id(private_event_id: str, db: Session = Depends(get_db
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # Update PrivateEvent
-# Update private event by id
-@router.put("/updatePrivateEventById/{private_event_id}", response_model=PrivateEventSchema)
-def update_private_event_by_id(private_event_id: str, private_event: PrivateEventSchema, db: Session = Depends(get_db)):
-    try:
-        db_private_event = (
-            db.query(PrivateEventModel)
-            .filter(PrivateEventModel.eventid == private_event_id)
-            .first()
-        )
-        if not db_private_event:
-            raise HTTPException(status_code=404, detail="Private Event not found")
-        
-        db_private_event.eventid = private_event.eventId
-        db_private_event.userid = private_event.userId
-        db_private_event.event_start = private_event.eventStart
-        db_private_event.event_end = private_event.eventEnd
-        db_private_event.name = private_event.name
-        db_private_event.description = private_event.description
-        db.commit()
-        return private_event
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 # Delete PrivateEvent
 # Delete private event by id

@@ -323,12 +323,12 @@ def get_user_private_events(user_id: str, db: Session = Depends(get_db)):
         for event in db_private_event:
             private_events.append(
                 PrivateEventSchema(
-                    eventid=event.eventid,
-                    userid=event.userid,
+                    eventId=event.eventid,
+                    userId=event.userid,
                     name=event.name,
                     description=event.description,
-                    event_start=event.event_start,
-                    event_end=event.event_end,
+                    eventStart=event.event_start,
+                    eventEnd=event.event_end,
                 )
             )
 
@@ -747,6 +747,33 @@ def create_available_time(available_time: List[AvailableTimeSchema], db: Session
             db.add(db_available_time)
             db.commit()
         return available_time
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+
+# Update private event by id
+@router.put("/updatePrivateEventById/{private_event_id}", response_model=PrivateEventSchema)
+def update_private_event_by_id(private_event_id: str, private_event: PrivateEventSchema, db: Session = Depends(get_db)):
+    try:
+        db_private_event = (
+            db.query(PrivateEventModel)
+            .filter(PrivateEventModel.eventid == private_event_id)
+            .first()
+        )
+        if not db_private_event:
+            raise HTTPException(status_code=404, detail="Private Event not found")
+        
+        db_private_event.eventid = private_event.eventId
+        db_private_event.userid = private_event.userId
+        db_private_event.event_start = private_event.eventStart
+        db_private_event.event_end = private_event.eventEnd
+        db_private_event.name = private_event.name
+        db_private_event.description = private_event.description
+        db.commit()
+        return private_event
+    except HTTPException as e:
+        raise e
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
