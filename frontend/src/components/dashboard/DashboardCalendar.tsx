@@ -115,15 +115,14 @@ const DashboardCalendar = () => {
       console.log(e);
     }
 
-
     let newEventData = [...eventData];
     await data_events?.data.map((event) => {
       var eventWithIsPrivate: any = {
         description: event.description,
-        end: new Date(event.event_end),
-        eventId: event.eventid,
+        end: new Date(event.eventEnd),
+        eventId: event.eventId,
         isPrivate: false,
-        start: new Date(event.event_start),
+        start: new Date(event.eventStart),
         title: event.name,
       };
       newEventData.push(eventWithIsPrivate);
@@ -132,10 +131,10 @@ const DashboardCalendar = () => {
     await data_private_events?.data.map((event) => {
       var eventWithIsPrivate: any = {
         description: event.description,
-        end: new Date(event.event_end),
-        eventId: event.eventid,
+        end: new Date(event.eventEnd),
+        eventId: event.eventId,
         isPrivate: true,
-        start: new Date(event.event_start),
+        start: new Date(event.eventStart),
         title: event.name,
       };
       newEventData.push(eventWithIsPrivate);
@@ -146,39 +145,27 @@ const DashboardCalendar = () => {
   };
   if (fetched == false) fetchDashboard();
 
-  
-
-  var data: EventPrivate = {
-    eventid: eventDetails.eventId,
-    userid: user?.id,
-    name: eventDetails.title,
-    description: eventDetails.description,
-    event_start: eventDetails.startTime,
-    event_end: eventDetails.endTime,
-  };
-
   const handleSaveEvent = async () => {
     if (mode === "Creating") {
+      const newData: EventPrivate = {
+        eventId: uuidv4(),
+        userId: user?.id,
+        name: eventDetails.title,
+        description: eventDetails.description,
+        eventStart: eventDetails.startTime,
+        eventEnd: eventDetails.endTime,
+      };
+
       try {
-
-        const newData: EventPrivate = {
-          eventid: uuidv4(),
-          userid: user?.id,
-          name: eventDetails.title,
-          description: eventDetails.description,
-          event_start: eventDetails.startTime,
-          event_end: eventDetails.endTime,
-        };
-
-        setEventData((prev:any)=>{
+        setEventData((prev: any) => {
           const data = {
             description: newData.description,
-            end: newData.event_end,
+            end: newData.eventEnd,
             eventId: newData.eventId,
             isPrivate: true,
-            start: newData.event_start,
+            start: newData.eventStart,
             title: newData.name,
-          }
+          };
           // await prev?.data.map((event) => {
           //   var eventWithIsPrivate: any = {
           //     description: event.description,
@@ -190,9 +177,9 @@ const DashboardCalendar = () => {
           //   };
           //   newEventData.push(eventWithIsPrivate);
           // });
-          return [...prev, data]
+          return [...prev, data];
         });
-       
+
         const response = await api.createPrivateEvent(newData);
         console.log(response.data);
         // var eventWithIsPrivate: any = {
@@ -209,8 +196,34 @@ const DashboardCalendar = () => {
       }
     }
     if (mode === "Editing") {
+      const newData: EventPrivate = {
+        eventId: eventDetails.eventId,
+        userId: user?.id,
+        name: eventDetails.title,
+        description: eventDetails.description,
+        eventStart: eventDetails.startTime,
+        eventEnd: eventDetails.endTime,
+      };
       try {
-        const response = await api.updatePrivateEvent(data);
+        setEventData((prev: any) => {
+          const data = {
+            description: newData.description,
+            end: newData.eventEnd,
+            eventId: newData.eventId,
+            isPrivate: true,
+            start: newData.eventStart,
+            title: newData.name,
+          };
+          const updateData = prev?.map((event : any) => {
+            if (event.eventId === newData.eventId) {
+              event = data;
+            }
+            return event;
+          }
+          );
+          return updateData;
+        });
+        const response = await api.updatePrivateEvent(newData.eventId, newData);
         console.log(response.data);
       } catch (error) {
         console.error(error);
@@ -218,16 +231,14 @@ const DashboardCalendar = () => {
     }
   };
 
-  useEffect(()=>{
-    if(loading){
-      setLoading(false)
+  useEffect(() => {
+    if (loading) {
+      setLoading(false);
     }
-  },[loading])
-
-
+  }, [loading]);
 
   useEffect(() => {
-    console.log(allEvents)
+    console.log(allEvents);
     console.log(eventData);
   }, [eventData]);
 
@@ -236,17 +247,21 @@ const DashboardCalendar = () => {
       <Box>
         <Grid container alignItems="start" columnSpacing={3}>
           <Grid item xs={9} className="h-screen overflow-y-scroll">
-            {!loading&&<Calendar
-              selectable
-              dayLayoutAlgorithm="no-overlap"
-              showMultiDayTimes
-              onSelectEvent={handleSelectEvent}
-              onSelectSlot={handleSelectSlot}
-              // events={allEvents}
-              events={eventData}
-              views={{ month: true, week: true, day: true }}
-              eventPropGetter={eventPropGetter}
-            />}
+            {!loading ? (
+              <Calendar
+                selectable
+                dayLayoutAlgorithm="no-overlap"
+                showMultiDayTimes
+                onSelectEvent={handleSelectEvent}
+                onSelectSlot={handleSelectSlot}
+                // events={allEvents}
+                events={eventData}
+                views={{ month: true, week: true, day: true }}
+                eventPropGetter={eventPropGetter}
+              />
+            ): (
+              <div>Loading...</div>
+            )}
           </Grid>
           {mode !== "Viewing" ? (
             <Grid
@@ -303,7 +318,9 @@ const DashboardCalendar = () => {
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="contained" onClick={handleSaveEvent}>Save</Button>
+                <Button variant="contained" onClick={handleSaveEvent}>
+                  Save
+                </Button>
               </Grid>
             </Grid>
           ) : (
@@ -344,16 +361,23 @@ const DashboardCalendar = () => {
                     </Button>
                   </Grid>
                   <Grid item>
-                    <Button variant="contained" className=" ml-1"
+                    <Button
+                      variant="contained"
+                      className=" ml-1"
                       onClick={async () => {
                         try {
                           await api.deletePrivateEvent(eventDetails.eventId);
-                          setEventData(eventData.filter((event) => event.eventId !== eventDetails.eventId));
+                          setEventData(
+                            eventData.filter(
+                              (event) => event.eventId !== eventDetails.eventId
+                            )
+                          );
                           handleCloseEvent();
                         } catch (error) {
                           console.error(error);
                         }
-                      }}>
+                      }}
+                    >
                       Delete
                     </Button>
                   </Grid>

@@ -128,10 +128,11 @@ export const getPrivateEvents = async (
 };
 
 export const updatePrivateEvent = async (
-  eventId: string
+  eventId: string,
+  event: EventPrivate
 ): Promise<AxiosResponse<EventPrivate>> => {
   try {
-    return await request.put(`/updatePrivateEventById/${eventId}`);
+    return await request.put(`/updatePrivateEventById/${eventId}`, event);
   } catch (error) {
     throw error as Error;
   }
