@@ -100,7 +100,7 @@ const DashboardCalendar = () => {
     console.log("fetch");
     var data_events: any;
     try {
-      // data_events = await api.getGroupEvents("7912896340");
+      if (!user) return;
       data_events = await api.getGroupEvents(user?.id);
       console.log(data_events.data);
     } catch (e: any) {
@@ -108,15 +108,14 @@ const DashboardCalendar = () => {
     }
     var data_private_events: any;
     try {
-      // data_private_events = await api.getPrivateEvents("7912896340");
+      if (!user) return;
       data_private_events = await api.getPrivateEvents(user?.id);
       console.log(data_private_events);
     } catch (e: any) {
       console.log(e);
     }
 
-
-    let newEventData = [...eventData];
+    let newEventData: any[] = [];
     await data_events?.data.map((event) => {
       var eventWithIsPrivate: any = {
         description: event.description,
@@ -195,7 +194,7 @@ const DashboardCalendar = () => {
   };
 
   useEffect(() => {
-    console.log(allEvents)
+    console.log(allEvents);
     console.log(eventData);
   }, [eventData]);
 

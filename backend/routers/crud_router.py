@@ -449,22 +449,22 @@ def delete_group_event_by_id(group_event_id: str, db: Session = Depends(get_db))
 
 # AvailableTime CRUD
 # Create AvailableTime
-@router.post("/createAvailableTime", response_model=AvailableTimeSchema)
-def create_available_time(available_time: AvailableTimeSchema, db: Session = Depends(get_db)):
-    try:
-        db_available_time = AvailableTimeModel(
-            userid=available_time.userId,
-            eventid=available_time.eventId,
-            available_start=available_time.availableStart,
-            possibility_level=available_time.possibilityLevel
-        )
-        db.add(db_available_time)
-        db.commit()
-        db.refresh(db_available_time)
-        return db_available_time
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+# @router.post("/createAvailableTime", response_model=AvailableTimeSchema)
+# def create_available_time(available_time: AvailableTimeSchema, db: Session = Depends(get_db)):
+#     try:
+#         db_available_time = AvailableTimeModel(
+#             userid=available_time.userId,
+#             eventid=available_time.eventId,
+#             available_start=available_time.availableStart,
+#             possibility_level=available_time.possibilityLevel
+#         )
+#         db.add(db_available_time)
+#         db.commit()
+#         db.refresh(db_available_time)
+#         return db_available_time
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
 # Read AvailableTime
 # List all available times

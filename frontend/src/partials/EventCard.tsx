@@ -34,6 +34,7 @@ interface EventCardProps {
   handleSelectEvent: (event: any) => void;
   setMode: React.Dispatch<React.SetStateAction<"Editing" | "Creating" | "Viewing">>;
   handleViewVotingModal: (eventId: string) => void;
+  handleDeleteEvent: (eventId: string) => void;
 }
 
 const EventCard = ({
@@ -41,6 +42,7 @@ const EventCard = ({
   handleSelectEvent,
   setMode,
   handleViewVotingModal,
+  handleDeleteEvent
 }: EventCardProps) => {
   const [isAccepted, setIsAccepted] = React.useState<boolean | null>(null);
   const { user } = useUser();
@@ -59,6 +61,7 @@ const EventCard = ({
     fetchUserJoinEvent();
   }, [event]);
 
+  
   return (
     <Grid item xs={6}>
       <Card
@@ -99,7 +102,12 @@ const EventCard = ({
                   e.stopPropagation();
                 }}
               >
-                <Trash size={15} />
+                {
+                  user?.id === event.organizerId &&
+                  <Trash size={15} onClick={()=>{
+                    handleDeleteEvent(event.eventId)
+                  }}/>
+                }
               </IconButton>
             </Box>
           </Box>

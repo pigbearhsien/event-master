@@ -375,3 +375,13 @@ export const getUserJoinEvent = async (
     throw error as Error;
   }
 }
+
+export const deleteGroupEvent = async (
+  eventId: string
+): Promise<AxiosResponse> => {
+  try {
+    return await request.delete(`/deleteGroupEvent/${eventId}`);
+  } catch (error) {
+    throw error as Error;
+  }
+}
