@@ -203,10 +203,10 @@ export const createUser = async (
 
 export const insertUserToGroup = async (
   groupId: string,
-  userId: string
+  account: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/insertUserToGroup", { groupId, userId });
+    return await request.post(`/insertUserToGroupByEmail/${groupId}/${account}`);
   } catch (error) {
     throw error as Error;
   }
@@ -225,10 +225,10 @@ export const deleteUserFromGroup = async (
 
 export const addManager = async (
   groupId: string,
-  userId: string
+  account: string
 ): Promise<AxiosResponse> => {
   try {
-    return await request.post("/addManager", { groupId, userId });
+    return await request.post(`/assignManagerToGroupByEmail/${groupId}/${account}`);
   } catch (error) {
     throw error as Error;
   }
@@ -296,8 +296,12 @@ export const deleteUserFromEvent = async (
 export const createGroupEvent = async (
   param: EventGroupCreate
 ): Promise<AxiosResponse> => {
+  var data: any = param
+  data.eventStart = null
+  data.eventEnd = null
+  data.status = "In_Voting"
   try {
-    return await request.post("/createGroupEvent", param);
+    return await request.post("/createGroupEvent", data);
   } catch (error) {
     throw error as Error;
   }

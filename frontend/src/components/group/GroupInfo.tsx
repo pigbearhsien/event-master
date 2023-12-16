@@ -55,13 +55,14 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     // id 隨機產生
-    const id = Math.floor(Math.random() * 1000000);
+    const id = "new";
     setRows((oldRows) => [
       ...oldRows,
       {
         id,
         name: "",
-        age: "",
+        email: "",
+        role: "Member",
         isNew: true,
       },
     ]);
@@ -95,7 +96,7 @@ const GroupInfo = () => {
       if (!groupId) return;
       managers = await api.getGroupManagerWithId(groupId);
       console.log("manager", managers.data);
-      setManager(managers.data)
+      setManager(managers.data);
     } catch (error) {
       console.log(error);
     }
@@ -106,23 +107,22 @@ const GroupInfo = () => {
     try {
       if (!groupId) return;
       groupUsers = await api.getGroupUsers(groupId);
-      console.log(groupUsers)
-      setRows([])
-      groupUsers.data.map((user: any)=>{
-        var role = "Member"
-        manager.map((manager)=>{
-          if (manager.userId == user.userId)
-            role = "Manager"
-        })
+      console.log(groupUsers);
+      setRows([]);
+      groupUsers.data.map((user: any) => {
+        var role = "Member";
+        manager.map((manager) => {
+          if (manager.userId == user.userId) role = "Manager";
+        });
         var row = {
           id: user.userId,
           name: user.name,
           email: user.account,
           role: role,
           isNew: false,
-        }
-        setRows((rows) => [...rows, row])
-      })
+        };
+        setRows((rows) => [...rows, row]);
+      });
       console.log(groupUsers.data);
     } catch (error) {
       console.log(error);
@@ -132,9 +132,29 @@ const GroupInfo = () => {
   useEffect(() => {
     fetchGroupManagers();
   }, [groupId]);
-  useEffect(()=>{
+  useEffect(() => {
     fetchGroupUsers();
-  }, [manager])
+  }, [manager]);
+
+  const addUser = async (account: string) => {
+    try {
+      if (!groupId) return;
+      const res = await api.insertUserToGroup(groupId, account);
+      console.log("addUser", res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addManager = async (account: string)  => {
+    try{
+      if (!groupId) return
+      const res = await api.addManager(groupId, account)
+      console.log("addManager", res.data)
+    } catch(error) {
+      console.log(error)
+    }
+  }
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
@@ -172,6 +192,12 @@ const GroupInfo = () => {
   const processRowUpdate = (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    if (newRow.id === "new") {
+      var account = newRow.email;
+      addUser(account)
+      if (newRow.role === "Manager")
+        addManager(newRow.email)
+    }
     return updatedRow;
   };
 

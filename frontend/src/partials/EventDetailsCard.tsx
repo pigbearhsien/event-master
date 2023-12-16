@@ -9,20 +9,29 @@ import {
   Box,
   TextField,
   IconButton,
+  Alert,
+  Snackbar,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { X } from "lucide-react";
 import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
+import { useParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import * as api from "@/api/api";
+import { EventGroupCreate } from "@/typing/typing.d";
 
 type EventDetails = {
-  eventId: string | undefined;
-  name: string | undefined;
-  description: string | undefined;
-  eventStart: Date | string | undefined;
-  eventEnd: Date | string | undefined;
-  voteStart: Date | string | undefined;
-  voteEnd: Date | string | undefined;
-  voteDeadline: Date | string | undefined;
-  havePossibility: boolean | undefined;
+  eventId: string | null;
+  name: string | null;
+  description: string | null;
+  eventStart: Date | string | null;
+  eventEnd: Date | string | null;
+  voteStart: Date | string | null;
+  voteEnd: Date | string | null;
+  voteDeadline: Date | string | null;
+  havePossibility: boolean ;
 };
 
 interface EventDetailsCradProps {
@@ -38,6 +47,7 @@ const EventDetailsCard = ({
   mode,
   setMode,
 }: EventDetailsCradProps) => {
+  const [snackBarOpen, setSnackBarOpen] = useState(false);
   const handleChange = (key, value) => {
     setEventDetails((prev) => ({ ...prev, [key]: value }));
   };
@@ -55,6 +65,37 @@ const EventDetailsCard = ({
       voteDeadline: null,
       havePossibility: false,
     });
+  };
+
+  const { groupId } = useParams();
+  const { user } = useUser();
+  const handleSaveEvent = async () => {
+    console.log(eventDetails);
+    if (!eventDetails || !groupId || !user) return;
+    eventDetails.eventId = uuidv4();
+    
+    if (!eventDetails.voteStart || !eventDetails.voteEnd || !eventDetails.voteDeadline){
+      setSnackBarOpen(true);
+      return;
+    }
+    if (!(eventDetails.voteStart instanceof Date))
+      eventDetails.voteStart = new Date(eventDetails.voteStart)
+    if (!(eventDetails.voteEnd instanceof Date))
+      eventDetails.voteEnd = new Date(eventDetails.voteEnd)
+    if (!(eventDetails.voteDeadline instanceof Date))
+      eventDetails.voteDeadline = new Date(eventDetails.voteDeadline)
+    var data: EventGroupCreate = {
+      eventId: uuidv4(),
+      groupId: groupId,
+      name: eventDetails.name?? "",
+      description: eventDetails.description?? "",
+      organizerId: user.id,
+      voteStart: eventDetails.voteStart,
+      voteEnd: eventDetails?.voteEnd,
+      voteDeadline: eventDetails?.voteEnd,
+      havePossibility: eventDetails.havePossibility,
+    };
+    await api.createGroupEvent(data);
   };
 
   return (
@@ -101,25 +142,14 @@ const EventDetailsCard = ({
           <Typography sx={{ fontWeight: "bold" }}>Time</Typography>
           {mode !== "Viewing" ? (
             <>
-              <DateTimePicker
-                sx={{ mt: 1, width: "100%" }}
-                label="Start Time"
-                value={
-                  eventDetails?.eventStart !== null
-                    ? moment(eventDetails?.eventStart)
-                    : null
+              <FormControlLabel
+                label="Have Possibility"
+                control={
+                  <Checkbox
+                    checked={eventDetails?.havePossibility}
+                    onChange={(event)=>{handleChange("havePossibility", event.target.checked)}}
+                  />
                 }
-                onChange={(newValue) => handleChange("eventStart", newValue)}
-              />
-              <DateTimePicker
-                sx={{ mt: 1, width: "100%" }}
-                label="End Time"
-                value={
-                  eventDetails?.eventEnd !== null
-                    ? moment(eventDetails?.eventEnd)
-                    : null
-                }
-                onChange={(newValue) => handleChange("eventEnd", newValue)}
               />
             </>
           ) : eventDetails.eventStart && eventDetails.eventEnd ? (
@@ -218,11 +248,22 @@ const EventDetailsCard = ({
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained">Save</Button>
+              <Button variant="contained" onClick={handleSaveEvent}>
+                Save
+              </Button>
             </Grid>
           </>
         )}
       </Grid>
+      <Snackbar
+        open={snackBarOpen}
+        autoHideDuration={6000}
+        onClose={() => {
+          setSnackBarOpen(false);
+        }}
+      >
+        <Alert severity="error">Please fill in everything</Alert>
+      </Snackbar>
     </LocalizationProvider>
   );
 };

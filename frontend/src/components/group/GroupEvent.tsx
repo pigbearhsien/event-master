@@ -6,12 +6,13 @@ import EventDetailsCard from "@/partials/EventDetailsCard";
 import VotingModal from "@/partials/VotingModal";
 import * as api from "../../api/api";
 import { useParams } from "react-router-dom";
+import { EventGroup } from "@/typing/typing.d";
 
 type Props = {};
 
 const GroupEvent = (props: Props) => {
   const { groupId } = useParams();
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<EventGroup[]>([]);
   const [fetched, setFetched] = useState(false);
 
   const fetchThisGroupEvent = async () => {
@@ -20,6 +21,7 @@ const GroupEvent = (props: Props) => {
       if (!groupId) return;
       thisGroupEvent = await api.getGroupEventsWithId(groupId);
       console.log(thisGroupEvent);
+      setEvents([])
       thisGroupEvent.data.map((event) => {
         setEvents([...events, event]);
       });
@@ -49,7 +51,7 @@ const GroupEvent = (props: Props) => {
     "Creating"
   );
 
-  const handleSelectEvent = (event) => {
+  const handleSelectEvent = (event: any) => {
     console.log(event);
     setMode("Viewing");
     setEventDetails({
@@ -79,7 +81,7 @@ const GroupEvent = (props: Props) => {
       />
       <Grid container xs={12} spacing={1}>
         <Grid container item xs={9} spacing={1}>
-          {groupEvents.sort().map((event) => (
+          {events.sort().map((event) => (
             <EventCard
               key={event.eventId} // 添加 key prop
               event={event}
