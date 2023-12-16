@@ -138,10 +138,14 @@ export const getMessages = async (
 
 export const getGroupEventsWithId = async (
   groupId: string
-): Promise<AxiosResponse<EventGroup[]>> => {
+): Promise<AxiosResponse<EventGroup[]> | any> => {
   try {
     return await request.get(`/listGroupEventByGroupId/${groupId}`);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response.status === 404) {
+        
+        return { data: [] as EventGroup[]};
+    }
     throw error as Error;
   }
 };
@@ -295,7 +299,7 @@ export const deleteUserFromEvent = async (
 
 export const createGroupEvent = async (
   param: EventGroupCreate
-): Promise<AxiosResponse> => {
+): Promise<AxiosResponse<EventGroup>> => {
   var data: any = param
   data.eventStart = null
   data.eventEnd = null

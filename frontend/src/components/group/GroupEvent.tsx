@@ -20,11 +20,12 @@ const GroupEvent = (props: Props) => {
     try {
       if (!groupId) return;
       thisGroupEvent = await api.getGroupEventsWithId(groupId);
-      console.log(thisGroupEvent);
-      setEvents([])
-      thisGroupEvent.data.map((event) => {
-        setEvents([...events, event]);
-      });
+      // console.log(thisGroupEvent);
+      // setEvents([])
+      setEvents(thisGroupEvent.data);
+      // thisGroupEvent.data.map((event) => {
+      //   setEvents([...events, event]);
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -93,6 +94,7 @@ const GroupEvent = (props: Props) => {
         </Grid>
         <Grid item xs={3}>
           <EventDetailsCard
+            setEvents={setEvents}
             eventDetails={eventDetails}
             setEventDetails={setEventDetails}
             mode={mode}

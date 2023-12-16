@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import * as api from "@/api/api";
-import { EventGroupCreate } from "@/typing/typing.d";
+import { EventGroup, EventGroupCreate } from "@/typing/typing.d";
 
 type EventDetails = {
   eventId: string | null;
@@ -39,6 +39,7 @@ interface EventDetailsCradProps {
   setEventDetails: React.Dispatch<React.SetStateAction<EventDetails>>;
   mode: string;
   setMode: (mode: string) => void;
+  setEvents: React.Dispatch<React.SetStateAction<EventGroup[]>>;
 }
 
 const EventDetailsCard = ({
@@ -46,6 +47,7 @@ const EventDetailsCard = ({
   setEventDetails,
   mode,
   setMode,
+  setEvents
 }: EventDetailsCradProps) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false);
   const handleChange = (key, value) => {
@@ -95,7 +97,11 @@ const EventDetailsCard = ({
       voteDeadline: eventDetails?.voteEnd,
       havePossibility: eventDetails.havePossibility,
     };
-    await api.createGroupEvent(data);
+    const d = await api.createGroupEvent(data);
+    const event = d.data
+    // console.log(event)
+    setEvents((events) => [...events, event]);
+    
   };
 
   return (
