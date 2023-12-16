@@ -58,13 +58,25 @@ type Todo = {
   deadline: Date;
 };
 
+type UserJoinEvent = {
+  userId: string;
+  eventId: string;
+  isAccepted: boolean;
+};
+
 type TodoJoinUser = Todo & {
   assigneeName: string,
+  assigneeAccount: string,
+  assigneeProfilePicUrl: string | null,
   assignerName: string,
+  assignerAccount: string,
+  assignerProfilePicUrl: string | null,
 }
 
 type EventGroupJoinUser = EventGroup & {
   organizerName: string,
+  organizerAccount: string,
+  organizerProfilePicUrl: string | null,
 }
 
 type User = {
@@ -91,5 +103,6 @@ export type {
   EventPrivate,
   Chat,
   TodoJoinUser,
-  EventGroupJoinUser
+  EventGroupJoinUser,
+  UserJoinEvent
 };

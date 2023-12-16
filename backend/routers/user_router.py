@@ -26,6 +26,7 @@ from schemas import (
     Todo as TodoSchema,
     PrivateEvent as PrivateEventSchema,
     Chat as ChatSchema,
+    GroupEventJoinUser as GroupEventJoinUserSchema,
 )
 
 import json
@@ -231,6 +232,36 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+# 獲取User Join Event
+@router.get("/getUserJoinEvent/{event_id}/{user_id}", response_model=UserJoinEventSchema)
+def get_user_join_event(event_id: str, user_id: str, db: Session = Depends(get_db)):
+    try:
+        db_user_join_event = (
+            db.query(UserJoinEventModel)
+            .filter(
+                UserJoinEventModel.eventid == event_id,
+                UserJoinEventModel.userid == user_id,
+            )
+            .first()
+        )
+        if not db_user_join_event:
+            return UserJoinEventSchema(
+                eventId=event_id,
+                userId=user_id,
+                isAccepted=None,
+            )
+
+        return UserJoinEventSchema(
+            eventId=db_user_join_event.eventid,
+            userId=db_user_join_event.userid,
+            isAccepted=db_user_join_event.isaccepted,
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
+
 
 # 查詢自己所有TODO
 @router.get("/getUserTodos/{user_id}", response_model=List)
@@ -366,7 +397,6 @@ async def websocket_endpoint(websocket: WebSocket, group_id: str, db: Session = 
         print(f"WebSocket connection with {group_id} closed")
 
 
-    
     
 
 # 查詢使用者在特定團隊活動的可以時間和程度
@@ -548,7 +578,7 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
 @router.get("/listAllVoteCountByEventId/{event_id}", response_model=List )
 def list_all_vote_count_by_event_id(event_id: str, db: Session = Depends(get_db)):
     try:
-        query = text("Select available_start, count(*), possibility_level FROM available_time WHERE eventid = :event_id group by available_start, possibility_level")
+        query = text("Select available_start, count(*) as count, possibility_level FROM available_time WHERE eventid = :event_id group by available_start, possibility_level")
 
         db_available_times = db.execute(query, {"event_id": event_id}).fetchall()
         
@@ -559,10 +589,9 @@ def list_all_vote_count_by_event_id(event_id: str, db: Session = Depends(get_db)
         for available_time in db_available_times:
             available_times.append(
                 {
-                    "availableStart": available_time[0],
-                    "count": available_time[1],
-                    "possibilityLevel": available_time[2]
-                
+                    "availableStart": available_time.available_start,
+                    "availableAmount": available_time.count,
+                    "possibilityLevel": available_time.possibility_level
                 }
             )
         return available_times
@@ -632,7 +661,7 @@ def list_group_has_user(group_id: str, db: Session = Depends(get_db)):
     
 
 # List group event by group id
-@router.get("/listGroupEventByGroupId/{group_id}", response_model=List)
+@router.get("/listGroupEventByGroupId/{group_id}", response_model=List[GroupEventJoinUserSchema])
 def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
     try:
         query = text("SELECT ge.*, u.name AS organizer_name, u.account AS organizer_account, u.profile_pic_url AS organizer_profile_pic_url FROM group_event ge JOIN user_table u ON ge.organizerid = u.userid WHERE ge.groupid = :group_id")
@@ -645,23 +674,23 @@ def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
         group_events = []
         for group_event in db_group_events:
             group_events.append(
-                {
-                    "eventId": group_event.eventid,
-                    "groupId": group_event.groupid,
-                    "name": group_event.name,
-                    "description": group_event.description,
-                    "status": group_event.status,
-                    "organizerId": group_event.organizerid,
-                    "organizerName": group_event.organizer_name,
-                    "organizerAccount": group_event.organizer_account,
-                    "organizerProfilePicUrl": group_event.organizer_profile_pic_url,
-                    "voteStart": group_event.vote_start,
-                    "voteEnd": group_event.vote_end,
-                    "voteDeadline": group_event.votedeadline,
-                    "havePossibility": group_event.havepossibility,
-                    "eventStart": group_event.event_start,
-                    "eventEnd": group_event.event_end,
-                }
+                GroupEventJoinUserSchema(
+                    eventId=group_event.eventid,
+                    groupId=group_event.groupid,
+                    name=group_event.name,
+                    description=group_event.description,
+                    status=group_event.status,
+                    organizerId=group_event.organizerid,
+                    voteStart=group_event.vote_start,
+                    voteEnd=group_event.vote_end,
+                    voteDeadline=group_event.votedeadline,
+                    havePossibility=group_event.havepossibility,
+                    eventStart=group_event.event_start,
+                    eventEnd=group_event.event_end,
+                    organizerName=group_event.organizer_name,
+                    organizerAccount=group_event.organizer_account,
+                    organizerProfilePicUrl=group_event.organizer_profile_pic_url,
+                )
             )
         return group_events
     except HTTPException as e:
@@ -700,6 +729,24 @@ def get_private_events_by_user_id(user_id: str, db: Session = Depends(get_db)):
     except HTTPException as e:
         raise e
 
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+# 填寫available time
+@router.post("/createAvailableTime", response_model=List[AvailableTimeSchema])
+def create_available_time(available_time: List[AvailableTimeSchema], db: Session = Depends(get_db)):
+    try:
+        for time in available_time:
+            db_available_time = AvailableTimeModel(
+                userid=time.userId,
+                eventid=time.eventId,
+                available_start=time.availableStart,
+                possibility_level=time.possibilityLevel,
+            )
+            db.add(db_available_time)
+            db.commit()
+        return available_time
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
