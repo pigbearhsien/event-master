@@ -21,67 +21,68 @@ import { X } from "lucide-react";
 import { availbleHour } from "@/mockdata";
 import "./VotingModal.css";
 
-function MyWeek({
-  date,
-  localizer,
-  max = localizer.endOf(new Date(), "day"),
-  min = localizer.startOf(new Date(), "day"),
-  ...props
-}) {
-  const currRange = useMemo(
-    () => MyWeek.range(date, { localizer }),
-    [date, localizer]
-  );
+const VotingModal = ({ open, setOpen, event }) => {
+  function MyWeek({
+    date,
+    localizer,
+    max = localizer.endOf(new Date(), "day"),
+    min = localizer.startOf(new Date(), "day"),
+    ...props
+  }) {
+    console.log(date, localizer, max, min);
+    const currRange = useMemo(
+      () => MyWeek.range(date, { localizer }),
+      [date, localizer]
+    );
 
-  return (
-    <TimeGrid
-      date={date}
-      eventOffset={15}
-      localizer={localizer}
-      max={max}
-      min={min}
-      range={currRange}
-      {...props}
-    />
-  );
-}
-
-MyWeek.propTypes = {
-  date: PropTypes.instanceOf(Date).isRequired,
-  localizer: PropTypes.object,
-  max: PropTypes.instanceOf(Date),
-  min: PropTypes.instanceOf(Date),
-  scrollToTime: PropTypes.instanceOf(Date),
-};
-
-MyWeek.range = (date, { localizer }) => {
-  const start = moment("2023-1-1").toDate();
-  const end = moment("2023-1-15").toDate();
-
-  let current = start;
-  const range = [];
-
-  while (localizer.lte(current, end, "day")) {
-    range.push(current);
-    current = localizer.add(current, 1, "day");
+    return (
+      <TimeGrid
+        date={date}
+        eventOffset={15}
+        localizer={localizer}
+        max={max}
+        min={min}
+        range={currRange}
+        {...props}
+      />
+    );
   }
 
-  return range;
-};
-
-MyWeek.title = (date) => {
-  return `When to meet`;
-};
-
-const customDayPropGetter = (date) => {
-  return {
-    style: {
-      width: "100%",
-    },
+  MyWeek.propTypes = {
+    date: PropTypes.instanceOf(Date).isRequired,
+    localizer: PropTypes.object,
+    max: PropTypes.instanceOf(Date),
+    min: PropTypes.instanceOf(Date),
+    scrollToTime: PropTypes.instanceOf(Date),
   };
-};
 
-const VotingModal = ({ open, setOpen, event }) => {
+  MyWeek.range = (date, { localizer }) => {
+    const start = moment(event.voteStart).toDate();
+    const end = moment(event.voteEnd).toDate();
+    console.log(end)
+
+    let current = start;
+    const range = [];
+
+    while (localizer.lte(current, end, "day")) {
+      range.push(current);
+      current = localizer.add(current, 1, "day");
+    }
+
+    return range;
+  };
+
+  MyWeek.title = (date) => {
+    return `When to meet`;
+  };
+
+  const customDayPropGetter = (date) => {
+    return {
+      style: {
+        width: "100%",
+      },
+    };
+  };
   const [availableHour, setAvailableHour] = useState([]);
   const [showMabeAvailable, setShowMabeAvailable] = useState(false);
 
@@ -126,7 +127,7 @@ const VotingModal = ({ open, setOpen, event }) => {
     // Convert both dates to milliseconds since the epoch
     const time1 = new Date(date1);
     const time2 = new Date(date2);
-    
+
     // Calculate the difference in milliseconds
     const timeDiff = Math.abs(time2 - time1);
 
@@ -207,7 +208,7 @@ const VotingModal = ({ open, setOpen, event }) => {
           >
             <ScheduleSelector
               selection={availableHour}
-              startDate={event? new Date(event.voteStart): null}
+              startDate={event ? new Date(event.voteStart) : null}
               numDays={event ? getDayGap(event.voteStart, event.voteEnd) : 0}
               dateFormat="MM/DD (ddd)"
               timeFormat="HH:mm"

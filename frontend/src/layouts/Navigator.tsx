@@ -66,7 +66,14 @@ export default function Navigator(props: DrawerProps) {
   const createGroup = async (name: string) => {
     try {
       if (!user) return;
-      await api.createGroup(uuidv4(), user?.id, name);
+      const groupId = uuidv4()
+      await api.createGroup(groupId, user?.id, name);
+
+      const newGroup: Group = {
+        groupId: groupId,
+        name: name,
+      };
+      setGroups((groups) => [...groups, newGroup]);
     } catch (error) {
       console.log(error);
     }

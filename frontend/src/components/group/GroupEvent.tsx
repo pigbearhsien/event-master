@@ -14,17 +14,19 @@ type Props = {};
 const GroupEvent = (props: Props) => {
   const { groupId } = useParams();
   const [events, setEvents] = useState<EventGroup[]>([]);
-  const [fetched, setFetched] = useState(false);
+  // const [fetched, setFetched] = useState(false);
 
   const fetchThisGroupEvent = async () => {
     let thisGroupEvent: AxiosResponse;
     try {
       if (!groupId) return;
       thisGroupEvent = await api.getGroupEventsWithId(groupId);
-      console.log(thisGroupEvent);
-      setEvents([])
-      setEvents((events)=>[...events, ...thisGroupEvent.data])
-      
+      // console.log(thisGroupEvent);
+      // setEvents([])
+      setEvents(thisGroupEvent.data);
+      // thisGroupEvent.data.map((event) => {
+      //   setEvents([...events, event]);
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -36,17 +38,20 @@ const GroupEvent = (props: Props) => {
 
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [voteModalEvent, setVoteModalEvent] = useState<EventGroup | null>(null);
-  const [eventDetails, setEventDetails] = useState({
+  const [eventDetails, setEventDetails] = useState<EventGroup>({
     eventId: "",
+    groupId: groupId,
     name: "",
+    organizerId: "",
     description: "",
+    status: "",
     eventStart: null,
     eventEnd: null,
-    voteStart: null,
-    voteEnd: null,
-    voteDeadline: null,
+    voteStart: new Date(),
+    voteEnd: new Date(),
+    voteDeadline: new Date(),
     havePossibility: false,
-  });
+  } as EventGroup);
   const [mode, setMode] = useState<"Editing" | "Creating" | "Viewing">(
     "Creating"
   );
@@ -56,7 +61,10 @@ const GroupEvent = (props: Props) => {
     setMode("Viewing");
     setEventDetails({
       eventId: event.eventId,
+      groupId: event.groupId,
+      organizerId: event.organizerId,
       name: event.name,
+      status: event.status,
       description: event.description,
       eventStart: event.eventStart,
       eventEnd: event.eventEnd,
@@ -64,7 +72,7 @@ const GroupEvent = (props: Props) => {
       voteEnd: event.voteEnd,
       voteDeadline: event.voteDeadline,
       havePossibility: event.havePossibility,
-    });
+    } as EventGroup);
   };
 
   const handleViewVotingModal = (event) => {
@@ -93,6 +101,7 @@ const GroupEvent = (props: Props) => {
         </Grid>
         <Grid item xs={3}>
           <EventDetailsCard
+            setEvents={setEvents}
             eventDetails={eventDetails}
             setEventDetails={setEventDetails}
             mode={mode}

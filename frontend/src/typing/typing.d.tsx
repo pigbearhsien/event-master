@@ -11,7 +11,7 @@ type EventGroup = {
   eventStart: Date | null;
   eventEnd: Date | null;
   status: string;
-  organizer: string;
+  organizerId: string;
   voteStart: Date;
   voteEnd: Date;
   voteDeadline: Date;
@@ -58,11 +58,19 @@ type Todo = {
   deadline: Date;
 };
 
+type TodoJoinUser = Todo &{
+  assigneeName: string,
+  assignerName: string,
+}
+
+type EventGroupJoinUser = EventGroup &{
+  organizerName: string,
+}
+
 type User = {
   userId: string;
   name: string;
   account: string;
-  password: string;
   profilePicUrl: string | null;
 };
 
@@ -82,4 +90,6 @@ export type {
   Vote,
   EventPrivate,
   Chat,
+  TodoJoinUser,
+  EventGroupJoinUser
 };

@@ -82,7 +82,7 @@ const Dashboard = (props: Props) => {
       <Divider sx={{ mb: 3 }} />
 
       {/* Calendar */}
-      { view === "calendar" ? (
+      {view === "calendar" ? (
         <DashboardCalendar />
       ) : (
         <DashboardTodo />
