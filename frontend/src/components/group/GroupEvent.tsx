@@ -6,23 +6,27 @@ import EventDetailsCard from "@/partials/EventDetailsCard";
 import VotingModal from "@/partials/VotingModal";
 import * as api from "../../api/api";
 import { useParams } from "react-router-dom";
+import { EventGroup } from "@/typing/typing.d";
+import { AxiosResponse } from "axios";
 
 type Props = {};
 
 const GroupEvent = (props: Props) => {
   const { groupId } = useParams();
-  const [events, setEvents] = useState([]);
-  const [fetched, setFetched] = useState(false);
+  const [events, setEvents] = useState<EventGroup[]>([]);
+  // const [fetched, setFetched] = useState(false);
 
   const fetchThisGroupEvent = async () => {
-    let thisGroupEvent;
+    let thisGroupEvent: AxiosResponse;
     try {
       if (!groupId) return;
       thisGroupEvent = await api.getGroupEventsWithId(groupId);
-      console.log(thisGroupEvent);
-      thisGroupEvent.data.map((event) => {
-        setEvents([...events, event]);
-      });
+      // console.log(thisGroupEvent);
+      // setEvents([])
+      setEvents(thisGroupEvent.data);
+      // thisGroupEvent.data.map((event) => {
+      //   setEvents([...events, event]);
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -33,28 +37,34 @@ const GroupEvent = (props: Props) => {
   }, [groupId]);
 
   const [voteModalOpen, setVoteModalOpen] = useState(false);
-  const [voteModalEventId, setVoteModalEventId] = useState("");
-  const [eventDetails, setEventDetails] = useState({
+  const [voteModalEvent, setVoteModalEvent] = useState<EventGroup | null>(null);
+  const [eventDetails, setEventDetails] = useState<EventGroup>({
     eventId: "",
+    groupId: groupId,
     name: "",
+    organizerId: "",
     description: "",
+    status: "",
     eventStart: null,
     eventEnd: null,
-    voteStart: null,
-    voteEnd: null,
-    voteDeadline: null,
+    voteStart: new Date(),
+    voteEnd: new Date(),
+    voteDeadline: new Date(),
     havePossibility: false,
-  });
+  } as EventGroup);
   const [mode, setMode] = useState<"Editing" | "Creating" | "Viewing">(
     "Creating"
   );
 
-  const handleSelectEvent = (event) => {
+  const handleSelectEvent = (event: any) => {
     console.log(event);
     setMode("Viewing");
     setEventDetails({
       eventId: event.eventId,
+      groupId: event.groupId,
+      organizerId: event.organizerId,
       name: event.name,
+      status: event.status,
       description: event.description,
       eventStart: event.eventStart,
       eventEnd: event.eventEnd,
@@ -62,12 +72,12 @@ const GroupEvent = (props: Props) => {
       voteEnd: event.voteEnd,
       voteDeadline: event.voteDeadline,
       havePossibility: event.havePossibility,
-    });
+    } as EventGroup);
   };
 
-  const handleViewVotingModal = (eventId) => {
+  const handleViewVotingModal = (event) => {
     setVoteModalOpen(true);
-    setVoteModalEventId(eventId);
+    setVoteModalEvent(event);
   };
 
   return (
@@ -75,22 +85,23 @@ const GroupEvent = (props: Props) => {
       <VotingModal
         open={voteModalOpen}
         setOpen={setVoteModalOpen}
-        eventId={voteModalEventId}
+        event={voteModalEvent}
       />
       <Grid container xs={12} spacing={1}>
         <Grid container item xs={9} spacing={1}>
-          {groupEvents.sort().map((event) => (
+          {events.sort().map((event) => (
             <EventCard
               key={event.eventId} // 添加 key prop
               event={event}
               handleSelectEvent={handleSelectEvent}
-              handleViewVotingModal={handleViewVotingModal}
+              handleViewVotingModal={()=> {handleViewVotingModal(event)}}
               setMode={setMode}
             />
           ))}
         </Grid>
         <Grid item xs={3}>
           <EventDetailsCard
+            setEvents={setEvents}
             eventDetails={eventDetails}
             setEventDetails={setEventDetails}
             mode={mode}
