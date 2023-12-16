@@ -12,6 +12,11 @@ import {
   IconButton,
   DialogContentText,
   Checkbox,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import Calendar from "@/partials/Calendar";
 import PropTypes from "prop-types";
@@ -59,7 +64,7 @@ const VotingModal = ({ open, setOpen, event }) => {
   MyWeek.range = (date, { localizer }) => {
     const start = moment(event.voteStart).toDate();
     const end = moment(event.voteEnd).toDate();
-    console.log(end)
+    console.log(end);
 
     let current = start;
     const range = [];
@@ -83,7 +88,10 @@ const VotingModal = ({ open, setOpen, event }) => {
       },
     };
   };
+
+  const [votingMode, setVotingMode] = useState("available"); // ["available", "maybeAvailable"]
   const [availableHour, setAvailableHour] = useState([]);
+  const [maybeAvailableHour, setMaybeAvailableHour] = useState([]);
   const [showMabeAvailable, setShowMabeAvailable] = useState(false);
 
   const handleSelectEvent = useCallback((event) => {
@@ -161,22 +169,28 @@ const VotingModal = ({ open, setOpen, event }) => {
               }}
             >
               <Typography variant="h6">Select your available hours</Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ marginLeft: "auto", marginRight: 2 }}
-                onClick={handleSave}
-              >
+              <FormControl sx={{ marginLeft: "auto" }}>
+                <RadioGroup
+                  row
+                  aria-labelledby="choose-voting-mode"
+                  name="choose-voting-mode"
+                  value={votingMode}
+                  onChange={(event) => setVotingMode(event.target.value)}
+                >
+                  <FormControlLabel
+                    value="available"
+                    control={<Radio />}
+                    label="Available"
+                  />
+                  <FormControlLabel
+                    value="maybeAvailable"
+                    control={<Radio />}
+                    label="Maybe Available"
+                  />
+                </RadioGroup>
+              </FormControl>
+              <Button variant="contained" color="primary" onClick={handleSave}>
                 Save
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => {
-                  setAvailableHour([]);
-                }}
-              >
-                Clear
               </Button>
             </Box>
           </Grid>
@@ -207,7 +221,9 @@ const VotingModal = ({ open, setOpen, event }) => {
             sx={{ height: "80vh" }}
           >
             <ScheduleSelector
-              selection={availableHour}
+              selection={
+                votingMode === "available" ? availableHour : maybeAvailableHour
+              }
               startDate={event ? new Date(event.voteStart) : null}
               numDays={event ? getDayGap(event.voteStart, event.voteEnd) : 0}
               dateFormat="MM/DD (ddd)"
@@ -217,7 +233,13 @@ const VotingModal = ({ open, setOpen, event }) => {
               hourlyChunks={2}
               columnGap={"2px"}
               rowGap="2px"
-              onChange={setAvailableHour}
+              onChange={(newSelection) => {
+                if (votingMode === "available") {
+                  setAvailableHour(newSelection);
+                } else {
+                  setMaybeAvailableHour(newSelection);
+                }
+              }}
             />
           </Grid>
           <Grid item xs={5.75}>
