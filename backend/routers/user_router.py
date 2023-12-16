@@ -733,11 +733,27 @@ def get_private_events_by_user_id(user_id: str, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
-# 填寫available time
+from sqlalchemy import and_
+
 @router.post("/createAvailableTime", response_model=List[AvailableTimeSchema])
 def create_available_time(available_time: List[AvailableTimeSchema], db: Session = Depends(get_db)):
     try:
         for time in available_time:
+            # Check if a record with the same userid, eventid, and available_start exists
+            existing_record = db.query(AvailableTimeModel).filter(
+                and_(
+                    AvailableTimeModel.userid == time.userId,
+                    AvailableTimeModel.eventid == time.eventId,
+                    AvailableTimeModel.available_start == time.availableStart
+                )
+            ).first()
+
+            # If it does, delete it
+            if existing_record:
+                db.delete(existing_record)
+                db.commit()
+
+            # Create a new record
             db_available_time = AvailableTimeModel(
                 userid=time.userId,
                 eventid=time.eventId,
