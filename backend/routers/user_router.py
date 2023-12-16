@@ -323,12 +323,12 @@ def get_user_private_events(user_id: str, db: Session = Depends(get_db)):
         for event in db_private_event:
             private_events.append(
                 PrivateEventSchema(
-                    eventId=event.eventid,
-                    userId=event.userid,
+                    eventid=event.eventid,
+                    userid=event.userid,
                     name=event.name,
                     description=event.description,
-                    eventStart=event.event_start,
-                    eventEnd=event.event_end,
+                    event_start=event.event_start,
+                    event_end=event.event_end,
                 )
             )
 

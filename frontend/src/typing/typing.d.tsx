@@ -19,10 +19,10 @@ type EventGroup = {
 };
 
 type EventPrivate = {
-  eventId: string;
-  userId: string;
-  eventStart: Date;
-  eventEnd: Date;
+  eventid: string;
+  userid: string;
+  event_start: Date;
+  event_end: Date;
   name: string;
   description: string;
 };
@@ -64,7 +64,7 @@ type UserJoinEvent = {
   isAccepted: boolean;
 };
 
-type TodoJoinUser = Todo &{
+type TodoJoinUser = Todo & {
   assigneeName: string,
   assigneeAccount: string,
   assigneeProfilePicUrl: string | null,
@@ -73,7 +73,7 @@ type TodoJoinUser = Todo &{
   assignerProfilePicUrl: string | null,
 }
 
-type EventGroupJoinUser = EventGroup &{
+type EventGroupJoinUser = EventGroup & {
   organizerName: string,
   organizerAccount: string,
   organizerProfilePicUrl: string | null,
