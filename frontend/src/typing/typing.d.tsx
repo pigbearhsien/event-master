@@ -19,10 +19,10 @@ type EventGroup = {
 };
 
 type EventPrivate = {
-  eventId: string;
-  userId: string;
-  eventStart: Date;
-  eventEnd: Date;
+  eventid: string;
+  userid: string;
+  event_start: Date;
+  event_end: Date;
   name: string;
   description: string;
 };
@@ -58,12 +58,12 @@ type Todo = {
   deadline: Date;
 };
 
-type TodoJoinUser = Todo &{
+type TodoJoinUser = Todo & {
   assigneeName: string,
   assignerName: string,
 }
 
-type EventGroupJoinUser = EventGroup &{
+type EventGroupJoinUser = EventGroup & {
   organizerName: string,
 }
 
