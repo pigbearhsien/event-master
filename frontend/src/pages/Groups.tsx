@@ -163,7 +163,7 @@ const Groups = (props: Props) => {
       </AppBar>
 
       {/* Content */}
-      <Box sx={{ px: 2, py: 2 }}>
+      <Box sx={{ py: 2 }}>
         {path[path.length - 1] === "event" && <GroupEvent />}
         {path[path.length - 1] === "todo" && <GroupTodo />}
         {path[path.length - 1] === "info" && <GroupInfo />}

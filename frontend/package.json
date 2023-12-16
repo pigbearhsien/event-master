@@ -17,14 +17,18 @@
     "@mui/material": "^5.14.18",
     "@mui/x-data-grid": "^6.18.4",
     "@mui/x-date-pickers": "^6.18.3",
+    "@rollup/rollup-darwin-arm64": "^4.9.0",
     "@types/react-big-calendar": "^1.8.5",
     "axios": "^1.6.2",
+    "core-js": "^3.34.0",
     "lucide-react": "^0.293.0",
     "path": "^0.12.7",
     "react": "^18.2.0",
     "react-big-calendar": "^1.8.5",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
+    "react-schedule-selector": "^3.0.2",
+    "styled-components": "^6.1.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
