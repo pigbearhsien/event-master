@@ -29,7 +29,7 @@ const VotingModal = ({ open, setOpen, event }) => {
     min = localizer.startOf(new Date(), "day"),
     ...props
   }) {
-    console.log(date, localizer, max, min);
+    // console.log(date, localizer, max, min);
     const currRange = useMemo(
       () => MyWeek.range(date, { localizer }),
       [date, localizer]
@@ -59,12 +59,12 @@ const VotingModal = ({ open, setOpen, event }) => {
   MyWeek.range = (date, { localizer }) => {
     const start = moment(event.voteStart).toDate();
     const end = moment(event.voteEnd).toDate();
-    console.log(end)
 
     let current = start;
     const range = [];
 
     while (localizer.lte(current, end, "day")) {
+      console.log("in localizer", current)
       range.push(current);
       current = localizer.add(current, 1, "day");
     }
