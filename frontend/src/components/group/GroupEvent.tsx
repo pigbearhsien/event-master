@@ -7,6 +7,7 @@ import VotingModal from "@/partials/VotingModal";
 import * as api from "../../api/api";
 import { useParams } from "react-router-dom";
 import { EventGroup } from "@/typing/typing.d";
+import { AxiosResponse } from "axios";
 
 type Props = {};
 
@@ -16,15 +17,14 @@ const GroupEvent = (props: Props) => {
   const [fetched, setFetched] = useState(false);
 
   const fetchThisGroupEvent = async () => {
-    let thisGroupEvent;
+    let thisGroupEvent: AxiosResponse;
     try {
       if (!groupId) return;
       thisGroupEvent = await api.getGroupEventsWithId(groupId);
       console.log(thisGroupEvent);
       setEvents([])
-      thisGroupEvent.data.map((event) => {
-        setEvents([...events, event]);
-      });
+      setEvents((events)=>[...events, ...thisGroupEvent.data])
+      
     } catch (error) {
       console.log(error);
     }
@@ -35,7 +35,7 @@ const GroupEvent = (props: Props) => {
   }, [groupId]);
 
   const [voteModalOpen, setVoteModalOpen] = useState(false);
-  const [voteModalEventId, setVoteModalEventId] = useState("");
+  const [voteModalEvent, setVoteModalEvent] = useState<EventGroup | null>(null);
   const [eventDetails, setEventDetails] = useState({
     eventId: "",
     name: "",
@@ -67,9 +67,9 @@ const GroupEvent = (props: Props) => {
     });
   };
 
-  const handleViewVotingModal = (eventId) => {
+  const handleViewVotingModal = (event) => {
     setVoteModalOpen(true);
-    setVoteModalEventId(eventId);
+    setVoteModalEvent(event);
   };
 
   return (
@@ -77,7 +77,7 @@ const GroupEvent = (props: Props) => {
       <VotingModal
         open={voteModalOpen}
         setOpen={setVoteModalOpen}
-        eventId={voteModalEventId}
+        event={voteModalEvent}
       />
       <Grid container xs={12} spacing={1}>
         <Grid container item xs={9} spacing={1}>
@@ -86,7 +86,7 @@ const GroupEvent = (props: Props) => {
               key={event.eventId} // 添加 key prop
               event={event}
               handleSelectEvent={handleSelectEvent}
-              handleViewVotingModal={handleViewVotingModal}
+              handleViewVotingModal={()=> {handleViewVotingModal(event)}}
               setMode={setMode}
             />
           ))}
