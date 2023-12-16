@@ -133,6 +133,7 @@ export const updatePrivateEvent = async (
 ): Promise<AxiosResponse<EventPrivate>> => {
   try {
     return await request.put(`/updatePrivateEventById/${eventId}`, event);
+    return await request.put(`/updatePrivateEventById/${eventId}`, event);
   } catch (error) {
     throw error as Error;
   }
