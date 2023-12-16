@@ -186,6 +186,7 @@ const Groups = (props: Props) => {
           <Box sx={{ px: 2, overflowY: "auto", flexGrow: 1 }}>
             {messages.map((message, index) => (
               <Box
+                key={index}
                 ref={index === messages.length - 1 ? messagesEndRef : null}
                 sx={{
                   display: "flex",
@@ -202,16 +203,15 @@ const Groups = (props: Props) => {
               >
                 <Box sx={{ display: "flex" }} gap={1}>
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
+                    <span
+                      style={{
                         fontWeight: "bold",
                         color:
                           message.speakerId === user?.id ? "blue" : "inherit",
                       }}
                     >
                       {message.speakerName}
-                    </Typography>
+                    </span>
                   </Typography>
                   <Typography variant="caption" sx={{ color: "grey.500" }}>
                     {new Date(message.timing).toISOString()}
