@@ -19,10 +19,10 @@ type EventGroup = {
 };
 
 type EventPrivate = {
-  eventid: string;
-  userid: string;
-  event_start: Date;
-  event_end: Date;
+  eventId: string;
+  userId: string;
+  eventStart: Date;
+  eventEnd: Date;
   name: string;
   description: string;
 };
