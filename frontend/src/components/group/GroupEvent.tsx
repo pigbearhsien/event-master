@@ -90,6 +90,18 @@ const GroupEvent = (props: Props) => {
     setVoteModalEvent(event);
   };
 
+  const handleDeleteEvent = async (eventId: string) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      try {
+        setEvents(events.filter((event) => event.eventId !== event.eventId));
+        const response = await api.deleteGroupEvent(eventId);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   return (
     <>
       <VotingModal
@@ -106,6 +118,7 @@ const GroupEvent = (props: Props) => {
               handleSelectEvent={handleSelectEvent}
               handleViewVotingModal={()=> {handleViewVotingModal(event)}}
               setMode={setMode}
+              handleDeleteEvent={handleDeleteEvent}
             />
           ))}
         </Grid>
