@@ -17,16 +17,21 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  CircularProgress,
 } from "@mui/material";
 import Calendar from "@/partials/Calendar";
 import PropTypes from "prop-types";
 import TimeGrid from "react-big-calendar/lib/TimeGrid";
 import moment from "moment";
 import { X } from "lucide-react";
-import { availbleHour } from "@/mockdata";
+// import { availbleHour } from "@/mockdata";
 import "./VotingModal.css";
+import { CreateAvailableTime } from "@/typing/typing.d";
+import { useUser } from "@clerk/clerk-react";
+import * as api from "@/api/api";
 
 const VotingModal = ({ open, setOpen, event }) => {
+  const { user } = useUser();
   function MyWeek({
     date,
     localizer,
@@ -34,7 +39,7 @@ const VotingModal = ({ open, setOpen, event }) => {
     min = localizer.startOf(new Date(), "day"),
     ...props
   }) {
-    console.log(date, localizer, max, min);
+    // console.log(date, localizer, max, min);
     const currRange = useMemo(
       () => MyWeek.range(date, { localizer }),
       [date, localizer]
@@ -64,7 +69,6 @@ const VotingModal = ({ open, setOpen, event }) => {
   MyWeek.range = (date, { localizer }) => {
     const start = moment(event.voteStart).toDate();
     const end = moment(event.voteEnd).toDate();
-    console.log(end);
 
     let current = start;
     const range = [];
@@ -93,6 +97,8 @@ const VotingModal = ({ open, setOpen, event }) => {
   const [availableHour, setAvailableHour] = useState([]);
   const [maybeAvailableHour, setMaybeAvailableHour] = useState([]);
   const [showMabeAvailable, setShowMabeAvailable] = useState(false);
+  const [resultHour, setResultHour] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSelectEvent = useCallback((event) => {
     console.log(event);
@@ -102,8 +108,60 @@ const VotingModal = ({ open, setOpen, event }) => {
     setShowMabeAvailable(event.target.checked);
   };
 
-  const handleSave = () => {
-    console.log(availableHour);
+  const handleSave = async () => {
+    var arr: CreateAvailableTime[] = [];
+    availableHour.map((time: Date) => {
+      if (!user) return;
+      arr = [
+        ...arr,
+        {
+          userId: user?.id,
+          eventId: event.eventId,
+          availableStart: time,
+          possibilityLevel: "Definitely",
+        },
+      ];
+    });
+    maybeAvailableHour.map((time: Date) => {
+      if (!user) return;
+      arr = [
+        ...arr,
+        {
+          userId: user.id,
+          eventId: event.eventId,
+          availableStart: time,
+          possibilityLevel: "Maybe",
+        },
+      ];
+    });
+    console.log(arr);
+    const res = await api.createAvailableTime(arr);
+    console.log(res);
+  };
+
+  const fetchResultHour = async () => {
+    setLoading(true);
+    try {
+      const res = await api.getVoteResultCnt(event.eventId);
+      console.log(res.data);
+      var resultHourCpy: any[] = [];
+      res.data.map((time) => {
+        const originalDate = new Date(time.availableStart);
+        resultHourCpy = [
+          ...resultHourCpy,
+          {
+            start: originalDate,
+            end: new Date(originalDate.getTime() + 30 * 60000),
+            title: "",
+            availbleAmount: time.availableAmount,
+          },
+        ];
+      });
+      setResultHour(resultHourCpy);
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
   };
 
   const eventPropGetter = useCallback(
@@ -146,6 +204,7 @@ const VotingModal = ({ open, setOpen, event }) => {
   }
   useEffect(() => {
     console.log("in voting modal", event);
+    fetchResultHour();
   }, [event]);
   return (
     <Dialog open={open} fullScreen>
@@ -287,18 +346,22 @@ const VotingModal = ({ open, setOpen, event }) => {
 
             <Box className="overflow-scroll" sx={{ height: "60vh" }}>
               <Box sx={{ width: "fit-content" }}>
-                <Calendar
-                  //   onSelectEvent={handleSelectEvent}
-                  eventPropGetter={eventPropGetter}
-                  events={availbleHour}
-                  dayPropGetter={customDayPropGetter}
-                  toolbar={false}
-                  defaultView="myweek"
-                  views={{
-                    myweek: MyWeek,
-                  }}
-                  formats={formats}
-                />
+                {loading ? (
+                  <CircularProgress />
+                ) : (
+                  <Calendar
+                    //   onSelectEvent={handleSelectEvent}
+                    eventPropGetter={eventPropGetter}
+                    events={resultHour}
+                    dayPropGetter={customDayPropGetter}
+                    toolbar={false}
+                    defaultView="myweek"
+                    views={{
+                      myweek: MyWeek,
+                    }}
+                    formats={formats}
+                  />
+                )}
               </Box>
             </Box>
           </Grid>

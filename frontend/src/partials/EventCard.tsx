@@ -9,8 +9,19 @@ import Chip from "@mui/material/Chip";
 import { Grid, IconButton } from "@mui/material";
 import moment from "moment";
 import { Pencil, Trash } from "lucide-react";
+import { EventGroupJoinUser } from "@/typing/typing.d";
+import * as api from "@/api/api";
+import { useUser } from "@clerk/clerk-react";
 
-const statusList = {
+type StatusList = {
+  [key: string]: {
+    status: string;
+    color: string;
+    order: number;
+  };
+};
+
+const statusList: StatusList = {
   In_Voting: { status: "Voting", color: "success", order: 4 },
   End_Voting: { status: "Voting End", color: "success", order: 3 },
   Not_Start_Yet: { status: "Incoming", color: "warning", order: 2 },
@@ -18,12 +29,39 @@ const statusList = {
   Closure: { status: "End", color: "default", order: 5 },
 };
 
+interface EventCardProps {
+  event: EventGroupJoinUser;
+  handleSelectEvent: (event: any) => void;
+  setMode: React.Dispatch<React.SetStateAction<"Editing" | "Creating" | "Viewing">>;
+  handleViewVotingModal: (eventId: string) => void;
+  handleDeleteEvent: (eventId: string) => void;
+}
+
 const EventCard = ({
   event,
   handleSelectEvent,
   setMode,
   handleViewVotingModal,
-}) => {
+  handleDeleteEvent
+}: EventCardProps) => {
+  const [isAccepted, setIsAccepted] = React.useState<boolean | null>(null);
+  const { user } = useUser();
+  // api: getUserJoinEvent
+  const fetchUserJoinEvent = async () => {
+    try {
+      if(!user) return;
+      const response = await api.getUserJoinEvent(event.eventId, user.id);
+      console.log(response);
+      setIsAccepted(response.data.isAccepted);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  React.useEffect(() => {
+    fetchUserJoinEvent();
+  }, [event]);
+
+  
   return (
     <Grid item xs={6}>
       <Card
@@ -44,7 +82,7 @@ const EventCard = ({
           >
             <Chip
               size="small"
-              color={statusList[event.status].color}
+              color={statusList[event.status].color as any}
               label={statusList[event.status].status}
               variant="outlined"
             />
@@ -64,7 +102,12 @@ const EventCard = ({
                   e.stopPropagation();
                 }}
               >
-                <Trash size={15} />
+                {
+                  user?.id === event.organizerId &&
+                  <Trash size={15} onClick={()=>{
+                    handleDeleteEvent(event.eventId)
+                  }}/>
+                }
               </IconButton>
             </Box>
           </Box>
@@ -110,8 +153,8 @@ const EventCard = ({
             View Voting
           </Button>
           <Box sx={{ marginLeft: "auto" }}>
-            {event.isAccepted !== null ? (
-              event.isAccepted ? (
+            {isAccepted !== null ? (
+              isAccepted ? (
                 <Typography
                   sx={{ fontSize: 15, fontWeight: "bold" }}
                   color="primary"

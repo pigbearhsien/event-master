@@ -20,26 +20,15 @@ import { v4 as uuidv4 } from "uuid";
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import * as api from "@/api/api";
-import { EventGroup, EventGroupCreate } from "@/typing/typing.d";
+import { EventGroup, EventGroupCreate, EventGroupJoinUser } from "@/typing/typing.d";
 
-type EventDetails = {
-  eventId: string | null;
-  name: string | null;
-  description: string | null;
-  eventStart: Date | string | null;
-  eventEnd: Date | string | null;
-  voteStart: Date | string | null;
-  voteEnd: Date | string | null;
-  voteDeadline: Date | string | null;
-  havePossibility: boolean;
-};
 
 interface EventDetailsCradProps {
-  eventDetails: EventDetails;
-  setEventDetails: React.Dispatch<React.SetStateAction<EventGroup>>
+  eventDetails: EventGroupJoinUser;
+  setEventDetails: React.Dispatch<React.SetStateAction<EventGroupJoinUser>>
   mode: string;
   setMode: React.Dispatch<React.SetStateAction<"Editing" | "Creating" | "Viewing">>;
-  setEvents: React.Dispatch<React.SetStateAction<EventGroup[]>>;
+  setEvents: React.Dispatch<React.SetStateAction<EventGroupJoinUser[]>>;
 }
 
 const EventDetailsCard = ({
@@ -50,23 +39,31 @@ const EventDetailsCard = ({
   setEvents
 }: EventDetailsCradProps) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false);
-  const handleChange = (key, value) => {
+  const handleChange = (key: any, value: any) => {
     setEventDetails((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleCloseEvent = () => {
     setMode("Creating");
-    setEventDetails({
+    const new_empty_event: EventGroupJoinUser = {
       eventId: "",
+      groupId: "",
       name: "",
+      organizerId: "",
+      organizerName: "",
       description: "",
+      status: "",
       eventStart: null,
       eventEnd: null,
-      voteStart: null,
-      voteEnd: null,
-      voteDeadline: null,
+      voteStart: new Date(),
+      voteEnd: new Date(),
+      voteDeadline: new Date(),
       havePossibility: false,
-    });
+      organizerAccount: "",
+      organizerProfilePicUrl: null,
+    };
+
+    setEventDetails(new_empty_event);
   };
 
   const { groupId } = useParams();
@@ -74,11 +71,12 @@ const EventDetailsCard = ({
   const handleSaveEvent = async () => {
     if(mode === "Viewing") return;
     if(mode === "Editing"){
-      const d = await api.updateGroupEvent(eventDetails as EventGroup)
+      const new_event : EventGroup = eventDetails as EventGroup
+      const d = await api.updateGroupEvent(new_event)
       console.log(d)
       setEvents((events) => events.map((event) => {
         if(event.eventId === eventDetails.eventId){
-          return eventDetails as EventGroup
+          return eventDetails as EventGroupJoinUser
         }
         return event
       }

@@ -13,6 +13,7 @@ from schemas import (
     GroupEvent as GroupEventSchema,
     GroupHasUser as GroupHasUserSchema,
     UserJoinEvent as UserJoinEventSchema,
+    GroupEventJoinUser as GroupEventJoinUserSchema
 )
 
 import logging
@@ -55,7 +56,7 @@ def set_group_event_time(group_event: GroupEventSchema, db: Session = Depends(ge
 
 
 # 確認活動不成立（刪除）
-@router.delete("/deleteGroupEvent/{event_id}", response_model=GroupEventSchema)
+@router.delete("/deleteGroupEvent/{event_id}")
 def delete_group_event(event_id: str, db: Session = Depends(get_db)):
     try:
         db_group_event = (
@@ -63,6 +64,8 @@ def delete_group_event(event_id: str, db: Session = Depends(get_db)):
             .filter(GroupEventModel.eventid == event_id)
             .first()
         )
+
+        logging.debug(db_group_event)
 
         if not db_group_event:
             raise HTTPException(status_code=404, detail="Event not found")
@@ -139,7 +142,7 @@ def update_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     
 # 新增團隊活動
-@router.post("/createGroupEvent", response_model=GroupEventSchema)
+@router.post("/createGroupEvent", response_model=GroupEventJoinUserSchema)
 def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
     try:
         db_group_event = GroupEventModel(
@@ -156,7 +159,35 @@ def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
         )
         db.add(db_group_event)
         db.commit()
-        return group_event
+        db.refresh(db_group_event)
+
+        # get Group Event Join User
+        query = text(
+            "SELECT * FROM group_event join user_table on group_event.organizerid = user_table.userid where group_event.eventid = :event_id"
+        )
+        db_group_event_join_user = (
+            db.execute(query, {"event_id": group_event.eventId}).first()
+        )
+        # parse into group event join user schema
+        group_event_join_user = GroupEventJoinUserSchema(
+            eventId=db_group_event_join_user.eventid,
+            groupId=db_group_event_join_user.groupid,
+            eventStart=db_group_event_join_user.event_start,
+            eventEnd=db_group_event_join_user.event_end,
+            name=db_group_event_join_user.name,
+            description=db_group_event_join_user.description,
+            status=db_group_event_join_user.status,
+            organizerId=db_group_event_join_user.organizerid,
+            organizerName=db_group_event_join_user.username,
+            organizerAccount=db_group_event_join_user.account,
+            organizerProfilePicUrl=db_group_event_join_user.profile_pic_url,
+            voteStart=db_group_event_join_user.vote_start,
+            voteEnd=db_group_event_join_user.vote_end,
+            voteDeadline=db_group_event_join_user.votedeadline,
+            havePossibility=db_group_event_join_user.havepossibility,
+        )
+
+        return group_event_join_user
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
