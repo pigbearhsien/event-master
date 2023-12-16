@@ -145,29 +145,20 @@ const DashboardCalendar = () => {
   };
   if (fetched == false) fetchDashboard();
 
-  var newData: EventPrivate = {
-    eventid: uuidv4(),
-    userid: user?.id,
-    name: eventDetails.title,
-    description: eventDetails.description,
-    event_start: eventDetails.startTime,
-    event_end: eventDetails.endTime,
-  };
-
 
   const handleSaveEvent = async () => {
     if (mode === "Creating") {
       try {
+        var newData: EventPrivate = {
+          eventid: uuidv4(),
+          userid: user?.id,
+          name: eventDetails.title,
+          description: eventDetails.description,
+          event_start: eventDetails.startTime,
+          event_end: eventDetails.endTime,
+        };
         const response = await api.createPrivateEvent(newData);
         console.log(response.data);
-        var eventWithIsPrivate: any = {
-          description: response.description,
-          end: new Date(response.event_end),
-          eventId: response.eventid,
-          isPrivate: true,
-          start: new Date(response.event_start),
-          title: response.name,
-        };
         setEventData([...eventData, newData]);
       } catch (error) {
         console.error(error);
@@ -194,7 +185,6 @@ const DashboardCalendar = () => {
   };
 
   useEffect(() => {
-    console.log(allEvents);
     console.log(eventData);
   }, [eventData]);
 
