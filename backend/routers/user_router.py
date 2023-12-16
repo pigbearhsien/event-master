@@ -91,8 +91,8 @@ def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
             organizerid=group_event.organizerId,
             vote_start=group_event.voteStart,
             vote_end=group_event.voteEnd,
-            votedeadline=group_event.voteDeadline,
-            havepossibility=group_event.havePossibility,
+            vote_deadline=group_event.voteDeadline,
+            have_possibility=group_event.havePossibility,
         )
         db.add(db_group_event)
         db.commit()
@@ -187,19 +187,20 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         logging.info(db_group_event)
 
         # modify status according to current time
-        if db_group_event.vote_start:
-            if datetime.now() < db_group_event.deadline:
-                db_group_event.status = 'In_Voting'
-            else: 
-                db_group_event.status = 'End_Voting'
-                
-            if db_group_event.status == 'End_Voting':
-                if datetime.now() < db_group_event.event_start:
-                    db_group_event.status = 'Not_Start_Yet'
-                elif datetime.now() < db_group_event.event_end:
-                    db_group_event.status = 'On_Going'
-                else:
-                    db_group_event.status = 'Closure'
+        for event in db_group_event:
+            if event.vote_start:
+                if datetime.now() < event.votedeadline:
+                    event.status = 'In_Voting'
+                else: 
+                    event.status = 'End_Voting'
+                    
+                if event.status == 'End_Voting':
+                    if datetime.now() < event.event_start:
+                        event.status = 'Not_Start_Yet'
+                    elif datetime.now() < event.event_end:
+                        event.status = 'On_Going'
+                    else:
+                        event.status = 'Closure'
 
         # parse db_group_event to schema
         group_events = []
@@ -665,6 +666,40 @@ def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
         return group_events
     except HTTPException as e:
         raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    
+@router.get("/getPrivateEventsByUserId", response_model=List[PrivateEventSchema])
+def get_private_events_by_user_id(user_id: str, db: Session = Depends(get_db)):
+    try:
+        db_private_event = (
+            db.query(PrivateEventModel)
+            .filter(PrivateEventModel.userid == user_id)
+            .all()
+        )
+
+        # convert to schema
+        private_events = []
+        for event in db_private_event:
+            private_events.append(
+                PrivateEventSchema(
+                    eventId=event.eventid,
+                    userId=event.userid,
+                    name=event.name,
+                    description=event.description,
+                    eventStart=event.event_start,
+                    eventEnd=event.event_end,
+                )
+            )
+
+        if not private_events:
+            raise HTTPException(status_code=404, detail="Private Event not found")
+        return private_events
+
+    except HTTPException as e:
+        raise e
+
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
