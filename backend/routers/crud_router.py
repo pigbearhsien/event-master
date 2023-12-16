@@ -1274,10 +1274,10 @@ def update_private_event_by_id(private_event_id: str, private_event: PrivateEven
         if not db_private_event:
             raise HTTPException(status_code=404, detail="Private Event not found")
         
-        db_private_event.eventid = private_event.eventId
-        db_private_event.userid = private_event.userId
-        db_private_event.event_start = private_event.eventStart
-        db_private_event.event_end = private_event.eventEnd
+        db_private_event.eventid = private_event.eventid
+        db_private_event.userid = private_event.userid
+        db_private_event.event_start = private_event.event_start
+        db_private_event.event_end = private_event.event_end
         db_private_event.name = private_event.name
         db_private_event.description = private_event.description
         db.commit()

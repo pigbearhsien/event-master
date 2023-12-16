@@ -155,14 +155,6 @@ const DashboardCalendar = () => {
     event_end: eventDetails.endTime,
   };
 
-  var data: EventPrivate = {
-    eventid: eventDetails.eventId,
-    userid: user?.id,
-    name: eventDetails.title,
-    description: eventDetails.description,
-    event_start: eventDetails.startTime,
-    event_end: eventDetails.endTime,
-  };
 
   const handleSaveEvent = async () => {
     if (mode === "Creating") {
@@ -184,7 +176,17 @@ const DashboardCalendar = () => {
     }
     if (mode === "Editing") {
       try {
-        const response = await api.updatePrivateEvent(data);
+        console.log(eventDetails.eventId);
+        var data: EventPrivate = {
+          eventid: eventDetails.eventId,
+          userid: user?.id,
+          name: eventDetails.title,
+          description: eventDetails.description,
+          event_start: eventDetails.startTime,
+          event_end: eventDetails.endTime,
+        };
+        console.log(data);
+        const response = await api.updatePrivateEvent(data, eventDetails.eventId);
         console.log(response.data);
       } catch (error) {
         console.error(error);
