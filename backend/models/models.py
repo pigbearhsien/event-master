@@ -55,6 +55,14 @@ class GroupEvent(Base):
     votedeadline = Column(DateTime, nullable=True)
     havepossibility = Column(Boolean, nullable=True)
 
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+    
     # __table_args__ = (CheckConstraint("status IN ('In_Voting', 'End_Voting', 'Not_Start_Yet', 'On_Going', 'Closure')", name='check_status'))
 
 class UserJoinEvent(Base):

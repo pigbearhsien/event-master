@@ -187,22 +187,6 @@ def get_user_join_events(user_id: str, db: Session = Depends(get_db)):
         db_group_event = db.execute(query, {"user_id": user_id}).all()
         logging.info(db_group_event)
 
-        # modify status according to current time
-        for event in db_group_event:
-            if event.vote_start:
-                if datetime.now() < event.votedeadline:
-                    event.status = 'In_Voting'
-                else: 
-                    event.status = 'End_Voting'
-                    
-                if event.status == 'End_Voting':
-                    if datetime.now() < event.event_start:
-                        event.status = 'Not_Start_Yet'
-                    elif datetime.now() < event.event_end:
-                        event.status = 'On_Going'
-                    else:
-                        event.status = 'Closure'
-
         # parse db_group_event to schema
         group_events = []
         for event in db_group_event:
@@ -537,21 +521,20 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
         
         # modify status according to current time
         if db_group_event.vote_start:
-            if datetime.now() < db_group_event.deadline:
-                db_group_event.status = 'In_Voting'
-            else: 
-                db_group_event.status = 'End_Voting'
-                
-            if db_group_event.status == 'End_Voting':
-                if datetime.now() < db_group_event.event_start:
-                    db_group_event.status = 'Not_Start_Yet'
-                elif datetime.now() < db_group_event.event_end:
-                    db_group_event.status = 'On_Going'
-                else:
-                    db_group_event.status = 'Closure'
+                if db_group_event.votedeadline and datetime.now() < db_group_event.votedeadline:
+                    db_group_event.status = 'In_Voting'
+                else: 
+                    db_group_event.status = 'End_Voting'
+                    
+                if db_group_event.status == 'End_Voting':
+                    if db_group_event.event_start and datetime.now() < db_group_event.event_start:
+                        db_group_event.status = 'Not_Start_Yet'
+                    elif db_group_event.event_end and datetime.now() < db_group_event.event_end:
+                        db_group_event.status = 'On_Going'
+                    else:
+                        db_group_event.status = 'Closure'
         
-
-                
+        db.commit()
 
         return GroupEventSchema(
             eventId=db_group_event.eventid,
@@ -660,36 +643,72 @@ def list_group_has_user(group_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
     
 
-# List group event by group id
 @router.get("/listGroupEventByGroupId/{group_id}", response_model=List[GroupEventJoinUserSchema])
 def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
     try:
-        query = text("SELECT ge.*, u.name AS organizer_name, u.account AS organizer_account, u.profile_pic_url AS organizer_profile_pic_url FROM group_event ge JOIN user_table u ON ge.organizerid = u.userid WHERE ge.groupid = :group_id")
+        db_events = (
+            db.query(GroupEventModel)
+            .filter(GroupEventModel.groupid == group_id)
+            .all()
+        )
 
-        db_group_events = db.execute(query, {"group_id": group_id}).fetchall()
-        
+        # modify status according to current time
+        for db_group_event in db_events:
+            if db_group_event.vote_start:
+                if db_group_event.votedeadline and datetime.now() < db_group_event.votedeadline:
+                    db_group_event.status = 'In_Voting'
+                else: 
+                    db_group_event.status = 'End_Voting'
+                    
+                if db_group_event.status == 'End_Voting':
+                    if db_group_event.event_start and datetime.now() < db_group_event.event_start:
+                        db_group_event.status = 'Not_Start_Yet'
+                    elif db_group_event.event_end and datetime.now() < db_group_event.event_end:
+                        db_group_event.status = 'On_Going'
+                    else:
+                        db_group_event.status = 'Closure'
+            logging.info(db_group_event.status)
+
+        db.commit()
+
+        db_group_events = (
+            db.query(
+                GroupEventModel, 
+                UserModel.name.label("organizer_name"), 
+                UserModel.account.label("organizer_account"), 
+                UserModel.profile_pic_url.label("organizer_profile_pic_url")
+            )
+            .join(UserModel, GroupEventModel.organizerid == UserModel.userid)
+            .filter(GroupEventModel.groupid == group_id)
+            .all()
+        )
+
         if not db_group_events:
             raise HTTPException(status_code=404, detail="Group Event not found")
+
+        
         # parse group event
         group_events = []
         for group_event in db_group_events:
+            event, organizer_name, organizer_account, organizer_profile_pic_url = group_event
+            # logging.info(event.status)
             group_events.append(
                 GroupEventJoinUserSchema(
-                    eventId=group_event.eventid,
-                    groupId=group_event.groupid,
-                    name=group_event.name,
-                    description=group_event.description,
-                    status=group_event.status,
-                    organizerId=group_event.organizerid,
-                    voteStart=group_event.vote_start,
-                    voteEnd=group_event.vote_end,
-                    voteDeadline=group_event.votedeadline,
-                    havePossibility=group_event.havepossibility,
-                    eventStart=group_event.event_start,
-                    eventEnd=group_event.event_end,
-                    organizerName=group_event.organizer_name,
-                    organizerAccount=group_event.organizer_account,
-                    organizerProfilePicUrl=group_event.organizer_profile_pic_url,
+                    eventId=event.eventid,
+                    groupId=event.groupid,
+                    name=event.name,
+                    description=event.description,
+                    status=event.status,
+                    organizerId=event.organizerid,
+                    voteStart=event.vote_start,
+                    voteEnd=event.vote_end,
+                    voteDeadline=event.votedeadline,
+                    havePossibility=event.havepossibility,
+                    eventStart=event.event_start,
+                    eventEnd=event.event_end,
+                    organizerName=organizer_name,
+                    organizerAccount=organizer_account,
+                    organizerProfilePicUrl=organizer_profile_pic_url,
                 )
             )
         return group_events
