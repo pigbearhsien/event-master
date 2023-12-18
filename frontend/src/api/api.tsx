@@ -210,7 +210,9 @@ export const getGroupUsers = async (
   }
 };
 
-export const getVoteResultCnt = async (eventId: string): Promise<AxiosResponse> => {
+export const getVoteResultCnt = async (
+  eventId: string
+): Promise<AxiosResponse> => {
   try {
     return await request.get(`listAllVoteCountByEventId/${eventId}`);
   } catch (error) {
@@ -285,6 +287,14 @@ export const addManager = async (
 export const assignTodo = async (todoInfo: Todo): Promise<AxiosResponse> => {
   try {
     return await request.post("/insertTodoToGroup", todoInfo);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const deleteTodo = async (todoId: string) => {
+  try {
+    return await request.delete(`/deleteTodoByTodoId/${todoId}`);
   } catch (error) {
     throw error as Error;
   }

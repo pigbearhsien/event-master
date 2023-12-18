@@ -20,14 +20,19 @@ import { v4 as uuidv4 } from "uuid";
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import * as api from "@/api/api";
-import { EventGroup, EventGroupCreate, EventGroupJoinUser } from "@/typing/typing.d";
-
+import {
+  EventGroup,
+  EventGroupCreate,
+  EventGroupJoinUser,
+} from "@/typing/typing.d";
 
 interface EventDetailsCradProps {
   eventDetails: EventGroupJoinUser;
-  setEventDetails: React.Dispatch<React.SetStateAction<EventGroupJoinUser>>
+  setEventDetails: React.Dispatch<React.SetStateAction<EventGroupJoinUser>>;
   mode: string;
-  setMode: React.Dispatch<React.SetStateAction<"Editing" | "Creating" | "Viewing">>;
+  setMode: React.Dispatch<
+    React.SetStateAction<"Editing" | "Creating" | "Viewing">
+  >;
   setEvents: React.Dispatch<React.SetStateAction<EventGroupJoinUser[]>>;
 }
 
@@ -36,9 +41,16 @@ const EventDetailsCard = ({
   setEventDetails,
   mode,
   setMode,
-  setEvents
+  setEvents,
 }: EventDetailsCradProps) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false);
+  const [warnMsg, setWarnMsg] = useState("")
+
+  useEffect(()=>{
+    if(warnMsg !== "")
+      setSnackBarOpen(true)
+  }, [warnMsg])
+
   const handleChange = (key: any, value: any) => {
     setEventDetails((prev) => ({ ...prev, [key]: value }));
   };
@@ -69,36 +81,46 @@ const EventDetailsCard = ({
   const { groupId } = useParams();
   const { user } = useUser();
   const handleSaveEvent = async () => {
-    if(mode === "Viewing") return;
-    if(mode === "Editing"){
-      const new_event : EventGroup = eventDetails as EventGroup
-      const d = await api.updateGroupEvent(new_event)
-      console.log(d)
-      setEvents((events) => events.map((event) => {
-        if(event.eventId === eventDetails.eventId){
-          return eventDetails as EventGroupJoinUser
-        }
-        return event
+    if (mode === "Viewing") return;
+    if (mode === "Editing") {
+      if (eventDetails.organizerId != user?.id){
+        setWarnMsg("You are not organizer")
+        return
       }
-      ))
+      const new_event: EventGroup = eventDetails as EventGroup;
+      const d = await api.updateGroupEvent(new_event);
+      console.log(d);
+      setEvents((events) =>
+        events.map((event) => {
+          if (event.eventId === eventDetails.eventId) {
+            return eventDetails as EventGroupJoinUser;
+          }
+          return event;
+        })
+      );
 
-      setMode("Viewing")
-      return
+      setMode("Viewing");
+      return;
     }
     console.log(eventDetails);
     if (!eventDetails || !groupId || !user) return;
     eventDetails.eventId = uuidv4();
 
-    if (!eventDetails.voteStart || !eventDetails.voteEnd || !eventDetails.voteDeadline) {
-      setSnackBarOpen(true);
+    if (
+      !eventDetails.name||
+      !eventDetails.voteStart ||
+      !eventDetails.voteEnd ||
+      !eventDetails.voteDeadline
+    ) {
+      setWarnMsg("Please fill in everything");
       return;
     }
     if (!(eventDetails.voteStart instanceof Date))
-      eventDetails.voteStart = new Date(eventDetails.voteStart)
+      eventDetails.voteStart = new Date(eventDetails.voteStart);
     if (!(eventDetails.voteEnd instanceof Date))
-      eventDetails.voteEnd = new Date(eventDetails.voteEnd)
+      eventDetails.voteEnd = new Date(eventDetails.voteEnd);
     if (!(eventDetails.voteDeadline instanceof Date))
-      eventDetails.voteDeadline = new Date(eventDetails.voteDeadline)
+      eventDetails.voteDeadline = new Date(eventDetails.voteDeadline);
     var data: EventGroupCreate = {
       eventId: uuidv4(),
       groupId: groupId,
@@ -111,11 +133,11 @@ const EventDetailsCard = ({
       havePossibility: eventDetails.havePossibility,
     };
     const d = await api.createGroupEvent(data);
-    const event = d.data
+    const event = d.data;
     // console.log(event)
     // setEvents(()=>)
     setEvents((events) => [...events, event]);
-    setMode("Viewing")
+    setMode("Viewing");
   };
 
   return (
@@ -131,8 +153,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-                ? "Edit Event"
-                : "Event Details"}
+              ? "Edit Event"
+              : "Event Details"}
           </Typography>
           {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>
@@ -159,18 +181,53 @@ const EventDetailsCard = ({
 
         {/* 活動时间 */}
         <Grid item xs={12}>
-          <Typography sx={{ fontWeight: "bold" }}>Time</Typography>
           {mode !== "Viewing" ? (
             <>
+              <Typography sx={{ fontWeight: "bold" }}>Possibility?</Typography>
               <FormControlLabel
                 label="Have Possibility"
                 control={
                   <Checkbox
                     checked={eventDetails?.havePossibility}
-                    onChange={(event) => { handleChange("havePossibility", event.target.checked) }}
+                    onChange={(event) => {
+                      handleChange("havePossibility", event.target.checked);
+                    }}
                   />
                 }
               />
+              {mode === "Editing" ? (
+                <>
+                <Typography sx={{ fontWeight: "bold" }}>Decide event time</Typography>
+                  <DateTimePicker
+                    minutesStep={30}
+                    sx={{ mt: 1, width: "100%" }}
+                    label="Event Start Time"
+                    value={
+                      eventDetails?.voteDeadline !== null
+                        ? moment(eventDetails?.voteDeadline)
+                        : null
+                    }
+                    onChange={(newValue) =>
+                      handleChange("eventStart", newValue)
+                    }
+                  />
+                  <DateTimePicker
+                    minutesStep={30}
+                    sx={{ mt: 1, width: "100%" }}
+                    label="Event End Time"
+                    value={
+                      eventDetails?.voteDeadline !== null
+                        ? moment(eventDetails?.voteDeadline)
+                        : null
+                    }
+                    onChange={(newValue) =>
+                      handleChange("eventEnd", newValue)
+                    }
+                  />
+                </>
+              ) : (
+                <></>
+              )}
             </>
           ) : eventDetails.eventStart && eventDetails.eventEnd ? (
             <>
@@ -285,7 +342,7 @@ const EventDetailsCard = ({
           setSnackBarOpen(false);
         }}
       >
-        <Alert severity="error">Please fill in everything</Alert>
+        <Alert severity="error">{warnMsg}</Alert>
       </Snackbar>
     </LocalizationProvider>
   );
