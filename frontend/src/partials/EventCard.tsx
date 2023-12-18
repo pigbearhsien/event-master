@@ -49,7 +49,7 @@ const EventCard = ({
   // api: getUserJoinEvent
   const fetchUserJoinEvent = async () => {
     try {
-      if(!user) return;
+      if (!user) return;
       const response = await api.getUserJoinEvent(event.eventId, user.id);
       console.log(response);
       setIsAccepted(response.data.isAccepted);
@@ -61,7 +61,7 @@ const EventCard = ({
     fetchUserJoinEvent();
   }, [event]);
 
-  
+
   return (
     <Grid item xs={6}>
       <Card
@@ -104,9 +104,9 @@ const EventCard = ({
               >
                 {
                   user?.id === event.organizerId &&
-                  <Trash size={15} onClick={()=>{
+                  <Trash size={15} onClick={() => {
                     handleDeleteEvent(event.eventId)
-                  }}/>
+                  }} />
                 }
               </IconButton>
             </Box>
@@ -121,7 +121,7 @@ const EventCard = ({
               <Typography
                 sx={{ fontSize: 15, fontWeight: "bold" }}
                 color="text.primary"
-                // sx={{ marginLeft: "auto" }}
+              // sx={{ marginLeft: "auto" }}
               >
                 {moment(event.eventStart).format("YYYY-MM-DD HH:mm")} -{" "}
                 {moment(event.eventEnd).format("YYYY-MM-DD HH:mm")}

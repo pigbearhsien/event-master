@@ -92,8 +92,8 @@ def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
             organizerid=group_event.organizerId,
             vote_start=group_event.voteStart,
             vote_end=group_event.voteEnd,
-            vote_deadline=group_event.voteDeadline,
-            have_possibility=group_event.havePossibility,
+            votedeadline=group_event.voteDeadline,
+            havepossibility=group_event.havePossibility,
         )
         db.add(db_group_event)
         db.commit()

@@ -46,8 +46,8 @@ const EventDetailsCard = ({
   const [snackBarOpen, setSnackBarOpen] = useState(false);
   const [warnMsg, setWarnMsg] = useState("")
 
-  useEffect(()=>{
-    if(warnMsg !== "")
+  useEffect(() => {
+    if (warnMsg !== "")
       setSnackBarOpen(true)
   }, [warnMsg])
 
@@ -83,7 +83,7 @@ const EventDetailsCard = ({
   const handleSaveEvent = async () => {
     if (mode === "Viewing") return;
     if (mode === "Editing") {
-      if (eventDetails.organizerId != user?.id){
+      if (eventDetails.organizerId != user?.id) {
         setWarnMsg("You are not organizer")
         return
       }
@@ -107,7 +107,7 @@ const EventDetailsCard = ({
     eventDetails.eventId = uuidv4();
 
     if (
-      !eventDetails.name||
+      !eventDetails.name ||
       !eventDetails.voteStart ||
       !eventDetails.voteEnd ||
       !eventDetails.voteDeadline
@@ -153,8 +153,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-              ? "Edit Event"
-              : "Event Details"}
+                ? "Edit Event"
+                : "Event Details"}
           </Typography>
           {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>
@@ -197,7 +197,7 @@ const EventDetailsCard = ({
               />
               {mode === "Editing" ? (
                 <>
-                <Typography sx={{ fontWeight: "bold" }}>Decide event time</Typography>
+                  <Typography sx={{ fontWeight: "bold" }}>Decide event time</Typography>
                   <DateTimePicker
                     minutesStep={30}
                     sx={{ mt: 1, width: "100%" }}
