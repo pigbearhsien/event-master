@@ -102,6 +102,7 @@ const DashboardCalendar = () => {
     try {
       if (!user) return;
       data_events = await api.getGroupEvents(user?.id);
+      console.log("fuck");
       console.log(data_events.data);
     } catch (e: any) {
       console.log(e);
@@ -214,7 +215,7 @@ const DashboardCalendar = () => {
             start: newData.eventStart,
             title: newData.name,
           };
-          const updateData = prev?.map((event : any) => {
+          const updateData = prev?.map((event: any) => {
             if (event.eventId === newData.eventId) {
               event = data;
             }
@@ -259,7 +260,7 @@ const DashboardCalendar = () => {
                 views={{ month: true, week: true, day: true }}
                 eventPropGetter={eventPropGetter}
               />
-            ): (
+            ) : (
               <div>Loading...</div>
             )}
           </Grid>
