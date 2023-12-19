@@ -2,9 +2,8 @@ import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DataGrid, GridColDef, gridClasses } from "@mui/x-data-grid";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as api from "../../api/api";
-import { Todo } from "@/typing/typing.d";
 import { useEvent } from "@/hook/useEvent";
 
 const columns: GridColDef[] = [
