@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisco
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
+from sqlalchemy.exc import IntegrityError
 from database import get_db
 from models import (
     User as UserModel,
@@ -758,24 +759,35 @@ def get_private_events_by_user_id(user_id: str, db: Session = Depends(get_db)):
     
 from sqlalchemy import and_
 
-@router.post("/createAvailableTime", response_model=List[AvailableTimeSchema])
-def create_available_time(available_time: List[AvailableTimeSchema], db: Session = Depends(get_db)):
+def deleteAvailableTimeRecord(user_id: str, event_id: str, db: Session = Depends(get_db)):
     try:
-        for time in available_time:
-            # Check if a record with the same userid, eventid, and available_start exists
-            existing_record = db.query(AvailableTimeModel).filter(
+        existing_records = db.query(AvailableTimeModel).filter(
                 and_(
-                    AvailableTimeModel.userid == time.userId,
-                    AvailableTimeModel.eventid == time.eventId,
-                    AvailableTimeModel.available_start == time.availableStart
+                    AvailableTimeModel.userid == user_id,
+                    AvailableTimeModel.eventid == event_id,
                 )
-            ).first()
+            ).delete()
+        logging.info(user_id)
+        logging.info(event_id)
+        db.commit()
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+        
+@router.post("/createAvailableTime/{user_id}/{event_id}", response_model=List[AvailableTimeSchema])
+def create_available_time(user_id: str, event_id: str, available_time: List[AvailableTimeSchema], db: Session = Depends(get_db)):
+    try:
+        existing_records = db.query(AvailableTimeModel).filter(
+                and_(
+                    AvailableTimeModel.userid == user_id,
+                    AvailableTimeModel.eventid == event_id,
+                )
+            ).delete()
+        logging.info(user_id)
+        logging.info(event_id)
 
-            # If it does, delete it
-            if existing_record:
-                db.delete(existing_record)
-                db.commit()
-
+        added_time = []
+        for time in available_time:
             # Create a new record
             db_available_time = AvailableTimeModel(
                 userid=time.userId,
@@ -783,8 +795,17 @@ def create_available_time(available_time: List[AvailableTimeSchema], db: Session
                 available_start=time.availableStart,
                 possibility_level=time.possibilityLevel,
             )
-            db.add(db_available_time)
-            db.commit()
+            
+            try:
+                db.add(db_available_time)
+                db.commit()
+            except IntegrityError as e:
+                db.rollback()
+                continue
+            except Exception as e:
+                db.rollback()
+                raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+                
         return available_time
     except Exception as e:
         print(e)
