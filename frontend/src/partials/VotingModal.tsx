@@ -151,7 +151,13 @@ const VotingModal = ({ open, setOpen, event }) => {
       var resultHourCpy: any[] = [];
       res.data.map((time) => {
         const mode = votingMode === "available" ? "Definitely" : "Maybe";
-        if (time.possibilityLevel !== mode) return;
+        if (time.possibilityLevel !== mode) {
+          if(mode === "Definitely" && showMabeAvailable) {
+
+          } else {
+            return;
+          }
+        }
         const originalDate = new Date(time.availableStart);
         resultHourCpy = [
           ...resultHourCpy,
@@ -163,7 +169,7 @@ const VotingModal = ({ open, setOpen, event }) => {
           },
         ];
       });
-      setAvailableHour(resultHourCpy.map((time) => time.start));
+      // setAvailableHour(resultHourCpy.map((time) => time.start));
       setResultHour(resultHourCpy);
     } catch (error) {
       console.log(error);
