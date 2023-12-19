@@ -85,7 +85,7 @@ const DashboardCalendar = () => {
     (event, start, end, isSelected) => ({
       ...(!event.isPrivate && {
         style: {
-          backgroundColor: "red",
+          backgroundColor: "green",
         },
       }),
     }),
@@ -102,8 +102,6 @@ const DashboardCalendar = () => {
     try {
       if (!user) return;
       data_events = await api.getGroupEvents(user?.id);
-      console.log("fuck");
-      console.log(data_events.data);
     } catch (e: any) {
       console.log(e);
     }
@@ -118,6 +116,9 @@ const DashboardCalendar = () => {
 
     let newEventData = [...eventData];
     await data_events?.data.map((event) => {
+      if (event.isAccepted == false) {
+        return;
+      }
       var eventWithIsPrivate: any = {
         description: event.description,
         end: new Date(event.eventEnd),
