@@ -531,7 +531,7 @@ def get_group_event(event_id: str, db: Session = Depends(get_db)):
                         db_group_event.status = 'Not_Start_Yet'
                     elif db_group_event.event_end and datetime.now() < db_group_event.event_end:
                         db_group_event.status = 'On_Going'
-                    else:
+                    elif db_group_event.event_end and datetime.now() > db_group_event.event_end:
                         db_group_event.status = 'Closure'
         
         db.commit()
@@ -665,7 +665,7 @@ def list_group_event_by_group_id(group_id: str, db: Session = Depends(get_db)):
                         db_group_event.status = 'Not_Start_Yet'
                     elif db_group_event.event_end and datetime.now() < db_group_event.event_end:
                         db_group_event.status = 'On_Going'
-                    else:
+                    elif db_group_event.event_end and datetime.now() > db_group_event.event_end:
                         db_group_event.status = 'Closure'
             logging.info(db_group_event.status)
 

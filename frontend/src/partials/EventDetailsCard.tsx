@@ -129,7 +129,7 @@ const EventDetailsCard = ({
       organizerId: user.id,
       voteStart: eventDetails.voteStart,
       voteEnd: eventDetails?.voteEnd,
-      voteDeadline: eventDetails?.voteEnd,
+      voteDeadline: eventDetails?.voteDeadline,
       havePossibility: eventDetails.havePossibility,
     };
     const d = await api.createGroupEvent(data);
@@ -153,8 +153,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-              ? "Edit Event"
-              : "Event Details"}
+                ? "Edit Event"
+                : "Event Details"}
           </Typography>
           {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>

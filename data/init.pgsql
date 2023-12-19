@@ -7,18 +7,16 @@ CREATE TABLE USER_table(
     PRIMARY KEY (UserID)
 );
 
-COPY USER_table(UserID, Name, Account, PASSWORD, Profile_pic_url)
-FROM
-    '/Users/xin/coding/DBMS_project/data/users.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY USER_table(UserID, Name, Account, PASSWORD, Profile_pic_url)
+-- FROM
+--     '/Users/xin/coding/DBMS_project/data/users.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE isAdmin(
     UserID varchar(50) NOT NULL,
     PRIMARY KEY (UserID),
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY isAdmin(UserID) FROM'/Users/xin/coding/DBMS_project/data/isAdmin.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY isAdmin(UserID) FROM'/Users/xin/coding/DBMS_project/data/isAdmin.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE PRIVATE_EVENT(
     EventID varchar(50) NOT NULL,
     UserID varchar(50) NOT NULL,
@@ -30,16 +28,14 @@ CREATE TABLE PRIVATE_EVENT(
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY PRIVATE_EVENT(EventID, UserID, Event_Start, Event_End, Name, Description) FROM'/Users/xin/coding/DBMS_project/data/private_event.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY PRIVATE_EVENT(EventID, UserID, Event_Start, Event_End, Name, Description) FROM'/Users/xin/coding/DBMS_project/data/private_event.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE GROUP_table(
     GroupID varchar(50) NOT NULL,
     name varchar(50) NOT NULL,
     PRIMARY KEY (GroupID)
 );
 
-COPY GROUP_table(GroupID, name) FROM'/Users/xin/coding/DBMS_project/data/group.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY GROUP_table(GroupID, name) FROM'/Users/xin/coding/DBMS_project/data/group.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE GROUP_HAS_USER(
     GroupID varchar(50) NOT NULL,
     UserID varchar(50) NOT NULL,
@@ -48,8 +44,7 @@ CREATE TABLE GROUP_HAS_USER(
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY GROUP_HAS_USER(GroupID, UserID) FROM'/Users/xin/coding/DBMS_project/data/group_has_user.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY GROUP_HAS_USER(GroupID, UserID) FROM'/Users/xin/coding/DBMS_project/data/group_has_user.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE GROUP_HAS_MANAGER(
     GroupID varchar(50) NOT NULL,
     UserID varchar(50) NOT NULL,
@@ -58,8 +53,7 @@ CREATE TABLE GROUP_HAS_MANAGER(
     FOREIGN KEY (UserID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY GROUP_HAS_MANAGER(GroupID, UserID) FROM'/Users/xin/coding/DBMS_project/data/group_has_manager.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY GROUP_HAS_MANAGER(GroupID, UserID) FROM'/Users/xin/coding/DBMS_project/data/group_has_manager.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE GROUP_EVENT(
     EventID varchar(50) NOT NULL,
     GroupID varchar(50) NOT NULL,
@@ -67,7 +61,7 @@ CREATE TABLE GROUP_EVENT(
     Description text NOT NULL,
     Event_Start timestamp,
     Event_End timestamp,
-    Status varchar(13) NOT NULL CHECK (Status IN ('In_Voting', 'End_Voting', 'Not_Start_Yet', 'On_Going', 'Closure')),
+    Status varchar(13),
     OrganizerID varchar(50) NOT NULL,
     Vote_Start timestamp NOT NULL,
     Vote_End timestamp NOT NULL,
@@ -78,8 +72,7 @@ CREATE TABLE GROUP_EVENT(
     FOREIGN KEY (OrganizerID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY GROUP_EVENT(EventID, GroupID, name, Description, Event_Start, Event_End, Status, OrganizerID, Vote_Start, Vote_End, VoteDeadline, HavePossibility) FROM'/Users/xin/coding/DBMS_project/data/group_event.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY GROUP_EVENT(EventID, GroupID, name, Description, Event_Start, Event_End, Status, OrganizerID, Vote_Start, Vote_End, VoteDeadline, HavePossibility) FROM'/Users/xin/coding/DBMS_project/data/group_event.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE USER_JOIN_EVENT(
     UserID varchar(50) NOT NULL,
     EventID varchar(50) NOT NULL,
@@ -89,8 +82,7 @@ CREATE TABLE USER_JOIN_EVENT(
     FOREIGN KEY (EventID) REFERENCES GROUP_EVENT(EventID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY USER_JOIN_EVENT(UserID, EventID, IsAccepted) FROM'/Users/xin/coding/DBMS_project/data/user_join_event.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY USER_JOIN_EVENT(UserID, EventID, IsAccepted) FROM'/Users/xin/coding/DBMS_project/data/user_join_event.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE AVAILABLE_TIME(
     UserID varchar(50) NOT NULL,
     EventID varchar(50) NOT NULL,
@@ -101,8 +93,7 @@ CREATE TABLE AVAILABLE_TIME(
     FOREIGN KEY (EventID) REFERENCES GROUP_EVENT(EventID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY AVAILABLE_TIME(UserID, EventID, Available_Start, Possibility_level) FROM'/Users/xin/coding/DBMS_project/data/available_time.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY AVAILABLE_TIME(UserID, EventID, Available_Start, Possibility_level) FROM'/Users/xin/coding/DBMS_project/data/available_time.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE TODO(
     TodoID varchar(50) NOT NULL,
     GroupID varchar(50) NOT NULL,
@@ -118,8 +109,7 @@ CREATE TABLE TODO(
     FOREIGN KEY (AssignerID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY TODO(TodoID, GroupID, AssigneeID, AssignerID, Name, Description, Completed, Deadline) FROM'/Users/xin/coding/DBMS_project/data/todo.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY TODO(TodoID, GroupID, AssigneeID, AssignerID, Name, Description, Completed, Deadline) FROM'/Users/xin/coding/DBMS_project/data/todo.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE CHAT(
     GroupID varchar(50) NOT NULL,
     SpeakerID varchar(50) NOT NULL,
@@ -130,5 +120,4 @@ CREATE TABLE CHAT(
     FOREIGN KEY (SpeakerID) REFERENCES USER_table(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-COPY CHAT(GroupID, SpeakerID, Timing, Content) FROM'/Users/xin/coding/DBMS_project/data/chat.csv' DELIMITER ',' CSV HEADER;
-
+-- COPY CHAT(GroupID, SpeakerID, Timing, Content) FROM'/Users/xin/coding/DBMS_project/data/chat.csv' DELIMITER ',' CSV HEADER;

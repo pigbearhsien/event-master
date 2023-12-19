@@ -270,7 +270,7 @@ def delete_group_by_id(group_id: str, db: Session = Depends(get_db)):
     
 # GroupEvent CRUD
 # Create GroupEvent
-# @router.post("/createGroupEvent", response_model=GroupEventSchema)
+# sponse_model=GroupEventSchema)
 # def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
 #     try:
 #         db_group_event = GroupEventModel(
@@ -974,10 +974,12 @@ def list_group_has_manager_by_user_id(user_id: str, db: Session = Depends(get_db
 @router.put("/updateGroupHasManagerByGroupIdAndUserId/{group_id}/{user_id}", response_model=GroupHasManagerSchema)
 def update_group_has_manager_by_group_id_and_user_id(group_id: str, user_id: str, group_has_manager: GroupHasManagerSchema, db: Session = Depends(get_db)):
     try:
+        db.begin()
         db_group_has_manager = (
             db.query(GroupHasManagerModel)
             .filter(GroupHasManagerModel.groupid == group_id)
             .filter(GroupHasManagerModel.userid == user_id)
+            .with_for_update()
             .first()
         )
         if not db_group_has_manager:
@@ -989,8 +991,10 @@ def update_group_has_manager_by_group_id_and_user_id(group_id: str, user_id: str
         return db_group_has_manager
     
     except HTTPException as e:
+        db.rollback();
         raise e
     except Exception as e:
+        db.rollback();
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal Server Error:{e}")
     
@@ -1206,6 +1210,7 @@ def create_private_event(private_event: PrivateEventSchema, db: Session = Depend
             event_start=private_event.eventStart,
             event_end=private_event.eventEnd
         )
+
         db.add(db_private_event)
         db.commit()
         db.refresh(db_private_event)
