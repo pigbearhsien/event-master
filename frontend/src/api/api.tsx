@@ -383,7 +383,7 @@ export const updateGroupEvent = async (
   event: EventGroup
 ): Promise<AxiosResponse<EventGroup>> => {
   try {
-    return await request.put("/updateGroupEvent", event);
+    return await request.post("/setGroupEventTime", event);
   } catch (error) {
     throw error as Error;
   }
