@@ -1,6 +1,7 @@
 import { useUser } from "@clerk/clerk-react";
 import { useState, useEffect, useContext, createContext } from "react";
 import * as api from "../api/api";
+import { Group } from "@/typing/typing.d";
 // import {v4 as uuidv4 } from "uuid";
 
 const LOGGED_IN_ID_KEY = "loggedInId";
@@ -11,13 +12,17 @@ type EventContextProps = {
   setLoggedInId: React.Dispatch<React.SetStateAction<string>>;
   curGroupId: string;
   setCurGroupId: React.Dispatch<React.SetStateAction<string>>;
+  groupList: Group[];
+  setGroupList: React.Dispatch<React.SetStateAction<Group[]>>;
 };
 
 const EventContext = createContext<EventContextProps>({
   loggedInId: "",
-  setLoggedInId: () => {},
+  setLoggedInId: () => { },
   curGroupId: "",
-  setCurGroupId: () => {},
+  setCurGroupId: () => { },
+  groupList: [],
+  setGroupList: () => { },
 });
 
 interface IProps {
@@ -27,6 +32,7 @@ interface IProps {
 const EventProvider = ({ children }: IProps) => {
   const [loggedInId, setLoggedInId] = useState<string>(savedLoggedInId || "");
   const [curGroupId, setCurGroupId] = useState<string>("");
+  const [groupList, setGroupList] = useState<Group[]>([]);
 
   const user = useUser();
 
@@ -69,7 +75,7 @@ const EventProvider = ({ children }: IProps) => {
 
   return (
     <EventContext.Provider
-      value={{ loggedInId, setLoggedInId, curGroupId, setCurGroupId }}
+      value={{ loggedInId, setLoggedInId, curGroupId, setCurGroupId, groupList, setGroupList }}
     >
       {children}
     </EventContext.Provider>

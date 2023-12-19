@@ -24,12 +24,15 @@ import InputLabel from "@mui/material/InputLabel";
 import DialogTitle from "@mui/material/DialogTitle";
 import { v4 as uuidv4 } from "uuid";
 import { Group } from "@/typing/typing.d";
+import { useEvent } from "@/hook/useEvent";
 // type Props = {};
 
 export default function Navigator(props: DrawerProps) {
   const [open, setOpen] = useState(false);
   const { ...other } = props;
   const { user, isSignedIn } = useUser();
+
+  const { setGroupList } = useEvent();
 
   const [name, setName] = useState("");
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function Navigator(props: DrawerProps) {
       groupsData = await api.getAllBelongGroups(user?.id);
       groupsData.data.map((group) => {
         setGroups((groups) => [...groups, group]);
+        setGroupList((groupList) => [...groupList, group]);
       });
     } catch (error) {
       console.log(error);

@@ -127,7 +127,7 @@ const GroupTodo = () => {
       setRows([]);
       groupTodos.data.map((todo: any) => {
         if (todo.groupId === groupId) {
-          var todoIsNew = {
+          const todoIsNew = {
             id: todo.todoId,
             assignee: todo.assigneeName,
             assigner: todo.assignerName,
@@ -218,8 +218,9 @@ const GroupTodo = () => {
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const newRow = rows.find((row)=> row.id === id)
-    if (!newRow.deadline || !newRow.todo || !newRow.description){
+    const newRow = rows.find((row) => row.id === id)
+    console.log(newRow)
+    if (!newRow.deadline || !newRow.todo || !newRow.description) {
       setWarnMsg("Please fill in everything")
       return
     }
@@ -358,7 +359,7 @@ const GroupTodo = () => {
           <GridActionsCellItem
             icon={<Trash />}
             label="Delete"
-            onClick={()=>handleDeleteClick(id)}
+            onClick={() => handleDeleteClick(id)}
             color="inherit"
           />,
         ];
