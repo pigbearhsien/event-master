@@ -403,6 +403,18 @@ export const getUserJoinEvent = async (
   }
 };
 
+export const updateUserJoinEvent = async (
+  user_id: string,
+  event_id: string,
+  event: UserJoinEvent
+): Promise<AxiosResponse<UserJoinEvent>> => {
+  try {
+    return await request.put(`/updateUserJoinEventByUserIdAndEventId/${user_id}/${event_id}`, event);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
 export const deleteGroupEvent = async (
   eventId: string
 ): Promise<AxiosResponse> => {

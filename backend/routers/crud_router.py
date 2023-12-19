@@ -691,6 +691,7 @@ def list_user_join_event_by_event_id(event_id: str, db: Session = Depends(get_db
 @router.put("/updateUserJoinEventByUserIdAndEventId/{user_id}/{event_id}", response_model=UserJoinEventSchema)
 def update_user_join_event_by_user_id_and_event_id(user_id: str, event_id: str, user_join_event: UserJoinEventSchema, db: Session = Depends(get_db)):
     try:
+        print(user_join_event)
         db_user_join_event = (
             db.query(UserJoinEventModel)
             .filter(UserJoinEventModel.userid == user_id)
@@ -702,7 +703,12 @@ def update_user_join_event_by_user_id_and_event_id(user_id: str, event_id: str, 
         db_user_join_event.isaccepted = user_join_event.isAccepted
         db.commit()
         db.refresh(db_user_join_event)
-        return db_user_join_event
+        response = UserJoinEventSchema(
+        userId=db_user_join_event.userid,
+        eventId=db_user_join_event.eventid,
+        isAccepted=db_user_join_event.isaccepted
+    )
+        return response
     except HTTPException as e:
         raise e
     except Exception as e:
