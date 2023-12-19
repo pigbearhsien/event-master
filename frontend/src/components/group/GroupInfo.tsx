@@ -146,15 +146,15 @@ const GroupInfo = () => {
     }
   };
 
-  const addManager = async (account: string)  => {
-    try{
-      if (!groupId) return
-      const res = await api.addManager(groupId, account)
-      console.log("addManager", res.data)
-    } catch(error) {
-      console.log(error)
+  const addManager = async (account: string) => {
+    try {
+      if (!groupId) return;
+      const res = await api.addManager(groupId, account);
+      console.log("addManager", res.data);
+    } catch (error) {
+      console.log(error);
     }
-  }
+  };
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
@@ -194,9 +194,20 @@ const GroupInfo = () => {
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     if (newRow.id === "new") {
       var account = newRow.email;
-      addUser(account)
-      if (newRow.role === "Manager")
-        addManager(newRow.email)
+      addUser(account);
+      if (newRow.role === "Manager") addManager(newRow.email);
+    } else {
+      // console.log("update role", manager, newRow)
+      // if (manager.find((user)=>user.userId === newRow.id)){
+      //   if (newRow.role === "Member"){
+
+      //   }
+      // }
+      // else{
+      if (newRow.role === "Manager") {
+        addManager(newRow.email);
+      }
+      // }
     }
     return updatedRow;
   };
