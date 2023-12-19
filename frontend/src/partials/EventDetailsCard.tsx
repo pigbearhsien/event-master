@@ -44,12 +44,12 @@ const EventDetailsCard = ({
   setEvents,
 }: EventDetailsCradProps) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false);
-  const [warnMsg, setWarnMsg] = useState("")
+  const [warnMsg, setWarnMsg] = useState("");
 
-  useEffect(() => {
-    if (warnMsg !== "")
-      setSnackBarOpen(true)
-  }, [warnMsg])
+  const triggerWarningMsg = (msg: string) => {
+    setWarnMsg(msg);
+    setSnackBarOpen(true);
+  };
 
   const handleChange = (key: any, value: any) => {
     setEventDetails((prev) => ({ ...prev, [key]: value }));
@@ -84,8 +84,8 @@ const EventDetailsCard = ({
     if (mode === "Viewing") return;
     if (mode === "Editing") {
       if (eventDetails.organizerId != user?.id) {
-        setWarnMsg("You are not organizer")
-        return
+        triggerWarningMsg("You are not organizer");
+        return;
       }
       const new_event: EventGroup = eventDetails as EventGroup;
       const d = await api.updateGroupEvent(new_event);
@@ -112,7 +112,7 @@ const EventDetailsCard = ({
       !eventDetails.voteEnd ||
       !eventDetails.voteDeadline
     ) {
-      setWarnMsg("Please fill in everything");
+      triggerWarningMsg("Please fill in everything");
       return;
     }
     if (!(eventDetails.voteStart instanceof Date))
@@ -153,8 +153,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-                ? "Edit Event"
-                : "Event Details"}
+              ? "Edit Event"
+              : "Event Details"}
           </Typography>
           {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>
@@ -197,14 +197,16 @@ const EventDetailsCard = ({
               />
               {mode === "Editing" ? (
                 <>
-                  <Typography sx={{ fontWeight: "bold" }}>Decide event time</Typography>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    Decide event time
+                  </Typography>
                   <DateTimePicker
                     minutesStep={30}
                     sx={{ mt: 1, width: "100%" }}
                     label="Event Start Time"
                     value={
-                      eventDetails?.voteDeadline !== null
-                        ? moment(eventDetails?.voteDeadline)
+                      eventDetails?.eventStart !== null
+                        ? moment(eventDetails?.eventStart)
                         : null
                     }
                     onChange={(newValue) =>
@@ -216,13 +218,11 @@ const EventDetailsCard = ({
                     sx={{ mt: 1, width: "100%" }}
                     label="Event End Time"
                     value={
-                      eventDetails?.voteDeadline !== null
-                        ? moment(eventDetails?.voteDeadline)
+                      eventDetails?.eventEnd !== null
+                        ? moment(eventDetails?.eventEnd)
                         : null
                     }
-                    onChange={(newValue) =>
-                      handleChange("eventEnd", newValue)
-                    }
+                    onChange={(newValue) => handleChange("eventEnd", newValue)}
                   />
                 </>
               ) : (

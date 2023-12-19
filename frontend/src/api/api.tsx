@@ -79,7 +79,7 @@ export const getUserPeriodPossibility = async (
 > => {
   try {
     return await request.get(
-      `/userPeriodPossibility/${groupId}/${userId}/${period}`
+      `/userPeriodPossibility/${groupId}/${userId}/${period.toISOString()}`
     );
   } catch (error) {
     throw error as Error;
@@ -110,7 +110,10 @@ export const createPrivateEvent = async (
   event: EventPrivate
 ): Promise<AxiosResponse<EventPrivate>> => {
   try {
-    return await request.post("/createPrivateEvent", event);
+    let payload: any = event
+    payload.eventStart = event.eventStart.toISOString()
+    payload.eventEnd = event.eventEnd.toISOString()
+    return await request.post("/createPrivateEvent", payload);
   } catch (error) {
     throw error as Error;
   }
@@ -131,8 +134,11 @@ export const updatePrivateEvent = async (
   event: EventPrivate
 ): Promise<AxiosResponse<EventPrivate>> => {
   try {
-    return await request.put(`/updatePrivateEventById/${eventId}`, event);
-    return await request.put(`/updatePrivateEventById/${eventId}`, event);
+    let payload: any = event
+    payload.eventStart = event.eventStart.toISOString()
+    payload.eventEnd = event.eventEnd.toISOString()
+    return await request.put(`/updatePrivateEventById/${eventId}`, payload);
+    // return await request.put(`/updatePrivateEventById/${eventId}`, event);
   } catch (error) {
     throw error as Error;
   }
@@ -308,8 +314,8 @@ export const setEventTime = async (
   try {
     return await request.post("/setEventTime", {
       eventId,
-      eventStart,
-      eventEnd,
+      eventStart: eventStart.toISOString(),
+      eventEnd: eventEnd.toISOString(),
     });
   } catch (error) {
     throw error as Error;

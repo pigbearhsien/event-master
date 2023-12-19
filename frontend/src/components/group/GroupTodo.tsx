@@ -127,7 +127,7 @@ const GroupTodo = () => {
       setRows([]);
       groupTodos.data.map((todo: any) => {
         if (todo.groupId === groupId) {
-          var todoIsNew = {
+          let todoIsNew = {
             id: todo.todoId,
             assignee: todo.assigneeName,
             assigner: todo.assignerName,
@@ -176,7 +176,7 @@ const GroupTodo = () => {
   }, [groupId]);
 
   useEffect(() => {
-    console.log(rows);
+    console.log("rows changed",rows);
   }, [rows]);
 
   const assignTodo = async (
@@ -218,11 +218,12 @@ const GroupTodo = () => {
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const newRow = rows.find((row)=> row.id === id)
-    if (!newRow.deadline || !newRow.todo || !newRow.description){
-      setWarnMsg("Please fill in everything")
-      return
-    }
+    // console.log("handle save", rows)
+    // const newRow = rows.find((row)=> row.id === id)
+    // if (!newRow.deadline || !newRow.todo || !newRow.description){
+    //   setWarnMsg("Please fill in everything")
+    //   return
+    // }
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     // rows.map((row)=>{
     //   if(row.id === id)
@@ -255,8 +256,14 @@ const GroupTodo = () => {
   };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    console.log(newRow);
-    const updatedRow = { ...newRow, isNew: false, assigner: user?.fullName };
+    console.log( "processRowUpdate", newRow);
+    const updatedRow: GridRowModel = { ...newRow, isNew: false, assigner: user?.fullName };
+    console.log(updatedRow)
+
+    if (!updatedRow.deadline || !updatedRow.todo || !updatedRow.description){
+      setWarnMsg("Please fill in everything")
+      return
+    }
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
 
     var id: string | undefined;
@@ -270,6 +277,7 @@ const GroupTodo = () => {
       console.log(user, id);
       return updatedRow;
     }
+    newRow.id = uuidv4()
     assignTodo(id, newRow.todo, newRow.description, newRow.deadline);
     return updatedRow;
   };
