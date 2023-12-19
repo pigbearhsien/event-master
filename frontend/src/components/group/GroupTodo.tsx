@@ -131,7 +131,7 @@ const GroupTodo = () => {
             id: todo.todoId,
             assignee: todo.assigneeName,
             assigner: todo.assignerName,
-            completed: false,
+            completed: todo.completed,
             deadline: new Date(todo.deadline),
             description: todo.description,
             todo: todo.name,
@@ -176,7 +176,7 @@ const GroupTodo = () => {
   }, [groupId]);
 
   useEffect(() => {
-    console.log("rows changed",rows);
+    console.log("rows changed", rows);
   }, [rows]);
 
   const assignTodo = async (
@@ -237,9 +237,9 @@ const GroupTodo = () => {
     if (editedRow.assigner !== user?.fullName) {
       setWarnMsg("You are not assigner");
     }
-    console.log("deleted")
+    console.log("deleted");
     const res = await api.deleteTodo(editedRow.id);
-    console.log(res)
+    console.log(res);
     setRows(rows.filter((row) => row.id !== id));
   };
 
@@ -256,13 +256,17 @@ const GroupTodo = () => {
   };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    console.log( "processRowUpdate", newRow);
-    const updatedRow: GridRowModel = { ...newRow, isNew: false, assigner: user?.fullName };
-    console.log(updatedRow)
+    console.log("processRowUpdate", newRow);
+    const updatedRow: GridRowModel = {
+      ...newRow,
+      isNew: false,
+      assigner: user?.fullName,
+    };
+    console.log(updatedRow);
 
-    if (!updatedRow.deadline || !updatedRow.todo || !updatedRow.description){
-      setWarnMsg("Please fill in everything")
-      return
+    if (!updatedRow.deadline || !updatedRow.todo || !updatedRow.description) {
+      setWarnMsg("Please fill in everything");
+      return;
     }
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
 
@@ -274,10 +278,34 @@ const GroupTodo = () => {
       }
     });
     if (!user || !id || newRow.id !== "new") {
-      console.log(user, id);
+      var assigneeId: string | undefined;
+      var assignerId: string | undefined;
+      members.map((member) => {
+        if (member.name === newRow.assigner) {
+          console.log(member.name, member.userId);
+          assignerId = member.userId;
+        }
+        if (member.name === newRow.assignee) {
+          assigneeId = member.userId;
+        }
+      });
+      if (!groupId || !assigneeId || !assignerId) return;
+      const reqBdy: Todo = {
+        todoId: newRow.id,
+        groupId: groupId,
+        assigneeId,
+        assignerId,
+        name: newRow.todo,
+        description: newRow.description,
+        completed: newRow.completed,
+        deadline: newRow.deadline.toISOString(),
+      };
+      console.log(reqBdy)
+      api.updateTodo(reqBdy);
+      console.log(updatedRow);
       return updatedRow;
     }
-    newRow.id = uuidv4()
+    newRow.id = uuidv4();
     assignTodo(id, newRow.todo, newRow.description, newRow.deadline);
     return updatedRow;
   };

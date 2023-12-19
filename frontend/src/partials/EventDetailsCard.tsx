@@ -90,6 +90,10 @@ const EventDetailsCard = ({
         return;
       }
       const new_event: EventGroup = eventDetails as EventGroup;
+      if (new_event.voteStart >= new_event.voteEnd) {
+        triggerWarningMsg("Vote start must be less than voteEnd");
+        return;
+      }
       const d = await api.updateGroupEvent(new_event);
       console.log(d);
       fetchThisGroupEvent();
@@ -124,7 +128,7 @@ const EventDetailsCard = ({
       eventDetails.voteEnd = new Date(eventDetails.voteEnd);
     if (!(eventDetails.voteDeadline instanceof Date))
       eventDetails.voteDeadline = new Date(eventDetails.voteDeadline);
-    var data: EventGroupCreate = {
+    const data: EventGroupCreate = {
       eventId: uuidv4(),
       groupId: groupId,
       name: eventDetails.name ?? "",
@@ -135,6 +139,10 @@ const EventDetailsCard = ({
       voteDeadline: eventDetails?.voteDeadline,
       havePossibility: eventDetails.havePossibility,
     };
+    if (data.voteStart >= data.voteEnd) {
+      triggerWarningMsg("Vote start time must be less than voteEnd");
+      return;
+    }
     const d = await api.createGroupEvent(data);
     fetchThisGroupEvent()
     const event = d.data;
@@ -157,8 +165,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-              ? "Edit Event"
-              : "Event Details"}
+                ? "Edit Event"
+                : "Event Details"}
           </Typography>
           {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>

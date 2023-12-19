@@ -110,9 +110,9 @@ export const createPrivateEvent = async (
   event: EventPrivate
 ): Promise<AxiosResponse<EventPrivate>> => {
   try {
-    let payload: any = event
-    payload.eventStart = event.eventStart.toISOString()
-    payload.eventEnd = event.eventEnd.toISOString()
+    let payload: any = event;
+    payload.eventStart = event.eventStart.toISOString();
+    payload.eventEnd = event.eventEnd.toISOString();
     return await request.post("/createPrivateEvent", payload);
   } catch (error) {
     throw error as Error;
@@ -134,9 +134,9 @@ export const updatePrivateEvent = async (
   event: EventPrivate
 ): Promise<AxiosResponse<EventPrivate>> => {
   try {
-    let payload: any = event
-    payload.eventStart = event.eventStart.toISOString()
-    payload.eventEnd = event.eventEnd.toISOString()
+    let payload: any = event;
+    payload.eventStart = event.eventStart.toISOString();
+    payload.eventEnd = event.eventEnd.toISOString();
     return await request.put(`/updatePrivateEventById/${eventId}`, payload);
     // return await request.put(`/updatePrivateEventById/${eventId}`, event);
   } catch (error) {
@@ -403,6 +403,18 @@ export const getUserJoinEvent = async (
   }
 };
 
+export const updateUserJoinEvent = async (
+  user_id: string,
+  event_id: string,
+  event: UserJoinEvent
+): Promise<AxiosResponse<UserJoinEvent>> => {
+  try {
+    return await request.put(`/updateUserJoinEventByUserIdAndEventId/${user_id}/${event_id}`, event);
+  } catch (error) {
+    throw error as Error;
+  }
+}
+
 export const deleteGroupEvent = async (
   eventId: string
 ): Promise<AxiosResponse> => {
@@ -427,6 +439,14 @@ export const createAvailableTime = async (
       ];
     });
     return await request.post(`/createAvailableTime/${user_id}/${event_id}`, timeArr);
+  } catch (error) {
+    throw error as Error;
+  }
+};
+
+export const updateTodo = async (todo: Todo) => {
+  try {
+    return await request.put(`/updateTodoByTodoId/${todo.todoId}`, todo);
   } catch (error) {
     throw error as Error;
   }

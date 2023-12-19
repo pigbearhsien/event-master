@@ -122,7 +122,7 @@ const VotingModal = ({ open, setOpen, event }) => {
         },
       ];
     });
-    
+
     maybeAvailableHour.map((time: Date) => {
       if (!user) return;
       arr = [
@@ -136,8 +136,8 @@ const VotingModal = ({ open, setOpen, event }) => {
       ];
     });
     console.log(arr);
-    
-    
+
+
     const res = await api.createAvailableTime(arr, user?.id as string, event.eventId);
     fetchResultHour()
     console.log(res);
@@ -320,7 +320,7 @@ const VotingModal = ({ open, setOpen, event }) => {
               className="overflow-y-scroll"
               sx={{ height: "18vh", mb: 2 }}
             >
-              <Grid item xs={4}>
+              {/* <Grid item xs={4}>
                 <Typography
                   sx={{ fontWeight: "bold", textDecorationLine: "underline" }}
                 >
@@ -332,8 +332,8 @@ const VotingModal = ({ open, setOpen, event }) => {
                 <Typography>Bob</Typography>
                 <Typography>John</Typography>
                 <Typography>Jack</Typography>
-              </Grid>
-              <Grid item xs={4}>
+              </Grid> */}
+              {/* <Grid item xs={4}>
                 <Typography
                   sx={{ fontWeight: "bold", textDecorationLine: "underline" }}
                 >
@@ -342,7 +342,7 @@ const VotingModal = ({ open, setOpen, event }) => {
                 <Typography>John</Typography>
                 <Typography>Jack</Typography>
                 <Typography>Tom</Typography>
-              </Grid>
+              </Grid> */}
               {showMabeAvailable && (
                 <Grid item xs={4}>
                   <Typography

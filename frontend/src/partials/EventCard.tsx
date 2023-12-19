@@ -12,7 +12,7 @@ import { Pencil, Trash } from "lucide-react";
 import { EventGroupJoinUser } from "@/typing/typing.d";
 import * as api from "@/api/api";
 import { useUser } from "@clerk/clerk-react";
-
+import { UserJoinEvent } from "@/typing/typing.d"
 type StatusList = {
   [key: string]: {
     status: string;
@@ -51,12 +51,46 @@ const EventCard = ({
     try {
       if (!user) return;
       const response = await api.getUserJoinEvent(event.eventId, user.id);
-      console.log(response);
+      // console.log(response);
       setIsAccepted(response.data.isAccepted);
     } catch (error) {
       console.log(error);
     }
   }
+  const handleJoinEvent = async () => {
+    try {
+      if (!user) return;
+      const updateEvent: UserJoinEvent = {
+        userId: user.id,
+        eventId: event.eventId,
+        isAccepted: true,
+      };
+      console.log(updateEvent);
+      const response = await api.updateUserJoinEvent(user.id, event.eventId, updateEvent);
+      console.log(response);
+      setIsAccepted(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handlePassEvent = async () => {
+    try {
+      if (!user) return;
+      const updateEvent: UserJoinEvent = {
+        userId: user.id,
+        eventId: event.eventId,
+        isAccepted: false,
+      };
+      console.log(updateEvent);
+      const response = await api.updateUserJoinEvent(user.id, event.eventId, updateEvent);
+      console.log(response);
+      setIsAccepted(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   React.useEffect(() => {
     fetchUserJoinEvent();
   }, [event]);
@@ -178,6 +212,7 @@ const EventCard = ({
                     sx={{ marginRight: 1 }}
                     onClick={(e) => {
                       e.stopPropagation();
+                      handleJoinEvent();
                     }}
                   >
                     Join
@@ -186,7 +221,8 @@ const EventCard = ({
                     size="small"
                     variant="contained"
                     onClick={(e) => {
-                      e.stopPropagation();
+                      // e.stopPropagation();
+                      handlePassEvent();
                     }}
                   >
                     Pass
