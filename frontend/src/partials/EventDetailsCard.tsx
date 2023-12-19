@@ -34,6 +34,7 @@ interface EventDetailsCradProps {
     React.SetStateAction<"Editing" | "Creating" | "Viewing">
   >;
   setEvents: React.Dispatch<React.SetStateAction<EventGroupJoinUser[]>>;
+  fetchThisGroupEvent: () => {};
 }
 
 const EventDetailsCard = ({
@@ -42,6 +43,7 @@ const EventDetailsCard = ({
   mode,
   setMode,
   setEvents,
+  fetchThisGroupEvent,
 }: EventDetailsCradProps) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false);
   const [warnMsg, setWarnMsg] = useState("");
@@ -90,6 +92,7 @@ const EventDetailsCard = ({
       const new_event: EventGroup = eventDetails as EventGroup;
       const d = await api.updateGroupEvent(new_event);
       console.log(d);
+      fetchThisGroupEvent();
       setEvents((events) =>
         events.map((event) => {
           if (event.eventId === eventDetails.eventId) {
@@ -133,6 +136,7 @@ const EventDetailsCard = ({
       havePossibility: eventDetails.havePossibility,
     };
     const d = await api.createGroupEvent(data);
+    fetchThisGroupEvent()
     const event = d.data;
     // console.log(event)
     // setEvents(()=>)
@@ -153,8 +157,8 @@ const EventDetailsCard = ({
             {mode === "Creating"
               ? "New Event"
               : mode === "Editing"
-                ? "Edit Event"
-                : "Event Details"}
+              ? "Edit Event"
+              : "Event Details"}
           </Typography>
           {mode !== "Creating" && (
             <IconButton onClick={handleCloseEvent}>
