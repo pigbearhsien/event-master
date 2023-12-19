@@ -515,7 +515,11 @@ def get_group(group_id: str, db: Session = Depends(get_db)):
 @router.get("/getGroupEvent/{event_id}", response_model=GroupEventSchema)
 def get_group_event(event_id: str, db: Session = Depends(get_db)):
     try:
-        db_group_event = db.query(GroupEventModel).filter(GroupEventModel.eventid == event_id).first()
+        db.begin()
+        db_group_event = (db.query(GroupEventModel)
+                            .filter(GroupEventModel.eventid == event_id)
+                            .with_for_update()
+                            .first())
         if not db_group_event:
             raise HTTPException(status_code=404, detail="Group Event not found")
         
