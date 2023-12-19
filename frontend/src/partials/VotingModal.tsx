@@ -218,7 +218,7 @@ const VotingModal = ({ open, setOpen, event }) => {
   useEffect(() => {
     console.log("in voting modal", event);
     fetchResultHour();
-  }, [event, votingMode]);
+  }, [event, votingMode, showMabeAvailable]);
   return (
     <Dialog open={open} fullScreen>
       <DialogTitle className="flex justify-between">
