@@ -22,8 +22,8 @@ COPY isAdmin(UserID) FROM'/Users/xin/coding/DBMS_project/data/isAdmin.csv' DELIM
 CREATE TABLE PRIVATE_EVENT(
     EventID varchar(50) NOT NULL,
     UserID varchar(50) NOT NULL,
-    Event_Start timestamp NOT NULL,
-    Event_End timestamp NOT NULL,
+    Event_Start timestamp,
+    Event_End timestamp,
     Name varchar(50) NOT NULL,
     Description text NOT NULL,
     PRIMARY KEY (EventID),

@@ -21,6 +21,7 @@ import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { v4 as uuidv4 } from "uuid";
 import { Todo, User } from "@/typing/typing.d";
+import { Alert, Snackbar } from "@mui/material";
 
 // const members = ["John", "Anson", "Xin"];
 
@@ -107,6 +108,13 @@ const GroupTodo = () => {
   const { groupId } = useParams();
   const { user } = useUser();
 
+  const [warnMsg, setWarnMsg] = useState("");
+  const [snackBarOpen, setSnackBarOpen] = useState(false);
+
+  useEffect(() => {
+    if (warnMsg !== "") setSnackBarOpen(true);
+  }, [warnMsg]);
+
   // groupTodos
   const fetchGroupTodos = async () => {
     setFetchedTodos(true);
@@ -116,11 +124,11 @@ const GroupTodo = () => {
       if (user) userId = user.id;
       groupTodos = await api.getUserTodos(userId);
       console.log("todoData", groupTodos.data);
-      setRows([])
+      setRows([]);
       groupTodos.data.map((todo: any) => {
         if (todo.groupId === groupId) {
-          var todoIsNew = {
-            id : todo.todoId,
+          let todoIsNew = {
+            id: todo.todoId,
             assignee: todo.assigneeName,
             assigner: todo.assignerName,
             completed: false,
@@ -168,7 +176,7 @@ const GroupTodo = () => {
   }, [groupId]);
 
   useEffect(() => {
-    console.log(rows);
+    console.log("rows changed",rows);
   }, [rows]);
 
   const assignTodo = async (
@@ -210,6 +218,12 @@ const GroupTodo = () => {
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
+    // console.log("handle save", rows)
+    // const newRow = rows.find((row)=> row.id === id)
+    // if (!newRow.deadline || !newRow.todo || !newRow.description){
+    //   setWarnMsg("Please fill in everything")
+    //   return
+    // }
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     // rows.map((row)=>{
     //   if(row.id === id)
@@ -217,8 +231,16 @@ const GroupTodo = () => {
     // })
   };
 
-  const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.todoId !== id));
+  const handleDeleteClick = async (id: GridRowId) => {
+    const editedRow = rows.find((row) => row.id === id);
+    console.log(editedRow, id);
+    if (editedRow.assigner !== user?.fullName) {
+      setWarnMsg("You are not assigner");
+    }
+    console.log("deleted")
+    const res = await api.deleteTodo(editedRow.id);
+    console.log(res)
+    setRows(rows.filter((row) => row.id !== id));
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -234,14 +256,20 @@ const GroupTodo = () => {
   };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    console.log(newRow);
-    const updatedRow = { ...newRow, isNew: false, assigner: user?.id };
+    console.log( "processRowUpdate", newRow);
+    const updatedRow: GridRowModel = { ...newRow, isNew: false, assigner: user?.fullName };
+    console.log(updatedRow)
+
+    if (!updatedRow.deadline || !updatedRow.todo || !updatedRow.description){
+      setWarnMsg("Please fill in everything")
+      return
+    }
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
 
     var id: string | undefined;
     members.map((member) => {
-      if (member.userName == newRow.assignee) {
-        console.log(member.userName, member.userId);
+      if (member.name == newRow.assignee) {
+        console.log(member.name, member.userId);
         id = member.userId;
       }
     });
@@ -249,6 +277,7 @@ const GroupTodo = () => {
       console.log(user, id);
       return updatedRow;
     }
+    newRow.id = uuidv4()
     assignTodo(id, newRow.todo, newRow.description, newRow.deadline);
     return updatedRow;
   };
@@ -288,7 +317,7 @@ const GroupTodo = () => {
       width: 130,
       editable: true,
       type: "singleSelect",
-      valueOptions: members.map((member) => member.userName),
+      valueOptions: members.map((member) => member.name),
     },
     {
       field: "deadline",
@@ -337,7 +366,7 @@ const GroupTodo = () => {
           <GridActionsCellItem
             icon={<Trash />}
             label="Delete"
-            onClick={handleDeleteClick(id)}
+            onClick={() => handleDeleteClick(id)}
             color="inherit"
           />,
         ];
@@ -346,45 +375,56 @@ const GroupTodo = () => {
   ];
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        "& .actions": {
-          color: "text.secondary",
-        },
-        "& .textPrimary": {
-          color: "text.primary",
-        },
-      }}
-    >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowHeight={() => "auto"}
+    <>
+      <Box
         sx={{
-          [`& .${gridClasses.cell}`]: {
-            py: 1,
+          width: "100%",
+          "& .actions": {
+            color: "text.secondary",
+          },
+          "& .textPrimary": {
+            color: "text.primary",
           },
         }}
-        disableRowSelectionOnClick
-        initialState={{
-          sorting: {
-            sortModel: [{ field: "completed", sort: "asc" }],
-          },
+      >
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowHeight={() => "auto"}
+          sx={{
+            [`& .${gridClasses.cell}`]: {
+              py: 1,
+            },
+          }}
+          disableRowSelectionOnClick
+          initialState={{
+            sorting: {
+              sortModel: [{ field: "completed", sort: "asc" }],
+            },
+          }}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          slots={{
+            toolbar: EditToolbar,
+          }}
+          slotProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+        />
+      </Box>
+      <Snackbar
+        open={snackBarOpen}
+        autoHideDuration={6000}
+        onClose={() => {
+          setSnackBarOpen(false);
         }}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        slots={{
-          toolbar: EditToolbar,
-        }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-      />
-    </Box>
+      >
+        <Alert severity="error">{warnMsg}</Alert>
+      </Snackbar>
+    </>
   );
 };
 
