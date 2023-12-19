@@ -12,7 +12,7 @@ import { Pencil, Trash } from "lucide-react";
 import { EventGroupJoinUser } from "@/typing/typing.d";
 import * as api from "@/api/api";
 import { useUser } from "@clerk/clerk-react";
-
+import { UserJoinEvent } from "@/typing/typing.d"
 type StatusList = {
   [key: string]: {
     status: string;
@@ -65,6 +65,7 @@ const EventCard = ({
         eventId: event.eventId,
         isAccepted: true,
       };
+      console.log(updateEvent);
       const response = await api.updateUserJoinEvent(user.id, event.eventId, updateEvent);
       console.log(response);
       setIsAccepted(true);
@@ -73,6 +74,22 @@ const EventCard = ({
     }
   };
 
+  const handlePassEvent = async () => {
+    try {
+      if (!user) return;
+      const updateEvent: UserJoinEvent = {
+        userId: user.id,
+        eventId: event.eventId,
+        isAccepted: false,
+      };
+      console.log(updateEvent);
+      const response = await api.updateUserJoinEvent(user.id, event.eventId, updateEvent);
+      console.log(response);
+      setIsAccepted(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   React.useEffect(() => {
     fetchUserJoinEvent();
@@ -204,7 +221,8 @@ const EventCard = ({
                     size="small"
                     variant="contained"
                     onClick={(e) => {
-                      e.stopPropagation();
+                      // e.stopPropagation();
+                      handlePassEvent();
                     }}
                   >
                     Pass

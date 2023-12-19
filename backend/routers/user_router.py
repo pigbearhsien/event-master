@@ -97,6 +97,32 @@ def create_group_event(group_event: GroupEventSchema, db: Session = Depends(get_
         )
         db.add(db_group_event)
         db.commit()
+
+        query = text("SELECT u.userid, u.name, u.account, u.profile_pic_url FROM group_has_user gm JOIN user_table  u ON gm.userid = u.userid WHERE gm.groupid = :group_id")
+
+        db_group_has_users = db.execute(query, {"group_id": group_event.groupId}).fetchall()
+        if not db_group_has_users:
+            raise HTTPException(status_code=404, detail="Group Has User not found")
+        # parse
+        group_has_users = []
+        for group_has_user in db_group_has_users:
+            group_has_users.append(
+                {
+                    "userId": group_has_user.userid,
+                    "name": group_has_user.name,
+                    "account": group_has_user.account,
+                    "profilePicUrl": group_has_user.profile_pic_url
+                }
+            )
+        for user in group_has_users:
+            db_user_join_event = UserJoinEventModel(
+                eventid=group_event.eventId,
+                userid=user["userId"],
+                isaccepted=None,
+            )
+            db.add(db_user_join_event)
+            db.commit()
+    
         return group_event
     except Exception as e:
         print(e)

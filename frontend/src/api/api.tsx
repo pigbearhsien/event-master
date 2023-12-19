@@ -406,7 +406,7 @@ export const updateUserJoinEvent = async (
   event: UserJoinEvent
 ): Promise<AxiosResponse<UserJoinEvent>> => {
   try {
-    return await request.put(`/updateUserJoinEventByUserIdAndEvnetId/${user_id}/${event_id}`, event);
+    return await request.put(`/updateUserJoinEventByUserIdAndEventId/${user_id}/${event_id}`, event);
   } catch (error) {
     throw error as Error;
   }
