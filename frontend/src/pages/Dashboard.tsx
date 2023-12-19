@@ -43,14 +43,14 @@ const Dashboard = (props: Props) => {
               </Typography>
             </Grid>
             <Grid item xs>
-              <Button
+              {/* <Button
                 size="small"
                 color="inherit"
                 variant="outlined"
                 startIcon={<Bell size={15} />}
               >
                 3 Warnings
-              </Button>
+              </Button> */}
             </Grid>
             <Grid item>
               <ButtonGroup

@@ -366,7 +366,7 @@ const GroupTodo = () => {
           <GridActionsCellItem
             icon={<Trash />}
             label="Delete"
-            onClick={()=>handleDeleteClick(id)}
+            onClick={() => handleDeleteClick(id)}
             color="inherit"
           />,
         ];
