@@ -129,6 +129,7 @@ const GroupEvent = (props: Props) => {
             setEventDetails={setEventDetails}
             mode={mode}
             setMode={setMode}
+            fetchThisGroupEvent={fetchThisGroupEvent}
           />
         </Grid>
       </Grid>
