@@ -117,9 +117,11 @@ def delete_user_from_group_event(
 @router.put("/updateGroupEvent", response_model=GroupEventSchema)
 def update_group_event(group_event: GroupEventSchema, db: Session = Depends(get_db)):
     try:
+        db.begin()
         db_group_event = (
             db.query(GroupEventModel)
             .filter(GroupEventModel.eventid == group_event.eventId)
+            .with_for_update()
             .first()
         )
         if not db_group_event:

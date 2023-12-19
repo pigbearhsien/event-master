@@ -51,12 +51,29 @@ const EventCard = ({
     try {
       if (!user) return;
       const response = await api.getUserJoinEvent(event.eventId, user.id);
-      console.log(response);
+      // console.log(response);
       setIsAccepted(response.data.isAccepted);
     } catch (error) {
       console.log(error);
     }
   }
+  const handleJoinEvent = async () => {
+    try {
+      if (!user) return;
+      const updateEvent: UserJoinEvent = {
+        userId: user.id,
+        eventId: event.eventId,
+        isAccepted: true,
+      };
+      const response = await api.updateUserJoinEvent(user.id, event.eventId, updateEvent);
+      console.log(response);
+      setIsAccepted(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
   React.useEffect(() => {
     fetchUserJoinEvent();
   }, [event]);
@@ -178,6 +195,7 @@ const EventCard = ({
                     sx={{ marginRight: 1 }}
                     onClick={(e) => {
                       e.stopPropagation();
+                      handleJoinEvent();
                     }}
                   >
                     Join
