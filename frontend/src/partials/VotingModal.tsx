@@ -175,11 +175,11 @@ const VotingModal = ({ open, setOpen, event }) => {
     (event, start, end, isSelected) => ({
       ...{
         style: {
-          backgroundColor: "rgba(0, 0, 0)",
+          backgroundColor: "green",
           opacity: event.availbleAmount / 5,
           borderRadius: "0px",
           border: "none",
-          color: "black",
+          color: "green",
         },
       },
     }),
