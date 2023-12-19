@@ -222,6 +222,9 @@ export const getVoteResultCnt = async (
   try {
     return await request.get(`listAllVoteCountByEventId/${eventId}`);
   } catch (error) {
+    if (error.response.status === 404) {
+      return { data: [] };
+    }
     throw error as Error;
   }
 };
@@ -411,7 +414,9 @@ export const deleteGroupEvent = async (
 };
 
 export const createAvailableTime = async (
-  timeArr: CreateAvailableTime[]
+  timeArr: CreateAvailableTime[],
+  user_id: string,
+  event_id: string
 ): Promise<AxiosResponse> => {
   try {
     var payload: any[] = [];
@@ -421,7 +426,7 @@ export const createAvailableTime = async (
         { ...timeObj, availableStart: timeObj.availableStart.toISOString },
       ];
     });
-    return await request.post("/createAvailableTime", timeArr);
+    return await request.post(`/createAvailableTime/${user_id}/${event_id}`, timeArr);
   } catch (error) {
     throw error as Error;
   }

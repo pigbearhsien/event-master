@@ -122,6 +122,7 @@ const VotingModal = ({ open, setOpen, event }) => {
         },
       ];
     });
+    
     maybeAvailableHour.map((time: Date) => {
       if (!user) return;
       arr = [
@@ -135,7 +136,10 @@ const VotingModal = ({ open, setOpen, event }) => {
       ];
     });
     console.log(arr);
-    const res = await api.createAvailableTime(arr);
+    
+    
+    const res = await api.createAvailableTime(arr, user?.id as string, event.eventId);
+    fetchResultHour()
     console.log(res);
   };
 
@@ -146,6 +150,8 @@ const VotingModal = ({ open, setOpen, event }) => {
       console.log(res.data);
       var resultHourCpy: any[] = [];
       res.data.map((time) => {
+        const mode = votingMode === "available" ? "Definitely" : "Maybe";
+        if (time.possibilityLevel !== mode) return;
         const originalDate = new Date(time.availableStart);
         resultHourCpy = [
           ...resultHourCpy,
@@ -157,6 +163,7 @@ const VotingModal = ({ open, setOpen, event }) => {
           },
         ];
       });
+      setAvailableHour(resultHourCpy.map((time) => time.start));
       setResultHour(resultHourCpy);
     } catch (error) {
       console.log(error);
@@ -205,7 +212,7 @@ const VotingModal = ({ open, setOpen, event }) => {
   useEffect(() => {
     console.log("in voting modal", event);
     fetchResultHour();
-  }, [event]);
+  }, [event, votingMode]);
   return (
     <Dialog open={open} fullScreen>
       <DialogTitle className="flex justify-between">
