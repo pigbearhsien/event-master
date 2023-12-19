@@ -1157,7 +1157,7 @@ def list_todo_by_event_id(event_id: str, db: Session = Depends(get_db)):
     
 # Update Todo
 # Update todo by todo id
-@router.put("/updateTodoByTodoId/{todo_id}", response_model=TodoSchema)
+@router.put("/updateTodoByTodoId/{todo_id}", response_model=List[TodoSchema])
 def update_todo_by_todo_id(todo_id: str, todo: TodoSchema, db: Session = Depends(get_db)):
     try:
         db_todo = db.query(TodoModel).filter(TodoModel.todoid == todo_id).first()
@@ -1173,7 +1173,23 @@ def update_todo_by_todo_id(todo_id: str, todo: TodoSchema, db: Session = Depends
 
         db.commit()
         db.refresh(db_todo)
-        return db_todo
+
+        # parse available time
+        todos = []
+        for todo in todos:
+            todo.append(
+                TodoSchema(
+                    todoId= db_todo.todo_id,
+                    groupId= db_todo.group_id,
+                    assigneeId= db_todo.assignee_id,
+                    assignerId= db_todo.assigner_id,
+                    name=db_todo.name,
+                    description= db_todo.description,
+                    completed= db_todo.completed,
+                    deadline= db_todo.deadline,
+                )
+            )
+        return todos
     except HTTPException as e:
         raise e
     except Exception as e:
