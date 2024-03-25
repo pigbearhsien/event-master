@@ -29,7 +29,7 @@ Event Master is built on the following stack:
 - [React](https://react.dev/) - frontend framework
 - [FastAPI](https://fastapi.tiangolo.com/) - backend framework
 - [PostgreSQL](https://www.postgresql.org/) - database
-- [MUI](https://mui.com/) - UI Library
+- [MUI](https://mui.com/) - components
 - [TailwindCSS](https://tailwindcss.com/) - styling
 - [Clerk](https://clerk.com/) - authentication
 - [react-schedule-selector](https://www.npmjs.com/package/react-schedule-selector) - scheduling library
